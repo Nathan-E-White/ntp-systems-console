@@ -4,7 +4,7 @@ interface KpiCardsProps {
   outputs: EngineOutputs;
 }
 
-export function KpiCards({ outputs }: KpiCardsProps) {
+export function KpiCards({ outputs }: Readonly<KpiCardsProps>) {
   return (
     <aside className="kpi-stack">
       <Kpi label="Specific impulse" value={outputs.specificImpulseSec} suffix="s" />
@@ -20,7 +20,12 @@ export function KpiCards({ outputs }: KpiCardsProps) {
   );
 }
 
-function Kpi({ label, value, suffix, emphasize = false }: { label: string; value: number; suffix: string; emphasize?: boolean }) {
+function Kpi({ label, value, suffix, emphasize = false }: Readonly<{
+    label: string;
+    value: number;
+    suffix: string;
+    emphasize?: boolean
+}>) {
   return (
     <div className={`panel kpi-card ${emphasize ? 'attention' : ''}`}>
       <p>{label}</p>

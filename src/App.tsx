@@ -1,52 +1,71 @@
-import { useMemo, useState } from 'react';
-import { Activity, Atom, Gauge, Rocket } from 'lucide-react';
-import { EngineScene } from './components/EngineScene';
-import { ParameterPanel } from './components/ParameterPanel';
-import { KpiCards } from './components/KpiCards';
-import { TransientPlots } from './components/TransientPlots';
-import { DesignReviewPanel } from './components/DesignReviewPanel';
-import { MissionComparison } from './components/MissionComparison';
-import { defaultInputs } from './data/defaultInputs';
-import { computeEngineOutputs } from './physics/propulsionModel';
-import { generateTransient } from './physics/transientModel';
-import type { EngineInputs } from './types/EngineState';
+import {DesignReviewPanel} from './components/DesignReviewPanel';
+import {EngineeringReviewChecklist} from './components/EngineeringReviewChecklist';
+import {EngineScene} from './components/EngineScene';
+import {FocusedPanel} from './components/FocusedPanel';
+import {ImportedAnalysisPanel} from './components/ImportedAnalysisPanel';
+import {KpiCards} from './components/KpiCards';
+import {ParameterPanel} from './components/ParameterPanel';
+import {PowerProfilePanel} from './components/PowerProfilePanel';
+import {RawOutputViewer} from './components/RawOutputViewer';
+import {ReactorPhysicsPanel} from './components/ReactorPhysicsPanel';
+import {ThermomechanicsPanel} from './components/ThermomechanicsPanel';
+import {TransientPlots} from './components/TransientPlots';
+import {WorkspaceFocusBar} from './components/WorkspaceFocusBar';
+import {useEngineInputs, useEngineOutputs, useEngineTransient} from './state/EngineSelectors';
 
 export function App() {
-  const [inputs, setInputs] = useState<EngineInputs>(defaultInputs);
-  const outputs = useMemo(() => computeEngineOutputs(inputs), [inputs]);
-  const transient = useMemo(() => generateTransient(inputs), [inputs]);
+    const inputs = useEngineInputs();
+    const outputs = useEngineOutputs();
+    const transient = useEngineTransient();
 
-  return (
-    <main className="app-shell">
-      <header className="hero-panel">
-        <div>
-          <p className="eyebrow">Reduced-order portfolio demo · public educational model</p>
-          <h1>NTP Systems Console</h1>
-          <p className="hero-copy">
-            A NERVA/Rover-inspired interactive dashboard for nuclear thermal propulsion trade studies,
-            transient reasoning, and design-review communication.
-          </p>
-        </div>
-        <div className="hero-badges" aria-label="project focus areas">
-          <span><Atom size={16} /> Reactor</span>
-          <span><Rocket size={16} /> Propulsion</span>
-          <span><Gauge size={16} /> Transients</span>
-          <span><Activity size={16} /> Review</span>
-        </div>
-      </header>
+    return (
+        <main className="app-shell">
+            <header className="hero-panel">
+                <div>
+                    <p className="eyebrow">Reduced-order portfolio demo · public educational model</p>
+                    <h1>NTP Systems Console</h1>
+                    <p className="hero-copy">
+                        A NERVA/Rover-inspired interactive dashboard for nuclear thermal propulsion trade studies,
+                        transient reasoning, synthetic analysis import, and design-review communication.
+                    </p>
+                </div>
+                <WorkspaceFocusBar/>
+            </header>
 
-      <section className="console-grid">
-        <ParameterPanel inputs={inputs} onChange={setInputs} />
-        <EngineScene inputs={inputs} outputs={outputs} />
-        <KpiCards outputs={outputs} />
-      </section>
+            <section className="console-grid">
+                <ParameterPanel inputs={inputs}/>
+                <FocusedPanel className="panel engine-panel" workspace="reactor">
+                    <EngineScene inputs={inputs} outputs={outputs}/>
+                </FocusedPanel>
+                <FocusedPanel className="panel kpi-panel" workspace="propulsion">
+                    <KpiCards outputs={outputs}/>
+                </FocusedPanel>
+            </section>
 
-      <section className="analysis-grid">
-        <TransientPlots data={transient} />
-        <DesignReviewPanel inputs={inputs} outputs={outputs} />
-      </section>
+            <section className="analysis-grid">
+                <FocusedPanel className="panel plot-panel" workspace="transients">
+                    <TransientPlots data={transient}/>
+                </FocusedPanel>
+                <FocusedPanel className="panel review-panel" workspace="review">
+                    <DesignReviewPanel inputs={inputs} outputs={outputs}/>
+                </FocusedPanel>
+            </section>
 
-      <MissionComparison />
-    </main>
-  );
+            <section className="analysis-grid">
+                <ReactorPhysicsPanel/>
+                <PowerProfilePanel/>
+            </section>
+
+            <section className="analysis-grid">
+                <ThermomechanicsPanel/>
+                <ImportedAnalysisPanel/>
+            </section>
+
+            <EngineeringReviewChecklist/>
+
+            <RawOutputViewer/>
+
+
+        </main>
+    );
 }

@@ -1,17 +1,50 @@
 import type { EngineInputs, MissionMode } from '../types/EngineState';
+import { type EnginePresetId, type EngineVisualizationMode, useEngineStore } from '../state/EngineStore';
 
 interface ParameterPanelProps {
   inputs: EngineInputs;
-  onChange: (inputs: EngineInputs) => void;
 }
 
-export function ParameterPanel({ inputs, onChange }: ParameterPanelProps) {
-  const updateNumber = (key: keyof EngineInputs) => (value: string) => {
-    onChange({ ...inputs, [key]: Number(value) });
+type NumericEngineInputKey = {
+  [Key in keyof EngineInputs]: EngineInputs[Key] extends number ? Key : never;
+}[keyof EngineInputs];
+
+const ENGINE_PRESETS: Array<{ id: EnginePresetId; label: string }> = [
+  { id: 'baselineStartup', label: 'Baseline Startup' },
+  { id: 'highThrustBurn', label: 'High Thrust Burn' },
+  { id: 'thermalMarginWatch', label: 'Thermal Margin Watch' },
+  { id: 'cooldownReview', label: 'Cooldown Review' },
+];
+
+const VISUALIZATION_MODES: Array<{ id: EngineVisualizationMode; label: string }> = [
+  { id: 'systems', label: 'Systems' },
+  { id: 'thermal', label: 'Thermal' },
+  { id: 'flow', label: 'Flow' },
+  { id: 'review', label: 'Review' },
+];
+
+export function ParameterPanel({ inputs }: Readonly<ParameterPanelProps>) {
+  const setInput = useEngineStore((state) => state.setInput);
+  const setMissionMode = useEngineStore((state) => state.setMissionMode);
+  const selectedPresetId = useEngineStore((state) => state.selectedPresetId);
+  const visualizationMode = useEngineStore((state) => state.visualizationMode);
+  const loadPreset = useEngineStore((state) => state.loadPreset);
+  const setVisualizationMode = useEngineStore((state) => state.setVisualizationMode);
+
+  const updateNumber = (key: NumericEngineInputKey) => (value: string) => {
+    setInput(key, Number(value));
   };
 
   const updateMissionMode = (missionMode: MissionMode) => {
-    onChange({ ...inputs, missionMode });
+    setMissionMode(missionMode);
+  };
+
+  const updatePreset = (presetId: EnginePresetId) => {
+    loadPreset(presetId);
+  };
+
+  const updateVisualizationMode = (nextVisualizationMode: EngineVisualizationMode) => {
+    setVisualizationMode(nextVisualizationMode);
   };
 
   return (
@@ -20,6 +53,21 @@ export function ParameterPanel({ inputs, onChange }: ParameterPanelProps) {
         <p className="eyebrow">scenario inputs</p>
         <h2>Engine Case</h2>
       </div>
+      <div className="control-section">
+        <h3>Case presets</h3>
+        <div className="mode-buttons">
+          {ENGINE_PRESETS.map((preset) => (
+            <button
+              className={preset.id === selectedPresetId ? 'active' : ''}
+              key={preset.id}
+              onClick={() => updatePreset(preset.id)}
+              type="button"
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <Slider label="Thermal power" value={inputs.thermalPowerMw} min={80} max={700} step={5} suffix="MWth" onChange={updateNumber('thermalPowerMw')} />
       <Slider label="Hydrogen mass flow" value={inputs.massFlowKgPerSec} min={4} max={24} step={0.1} suffix="kg/s" onChange={updateNumber('massFlowKgPerSec')} />
       <Slider label="Control drum angle" value={inputs.controlDrumAngleDeg} min={0} max={90} step={1} suffix="deg" onChange={updateNumber('controlDrumAngleDeg')} />
@@ -27,17 +75,36 @@ export function ParameterPanel({ inputs, onChange }: ParameterPanelProps) {
       <Slider label="Nozzle expansion ratio" value={inputs.nozzleExpansionRatio} min={20} max={250} step={1} suffix=":1" onChange={updateNumber('nozzleExpansionRatio')} />
       <Slider label="Fuel temperature limit" value={inputs.fuelTemperatureLimitK} min={2400} max={3300} step={10} suffix="K" onChange={updateNumber('fuelTemperatureLimitK')} />
 
-      <div className="mode-buttons">
-        {(['startup', 'steadyBurn', 'shutdown', 'cooldown'] as MissionMode[]).map((mode) => (
-          <button
-            className={mode === inputs.missionMode ? 'active' : ''}
-            key={mode}
-            onClick={() => updateMissionMode(mode)}
-            type="button"
-          >
-            {mode}
-          </button>
-        ))}
+      <div className="control-section">
+        <h3>Mission phase</h3>
+        <div className="mode-buttons">
+          {(['startup', 'steadyBurn', 'shutdown', 'cooldown'] as MissionMode[]).map((mode) => (
+            <button
+              className={mode === inputs.missionMode ? 'active' : ''}
+              key={mode}
+              onClick={() => updateMissionMode(mode)}
+              type="button"
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="control-section">
+        <h3>Visualization mode</h3>
+        <div className="mode-buttons">
+          {VISUALIZATION_MODES.map((mode) => (
+            <button
+              className={mode.id === visualizationMode ? 'active' : ''}
+              key={mode.id}
+              onClick={() => updateVisualizationMode(mode.id)}
+              type="button"
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
       </div>
     </aside>
   );

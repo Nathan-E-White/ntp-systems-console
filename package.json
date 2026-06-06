@@ -4,35 +4,43 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "test": "vitest run",
+    "dev": "bunx --bun vite --host 0.0.0.0",
+    "start": "bun run dev",
+    "build": "tsc -b && bunx --bun vite build",
+    "preview": "bunx --bun vite preview --host 0.0.0.0",
+    "test": "bunx --bun vitest run",
+    "test:watch": "bunx --bun vitest",
+    "typecheck": "tsc -b",
     "lint": "eslint ."
   },
   "dependencies": {
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@theatre/core": "^0.7.2",
+    "@theatre/r3f": "^0.7.2",
+    "@theatre/studio": "^0.7.2",
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "^6.0.3",
+    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "three": "latest",
-    "zustand": "latest",
     "recharts": "latest",
-    "lucide-react": "latest"
+    "three": "latest",
+    "typescript": "^5",
+    "vite": "latest",
+    "zustand": "latest"
   },
   "devDependencies": {
+    "@eslint/js": "latest",
+    "@testing-library/react": "^16.3.2",
+    "@types/bun": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@types/three": "latest",
-    "vitest": "latest",
-    "jsdom": "latest",
     "eslint": "latest",
+    "jsdom": "latest",
     "typescript-eslint": "latest",
-    "@eslint/js": "latest",
-    "@types/bun": "latest"
+    "vitest": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"

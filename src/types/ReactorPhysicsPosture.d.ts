@@ -1,0 +1,1 @@
+export type ReactorPhysicsPosture = 'subcritical' | 'critical-band' | 'excess-reactivity' | 'shutdown-margin-concern';
