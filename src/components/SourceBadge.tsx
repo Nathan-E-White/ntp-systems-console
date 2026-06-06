@@ -3,7 +3,7 @@ import {buildPostureClassName} from "./BuildPostureClassName";
 
 export function SourceBadge({label, tone = 'critical-band', value}: Readonly<{
     label: string;
-    tone?: ReactorPhysicsPosture | undefined;
+    tone?: ReactorPhysicsPosture;
     value: string
 }>) {
     return (
