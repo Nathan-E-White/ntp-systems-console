@@ -1,3 +1,1 @@
-import {ImportedAnalysis} from "../types/ImportedAnalysis";
-
-
+export {};

@@ -4,17 +4,10 @@ import '@testing-library/jest-dom/vitest';
 
 import {buildDesignReviewModel, DesignReviewPanel} from '../components/DesignReviewPanel';
 import type {EngineInputs, EngineOutputs} from '../types/EngineState';
+import {ENGINE_INPUT_PRESETS} from '../state/EngineStore';
 
 const nominalInputs: EngineInputs = {
-    thermalPowerMw: 450,
-    massFlowKgPerSec: 14,
-    inletTemperatureK: 120,
-    chamberPressureMpa: 4.1,
-    nozzleExpansionRatio: 80,
-    controlDrumAngleDeg: 45,
-    fuelTemperatureLimitK: 2850,
-    shieldingMassFraction: 0.08,
-    missionMode: 'startup',
+    ...ENGINE_INPUT_PRESETS.baselineStartup,
 };
 
 const nominalOutputs: EngineOutputs = {
@@ -22,11 +15,15 @@ const nominalOutputs: EngineOutputs = {
     exhaustVelocityMPerSec: 8580,
     fuelTemperatureK: 2625,
     thermalMarginK: 225,
+    peakChannelWallTemperatureK: 2625,
+    channelWallCriterionMarginK: 225,
     specificImpulseSec: 875,
     thrustKn: 118,
     pressureDropMpa: 1.1,
     stabilityScore: 92,
     stabilityStatus: 'nominal',
+    basisCompletenessPercent: 92,
+    reviewPosture: 'nominal',
 };
 
 describe('buildDesignReviewModel', () => {
@@ -36,7 +33,7 @@ describe('buildDesignReviewModel', () => {
         expect(model.risks).toEqual(['reduced-order model', 'not a flight/design tool']);
         expect(model.recommendations).toEqual([
             'Compare transient outlet-temperature response against a ROCETS-style system trace.',
-            'Export a placeholder axial/radial power profile to MCNP/OpenMC handoff documentation.',
+            'Correlate the synthetic axial/radial power profile with MCNP/OpenMC handoff documentation.',
             'Evaluate payload-side shielding trades against mass fraction and mission architecture.',
         ]);
         expect(model.casePosture).toBe(
@@ -47,15 +44,15 @@ describe('buildDesignReviewModel', () => {
     it('adds thermal-margin risk posture and fuel-performance follow-up for a constrained thermal case', () => {
         const model = buildDesignReviewModel({
             ...nominalOutputs,
-            thermalMarginK: 95,
+            channelWallCriterionMarginK: 95,
         });
 
-        expect(model.risks).toContain('thermal margin watch');
+        expect(model.risks).toContain('channel wall criterion watch');
         expect(model.casePosture).toBe(
             'The case should be treated as a constrained thermal-margin scenario before any performance claims are emphasized.',
         );
         expect(model.recommendations).toContain(
-            'Route peak fuel temperature and margin into a MOOSE/fuel-performance follow-up case.',
+            'Route peak channel-wall temperature into a coupled conduction and qualified material-criterion follow-up case.',
         );
     });
 
@@ -77,14 +74,14 @@ describe('buildDesignReviewModel', () => {
     it('adds transient-stability review language when stability is non-nominal', () => {
         const model = buildDesignReviewModel({
             ...nominalOutputs,
-            stabilityScore: 62,
-            stabilityStatus: 'watch',
+            basisCompletenessPercent: 62,
+            reviewPosture: 'watch',
         });
 
-        expect(model.risks).toContain('transient stability review');
-        expect(model.casePosture).toBe('The primary concern is transient behavior rather than steady-state performance.');
+        expect(model.risks).toContain('model-basis closure required');
+        expect(model.casePosture).toBe('The calculated operating point remains subject to explicit property, component-pressure, and transient-model limitations.');
         expect(model.recommendations).toContain(
-            'Run a focused startup/shutdown sensitivity sweep on drum motion, flow ramp rate, and thermal lag.',
+            'Close the property, whole-engine pressure-loss, and transient-model review flags before asserting a nominal posture.',
         );
     });
 });

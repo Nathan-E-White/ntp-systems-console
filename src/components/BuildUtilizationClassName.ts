@@ -1,4 +1,4 @@
-function buildUtilizationClassName(value: number): string {
+export function buildUtilizationClassName(value: number): string {
     if (value >= 1) {
         return 'utilization-fill limit';
     }

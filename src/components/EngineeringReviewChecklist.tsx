@@ -1,7 +1,5 @@
 
 
-import type {ReactNode} from 'react';
-
 export type ReviewPosture = 'nominal' | 'watch' | 'limit' | 'unknown';
 
 export interface ReviewFinding {

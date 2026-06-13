@@ -1,0 +1,413 @@
+
+
+C ======================================================================
+C ADVANCED PARSER FIXTURE: MCNP-LIKE NTP CRITICALITY/BURNUP INPUT
+C Companion to: ntp_mcnp.inp
+C Target file:   ntp_crit.inp
+C
+C Purpose:
+C   Non-operational neutronics / radiation-transport companion deck for
+C   the ntp-sys-console visualization and parser baseline.  This file is
+C   intentionally near-congruent with ntp_mcnp.inp, but replaces the
+C   fixed-source SDEF/tally block with parser-facing KCODE, KSRC, and
+C   burnup/depletion-study cards.
+C
+C Posture:
+C   - Synthetic parser fixture only.
+C   - No validated criticality, shielding, performance, burnup, or design
+C     claim is made.
+C   - The KCODE and burnup/depletion cards are demonstration inputs for
+C     parser coverage and UI testing, not an executable design basis.
+C   - Values are compact demonstration numbers for import testing.
+C
+C Advanced mapping included from ntp_rocet.inp:
+C   - internal_shield heat-leak / dose proxy
+C   - six-group point-kinetics counterpart comments
+C   - iodine/xenon restart-memory proxy metadata
+C   - reflector gamma-heating tally proxy metadata
+C   - control drums and auxiliary poison bank regions
+C   - three axial fueled regions plus six azimuthal channel sectors
+C   - Ledinegg/channel-instability switch mapping comments
+C   - turbine branch, mixer, chamber, nozzle, and thrust proxy metadata
+C   - KCODE/KSRC criticality-parser section
+C   - synthetic burnup/depletion schedule metadata
+C ======================================================================
+
+C ======================================================================
+C CELL CARDS
+C ======================================================================
+C cell  mat  density       geometry                         importance
+C
+C --- Feed system: lh2_supply_tank -> boost_pump -> turbopump ----------
+1      1   -7.000E-02     -101 300 -301                    imp:n=1
+C      $ lh2_supply_tank_proxy; ROCETS BOUNDARY lh2_supply_tank
+2      1   -6.800E-02     -102 301 -302                    imp:n=1
+C      $ tank_isolation_valve_hydrogen
+3      4   -7.850E+00      102 -103 301 -302               imp:n=1
+C      $ tank_isolation_valve_body
+4      1   -6.400E-02     -104 302 -303                    imp:n=1
+C      $ boost_pump_hydrogen; ROCETS COMPONENT boost_pump
+5      4   -7.850E+00      104 -105 302 -303               imp:n=1
+C      $ boost_pump_casing_and_motor_mount
+6      8   -2.700E+00      125 -126 302 -303               imp:n=1
+C      $ electric_start_motor_proxy_structure
+7      1   -6.000E-02     -106 303 -304                    imp:n=1
+C      $ main_turbopump_hydrogen
+8      4   -7.850E+00      106 -107 303 -304               imp:n=1
+C      $ main_turbopump_casing
+9      4   -7.850E+00      127 -128 302 -307               imp:n=1
+C      $ main_turbomachinery_shaft_proxy
+10     1   -5.500E-02     -102 304 -305                    imp:n=1
+C      $ discharge_manifold_hydrogen
+11     4   -7.850E+00      102 -103 304 -305               imp:n=1
+C      $ discharge_manifold_wall
+
+C --- Regenerative jacket and spin-isomer conditioner -------------------
+12     1   -4.400E-02      115 -116 305 -309               imp:n=1
+C      $ nozzle_regen_jacket_cold_side_hydrogen
+13     5   -8.200E+00      116 -117 305 -309               imp:n=1
+C      $ nozzle_regen_jacket_channel_land_and_wall
+14     9   -2.250E+00      102 -129 309 -310               imp:n=1
+C      $ ortho_para_converter_bed_proxy
+15     1   -4.000E-02     -102 310 -311                    imp:n=1
+C      $ core_inlet_line_hydrogen
+16     5   -8.200E+00      117 -118 307 -318               imp:n=1
+C      $ nozzle_wall_thermal_proxy
+
+C --- Forward shield, inlet plenum, reflector, drums, poison -----------
+17     7   -9.500E+00     -111 304 -305                    imp:n=1
+C      $ internal_shield_forward_shadow_region
+18     1   -5.000E-02     -108 311 -312                    imp:n=1
+C      $ n_core_inlet_plenum
+19     3   -1.700E+00      108 -109 311 -316               imp:n=1
+C      $ reactor_reflector_graphite_composite_annulus
+20     6   -8.500E+00      109 -110 312 -315               imp:n=1
+C      $ control_drum_bank_absorber_band_12_drum_proxy
+21     10  -6.800E+00      110 -130 312 -315               imp:n=1
+C      $ auxiliary_poison_bank_restart_hold_down_proxy
+22     4   -7.850E+00      130 -111 311 -316               imp:n=1
+C      $ reactor_pressure_vessel_and_barrel
+
+C --- Active core: axial x azimuthal channel-sector parser regions ------
+23     2   -3.000E+00     -108 312 -313 401                imp:n=1 burn=1
+C      $ core_A_sector_1; low axial power; channel bundle proxy
+24     2   -3.000E+00     -108 312 -313 402                imp:n=1 burn=1
+C      $ core_A_sector_2
+25     2   -3.000E+00     -108 312 -313 403                imp:n=1 burn=1
+C      $ core_A_sector_3
+26     2   -3.000E+00     -108 312 -313 404                imp:n=1 burn=1
+C      $ core_A_sector_4
+27     2   -3.000E+00     -108 312 -313 405                imp:n=1 burn=1
+C      $ core_A_sector_5
+28     2   -3.000E+00     -108 312 -313 406                imp:n=1 burn=1
+C      $ core_A_sector_6
+29     2   -3.000E+00     -108 313 -314 401                imp:n=1 burn=1
+C      $ core_B_sector_1; central high-power region
+30     2   -3.000E+00     -108 313 -314 402                imp:n=1 burn=1
+C      $ core_B_sector_2
+31     2   -3.000E+00     -108 313 -314 403                imp:n=1 burn=1
+C      $ core_B_sector_3
+32     2   -3.000E+00     -108 313 -314 404                imp:n=1 burn=1
+C      $ core_B_sector_4
+33     2   -3.000E+00     -108 313 -314 405                imp:n=1 burn=1
+C      $ core_B_sector_5
+34     2   -3.000E+00     -108 313 -314 406                imp:n=1 burn=1
+C      $ core_B_sector_6
+35     2   -3.000E+00     -108 314 -315 401                imp:n=1 burn=1
+C      $ core_C_sector_1; outlet-side fueled region
+36     2   -3.000E+00     -108 314 -315 402                imp:n=1 burn=1
+C      $ core_C_sector_2
+37     2   -3.000E+00     -108 314 -315 403                imp:n=1 burn=1
+C      $ core_C_sector_3
+38     2   -3.000E+00     -108 314 -315 404                imp:n=1 burn=1
+C      $ core_C_sector_4
+39     2   -3.000E+00     -108 314 -315 405                imp:n=1 burn=1
+C      $ core_C_sector_5
+40     2   -3.000E+00     -108 314 -315 406                imp:n=1 burn=1
+C      $ core_C_sector_6
+41     11  -1.850E+00     -131 312 -315                   imp:n=1
+C      $ ledinegg_instability_switch_virtual_monitor_region
+42     1   -2.000E-02     -108 315 -316                    imp:n=1
+C      $ n_core_exit_plenum_hot_hydrogen
+43     4   -7.850E+00      110 -111 316 -317               imp:n=1
+C      $ aft_core_support_structure
+
+C --- Turbine tap, turbine bypass, mixer, chamber, nozzle ---------------
+44     1   -1.600E-02     -112 316 -317                    imp:n=1
+C      $ turbine_tap_primary_branch_to_chamber
+45     1   -1.500E-02     -113 316 -319                    imp:n=1
+C      $ turbine_tap_secondary_branch_to_drive_turbine
+46     1   -1.200E-02     -113 319 -320                    imp:n=1
+C      $ drive_turbine_working_gas
+47     4   -7.850E+00      113 -114 319 -320               imp:n=1
+C      $ drive_turbine_casing
+48     1   -1.300E-02     -112 317 -321                    imp:n=1
+C      $ turbine_exhaust_mixer_hot_hydrogen
+49     1   -1.000E-02     -119 321 -322                    imp:n=1
+C      $ thrust_chamber_hot_hydrogen
+50     5   -8.200E+00      119 -120 321 -322               imp:n=1
+C      $ thrust_chamber_liner_wall
+51     1   -8.000E-03     -121 322 -323                    imp:n=1
+C      $ bell_nozzle_throat_hydrogen
+52     1   -6.000E-03     -122 323 -325                    imp:n=1
+C      $ bell_nozzle_divergent_hydrogen
+53     5   -8.200E+00      122 -123 323 -325               imp:n=1
+C      $ bell_nozzle_wall_and_skirt
+54     0                 -124 325 -326                     imp:n=0
+C      $ space_ambient_pressure_sink_proxy
+99     0                  111 : 123 : -300 : 326           imp:n=0
+C      $ exterior_void_graveyard
+
+C ======================================================================
+C SURFACE CARDS
+C ======================================================================
+C surface  type  parameters
+C
+C Feed radii.
+101    cz   0.260     $ lh2_supply_proxy_radius
+102    cz   0.050     $ feed_line_inner_radius
+103    cz   0.065     $ feed_line_outer_radius
+104    cz   0.115     $ boost_pump_flow_radius
+105    cz   0.220     $ boost_pump_case_radius
+106    cz   0.140     $ main_turbopump_flow_radius
+107    cz   0.260     $ main_turbopump_case_radius
+C
+C Reactor radii.
+108    cz   0.460     $ active_core_outer_radius
+109    cz   0.620     $ reflector_outer_radius
+110    cz   0.720     $ control_drum_band_outer_radius
+111    cz   0.840     $ vessel_outer_radius
+130    cz   0.760     $ auxiliary_poison_bank_outer_radius
+131    cz   0.080     $ ledinegg_monitor_virtual_radius
+C
+C Turbine and nozzle radii.
+112    cz   0.145     $ primary_hot_gas_branch_radius
+113    cz   0.110     $ turbine_secondary_branch_radius
+114    cz   0.250     $ turbine_casing_outer_radius
+115    cz   0.500     $ regen_coolant_inner_radius
+116    cz   0.560     $ regen_coolant_outer_radius
+117    cz   0.620     $ regen_wall_outer_radius
+118    cz   0.700     $ nozzle_wall_proxy_outer_radius
+119    cz   0.400     $ chamber_gas_radius
+120    cz   0.500     $ chamber_wall_outer_radius
+121    cz   0.200     $ throat_radius
+122    cz   0.720     $ divergent_nozzle_gas_radius
+123    cz   0.920     $ bell_skirt_outer_radius
+124    cz   1.200     $ ambient_sink_radius
+125    cz   0.270     $ electric_motor_inner_radius
+126    cz   0.360     $ electric_motor_outer_radius
+127    cz   0.030     $ shaft_inner_radius
+128    cz   0.045     $ shaft_outer_radius
+129    cz   0.095     $ spin_converter_bed_radius
+C
+C Axial stations mirror the ntp_rocet.inp node order.
+300    pz  -1.700     $ z_tank_proxy_start
+301    pz  -1.300     $ z_tank_isolation_valve
+302    pz  -1.050     $ z_boost_pump_start
+303    pz  -0.750     $ z_main_turbopump_start
+304    pz  -0.400     $ z_turbopump_discharge
+305    pz  -0.050     $ z_regen_inlet
+307    pz   0.150     $ z_nozzle_wall_proxy_start
+309    pz   0.300     $ z_regen_exit
+310    pz   0.430     $ z_ortho_para_converter_exit
+311    pz   0.550     $ z_core_inlet_plenum
+312    pz   0.750     $ z_active_core_start
+313    pz   1.150     $ z_core_A_to_B
+314    pz   1.550     $ z_core_B_to_C
+315    pz   1.950     $ z_active_core_end
+316    pz   2.150     $ z_core_exit_plenum
+317    pz   2.350     $ z_primary_tap_to_chamber
+318    pz   2.650     $ z_nozzle_wall_proxy_end
+319    pz   2.420     $ z_turbine_inlet
+320    pz   2.750     $ z_turbine_exit
+321    pz   2.950     $ z_mixer_to_chamber
+322    pz   3.200     $ z_chamber_exit
+323    pz   3.350     $ z_nozzle_throat
+325    pz   4.200     $ z_nozzle_exit
+326    pz   4.650     $ z_ambient_sink_end
+C
+C Azimuthal wedge planes for multi-channel parser coverage.
+401    px   0.000     $ sector_1_half_space
+402    py   0.000     $ sector_2_half_space
+403    p    0.866  0.500 0 0.000  $ sector_3_plane
+404    p   -0.866  0.500 0 0.000  $ sector_4_plane
+405    p    0.500 -0.866 0 0.000  $ sector_5_plane
+406    p   -0.500 -0.866 0 0.000  $ sector_6_plane
+
+C ======================================================================
+C DATA CARDS
+C ======================================================================
+MODE N
+
+C --- Materials ---------------------------------------------------------
+C Material vectors are placeholder parser fixtures.  They preserve domain
+C semantics without claiming validated material specifications.
+M1     1001.70c  1.000
+C      $ hydrogen_placeholder; lh2/hot_h2 flow regions
+M2     92235.70c 0.050  92238.70c 0.200  6000.70c 0.750
+C      $ fuel_graphite_composite_placeholder; burnable parser material
+M3     6000.70c  1.000
+C      $ graphite_reflector_placeholder
+M4     26000.70c 0.700  24000.70c 0.200  28000.70c 0.100
+C      $ stainless_or_inconel_structure_placeholder
+M5     40000.70c 0.700  6000.70c 0.200  74182.70c 0.100
+C      $ refractory_nozzle_wall_placeholder
+M6     5010.70c  0.200  5011.70c 0.800
+C      $ boron_absorber_control_drum_placeholder
+M7     74000.70c 0.700  1001.70c 0.100  5010.70c 0.200
+C      $ internal_shadow_shield_placeholder
+M8     13027.70c 1.000
+C      $ electric_motor_aluminum_proxy
+M9     6000.70c  0.900  26000.70c 0.100
+C      $ spin_isomer_converter_bed_proxy
+M10    5010.70c  0.600  26000.70c 0.400
+C      $ auxiliary_poison_bank_proxy
+M11    1001.70c  0.500  6000.70c 0.500
+C      $ virtual_channel_stability_monitor_proxy
+
+C --- Criticality source proxy -----------------------------------------
+C KCODE/KSRC are included for parser and UI coverage only.  The geometry,
+C materials, and source distribution are not validated for criticality.
+KCODE  5000  1.00000  50  250
+KSRC   0.000  0.000  0.950
+KSRC   0.000  0.000  1.150
+KSRC   0.000  0.000  1.350
+KSRC   0.000  0.000  1.550
+KSRC   0.000  0.000  1.750
+
+C --- Burnup / depletion parser study ----------------------------------
+C These cards are intentionally compact, synthetic, and app-facing.  They
+C give the parser realistic hooks for burnable cells, power history, and
+C burn-step reporting without representing an operational MCNP design.
+BURN   MAT=2 POWER=1.00E-03 PFRAC=1.0 BOPT=1
+C      $ synthetic_core_burnup_study; burnable_material=M2
+C      $ burnable_cells=23-40; study_units=MWd_kgHM_proxy
+BURNUP 0.00  0.01  0.05  0.10  0.25  0.50
+C      $ short_restart_memory_burnup_grid_for_parser_coverage
+C      $ depletion_outputs=keff,actinides,iodine135,xenon135,decay_heat
+C      $ predictor_corrector=synthetic_fixture_placeholder
+C      $ recoverable_energy_per_fission=parser_default_proxy
+C      $ normalization=notional_power_history_only
+
+C --- Minimal criticality/burnup tallies --------------------------------
+C These are deliberately lightweight report hooks, not replacement design
+C tallies.  They let the parser associate the criticality/burnup run with
+C axial core regions, reflector/control regions, and the Ledinegg monitor.
+F4:N    23 24 25 26 27 28
+C       $ crit_core_axial_segment_A_flux_proxy
+F14:N   29 30 31 32 33 34
+C       $ crit_core_axial_segment_B_flux_proxy
+F24:N   35 36 37 38 39 40
+C       $ crit_core_axial_segment_C_flux_proxy
+F34:N   19 20 21 22
+C       $ crit_reflector_control_poison_vessel_flux_proxy
+F84:N   41
+C       $ crit_ledinegg_virtual_channel_monitor_flux_proxy
+FM34    1.0
+FM84    1.0
+
+C --- Problem controls --------------------------------------------------
+PRINT   60
+
+C ======================================================================
+C APP / PARSER METADATA
+C ======================================================================
+C META case_id=advanced-ntp-mcnp-crit-burn-001
+C META companion_input=ntp_rocet.inp
+C META fixture_family=mcnp_like
+C META validation_level=syntactic_fixture_only
+C META safety_posture=non_operational_synthetic_fixture
+C META transport_mode=kcode_burnup_parser_fixture
+C META criticality_posture=synthetic_kcode_no_design_claim
+C META burnup_posture=synthetic_depletion_parser_fixture_only
+C
+C --- Direct component mapping to ntp_rocet.inp -------------------------
+C MAP cell=1 component=lh2_supply_tank tag=feed panel=feed
+C MAP cell=2 component=tank_isolation_valve tag=feed panel=feed
+C MAP cell=4 component=boost_pump tag=feed panel=feed
+C MAP cell=6 component=electric_start_motor tag=startup panel=feed
+C MAP cell=7 component=main_turbopump tag=feed panel=feed
+C MAP cell=10 component=discharge_manifold tag=feed panel=feed
+C MAP cell=12 component=nozzle_regen_jacket tag=regen panel=thermal
+C MAP cell=14 component=ortho_para_converter tag=regen panel=feed
+C MAP cell=17 component=internal_shield tag=neutronics panel=thermal
+C MAP cell=18 component=core_inlet_line tag=core panel=core
+C MAP cell=19 component=reactor_reflector tag=neutronics panel=core
+C MAP cell=20 component=control_drum_bank tag=neutronics panel=core
+C MAP cell=21 component=auxiliary_poison_bank tag=neutronics panel=core
+C MAP cells=23-40 component=reactor_core tag=core panel=core
+C MAP cell=41 component=ledinegg_instability_switch tag=core panel=thermal
+C MAP cell=42 component=core_exit_plenum tag=core panel=core
+C MAP cell=44 component=turbine_tap tag=turbine panel=turbomachinery
+C MAP cell=46 component=drive_turbine tag=turbine panel=turbomachinery
+C MAP cell=48 component=turbine_exhaust_mixer tag=turbine panel=turbomachinery
+C MAP cell=49 component=thrust_chamber tag=nozzle panel=nozzle
+C MAP cells=51-53 component=bell_nozzle tag=nozzle panel=nozzle
+C
+C --- Kinetics / poisoning metadata ------------------------------------
+C KINETICS component=reactor_neutronics model=six_group_lumped_proxy
+C KINETICS control_input=control_drum_bank.net_worth
+C KINETICS override_input=auxiliary_poison_bank.override_worth
+C KINETICS poison_input=fission_product_poisoning.net_worth
+C KINETICS decay_heat_schedule=decay_heat_proxy_profile
+C POISON component=fission_product_poisoning model=i135_xe135_restart
+C POISON iodine_schedule=iodine_inventory_proxy_profile
+C POISON xenon_schedule=xenon_inventory_proxy_profile
+C POISON worth_schedule=xenon_poison_worth_profile
+C POISON restart_memory=xenon_restart_memory_profile
+C
+C --- Criticality / burnup metadata ------------------------------------
+C CRIT method=kcode particles_per_cycle=5000 inactive_cycles=50
+C CRIT active_cycles=250 initial_keff_guess=1.00000
+C CRIT source_points=5 source_axis=z source_span=0.950:1.750
+C CRIT burnable_material=M2 burnable_cells=23-40
+C CRIT burnup_grid=0.00,0.01,0.05,0.10,0.25,0.50
+C CRIT burnup_units=MWd_kgHM_proxy
+C CRIT report_channels=keff,beta_proxy,conversion_proxy,poison_memory
+C BURN component=reactor_core material=M2 cells=23-40
+C BURN schedule=synthetic_short_restart_burnup_profile
+C BURN depletion_outputs=actinides,iodine135,xenon135,decay_heat
+C BURN restart_memory=xenon_restart_memory_profile
+C
+C --- Thermal / stability metadata -------------------------------------
+C HEAT reflector_gamma_proxy_tally=F34 schedule=reflector_heat_proxy_profile
+C HEAT shield_tank_leak_schedule=shield_tank_heat_leak_profile
+C HEAT regen_heat_pickup_schedule=regen_heat_pickup_profile
+C STABILITY component=ledinegg_instability_switch tally=F84
+C STABILITY margin_schedule=ledinegg_margin_profile
+C STABILITY status_schedule=ledinegg_status_profile
+C STABILITY monitored_flow=main_turbopump.mass_flow
+C STABILITY monitored_power=reactor_core.power
+C
+C --- Mission-phase mapping --------------------------------------------
+C PHASE startup_ramp start=0.0 stop=90.0 mode=startup
+C PHASE rated_burn start=90.0 stop=210.0 mode=steady_power_hold
+C PHASE shutdown_soak start=210.0 stop=520.0 mode=decay_heat_soak
+C PHASE restart_ramp start=520.0 stop=650.0 mode=restart_demo
+C PHASE cooldown start=650.0 stop=900.0 mode=post_burn_cooldown
+C
+C --- Network graph hints ----------------------------------------------
+C EDGE lh2_supply_tank -> tank_isolation_valve edge=feed-blue
+C EDGE tank_isolation_valve -> boost_pump edge=feed-blue
+C EDGE boost_pump -> main_turbopump edge=feed-blue
+C EDGE main_turbopump -> discharge_manifold edge=feed-blue
+C EDGE discharge_manifold -> nozzle_regen_jacket edge=regen-cyan
+C EDGE nozzle_regen_jacket -> ortho_para_converter edge=regen-cyan
+C EDGE ortho_para_converter -> core_inlet_line edge=core-amber
+C EDGE core_inlet_line -> reactor_core edge=core-amber
+C EDGE reactor_core -> core_exit_plenum edge=core-amber
+C EDGE core_exit_plenum -> turbine_tap edge=core-amber
+C EDGE turbine_tap -> thrust_chamber edge=nozzle-orange
+C EDGE turbine_tap -> drive_turbine edge=turbine-red
+C EDGE drive_turbine -> turbine_exhaust_mixer edge=turbine-red
+C EDGE turbine_exhaust_mixer -> thrust_chamber edge=turbine-red
+C EDGE thrust_chamber -> bell_nozzle edge=nozzle-orange
+C EDGE bell_nozzle -> space_ambient edge=nozzle-orange
+C
+C --- Visualization hints ----------------------------------------------
+C VIEW axis=z units=m theme=nasa_engineering_dark
+C VIEW swimlanes=feed,regen,core,turbomachinery,nozzle,neutronics
+C VIEW core_regions=18
+C VIEW panels=overview,feed,core,thermal,turbomachinery,nozzle,crit,burnup
+C VIEW source_posture=synthetic_kcode_burnup_parser_fixture
+C END_ADVANCED_NTP_MCNP_CRIT_BURN_FIXTURE

@@ -49,23 +49,23 @@ export function DesignReviewPanel({inputs, outputs}: Readonly<DesignReviewPanelP
 
 function buildRisks(outputs: EngineOutputs): string[] {
     const risks = ['reduced-order model', 'not a flight/design tool'];
-    if (outputs.thermalMarginK < 220) risks.push('thermal margin watch');
+    if (outputs.channelWallCriterionMarginK < 220) risks.push('channel wall criterion watch');
     if (outputs.pressureDropMpa > 1.4) risks.push('pressure-drop watch');
-    if (isNonNominalStability(outputs)) risks.push('transient stability review');
+    if (isIncompleteBasis(outputs)) risks.push('model-basis closure required');
     return risks;
 }
 
-function isNonNominalStability(outputs: EngineOutputs): boolean {
-    return outputs.stabilityStatus === 'watch' || outputs.stabilityStatus === 'limit';
+function isIncompleteBasis(outputs: EngineOutputs): boolean {
+    return outputs.reviewPosture === 'watch' || outputs.reviewPosture === 'limit';
 }
 
 function describeCasePosture(outputs: EngineOutputs): string {
-    if (outputs.thermalMarginK < 120) {
+    if (outputs.channelWallCriterionMarginK < 120) {
         return 'The case should be treated as a constrained thermal-margin scenario before any performance claims are emphasized.';
     }
 
-    if (isNonNominalStability(outputs)) {
-        return 'The primary concern is transient behavior rather than steady-state performance.';
+    if (isIncompleteBasis(outputs)) {
+        return 'The calculated operating point remains subject to explicit property, component-pressure, and transient-model limitations.';
     }
 
     if (outputs.pressureDropMpa > 1.4) {
@@ -78,19 +78,19 @@ function describeCasePosture(outputs: EngineOutputs): string {
 function buildRecommendations(outputs: EngineOutputs): string[] {
     const recommendations = [
         'Compare transient outlet-temperature response against a ROCETS-style system trace.',
-        'Export a placeholder axial/radial power profile to MCNP/OpenMC handoff documentation.',
+        'Correlate the synthetic axial/radial power profile with MCNP/OpenMC handoff documentation.',
     ];
 
-    if (outputs.thermalMarginK < 220) {
-        recommendations.push('Route peak fuel temperature and margin into a MOOSE/fuel-performance follow-up case.');
+    if (outputs.channelWallCriterionMarginK < 220) {
+        recommendations.push('Route peak channel-wall temperature into a coupled conduction and qualified material-criterion follow-up case.');
     }
 
     if (outputs.pressureDropMpa > 1.4) {
         recommendations.push('Review propellant channel pressure-drop assumptions and candidate flow-area trades.');
     }
 
-    if (isNonNominalStability(outputs)) {
-        recommendations.push('Run a focused startup/shutdown sensitivity sweep on drum motion, flow ramp rate, and thermal lag.');
+    if (isIncompleteBasis(outputs)) {
+        recommendations.push('Close the property, whole-engine pressure-loss, and transient-model review flags before asserting a nominal posture.');
     }
 
     recommendations.push('Evaluate payload-side shielding trades against mass fraction and mission architecture.');

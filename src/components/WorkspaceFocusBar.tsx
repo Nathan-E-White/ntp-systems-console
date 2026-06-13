@@ -13,7 +13,7 @@ const WORKSPACE_FOCUS_OPTIONS: WorkspaceFocusOption[] = [
     {
         id: 'reactor',
         label: 'Reactor',
-        description: 'Core state, drum position, and fuel margin',
+        description: 'Core state, channel-wall criterion, and model basis',
         Icon: Atom,
     },
     {

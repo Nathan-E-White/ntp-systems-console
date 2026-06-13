@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">MOOSE-like axisymmetric thermal domain and coupling map</title>
+  <desc id="desc">Conceptual RZ thermal domain derived from the synthetic MOOSE fixture, showing intended material regions, primary temperature variables, boundary conditions, imported auxiliary histories, and the generated-mesh limitation.</desc>
+  <defs>
+    <style>
+      .page{fill:#f4f6f8}.frame{fill:#fff;stroke:#aeb9c3;stroke-width:1.5}.band{fill:#15395b}.rule{fill:#a72b2f}
+      .title{fill:#fff;font:700 27px Arial,sans-serif}.subtitle{fill:#dbe7ef;font:14px Arial,sans-serif}
+      .section{fill:#15395b;font:700 14px Arial,sans-serif;letter-spacing:1.4px}.label{fill:#172431;font:700 13px Arial,sans-serif}
+      .small{fill:#4d5d6c;font:12px Arial,sans-serif}.tiny{fill:#4d5d6c;font:11px Arial,sans-serif}.axis{stroke:#4d5d6c;stroke-width:1.5}
+      .mesh{fill:url(#mesh);stroke:#7c8b98;stroke-width:1.5}.fuel{fill:#f6d982;stroke:#8a5b08;stroke-width:1.5}
+      .moderator{fill:#e5eadc;stroke:#667b4f;stroke-width:1.5}.reflector{fill:#dce9e1;stroke:#3e7254;stroke-width:1.5}
+      .shield{fill:#d8dce0;stroke:#4f5e69;stroke-width:1.5}.coolant{fill:#dceef7;stroke:#176a9c;stroke-width:1.5}
+      .wall{fill:#f8dfce;stroke:#bd5c16;stroke-width:1.5}.structure{fill:#eceff2;stroke:#667785;stroke-width:1.5}
+      .bc{fill:none;stroke:#a72b2f;stroke-width:3}.import{fill:#f2eef7;stroke:#604a7b;stroke-width:1.5}
+      .solve{fill:#eaf5ef;stroke:#236746;stroke-width:1.5}.warn{fill:#fff7e6;stroke:#8a5b08;stroke-width:1.5}
+      .arrow{fill:none;stroke:#604a7b;stroke-width:2.3;stroke-dasharray:7 5;marker-end:url(#arr)}.heat{fill:none;stroke:#a72b2f;stroke-width:2.3;marker-end:url(#heat)}
+      .white{fill:#fff}.gridline{stroke:#cfd7dd;stroke-width:.8}
+    </style>
+    <pattern id="mesh" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" class="gridline"/></pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#604a7b"/></marker>
+    <marker id="heat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#a72b2f"/></marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#21384a" flood-opacity=".14"/></filter>
+  </defs>
+  <rect class="page" width="1600" height="980"/><rect class="frame" x="24" y="20" width="1552" height="936" filter="url(#shadow)"/>
+  <rect class="band" x="24" y="20" width="1552" height="94"/><rect class="rule" x="1210" y="109" width="366" height="5"/>
+  <text class="title" x="62" y="60">MOOSE-LIKE AXISYMMETRIC THERMAL DOMAIN AND COUPLING MAP</text>
+  <text class="subtitle" x="62" y="88">Figure THM-01 | GeneratedMesh RZ: r=0-0.92 m, z=-1.35-5.40 m | 72 × 160 QUAD4 parser fixture</text>
+
+  <text class="section" x="62" y="151">A. INTENDED RZ FIELD MODEL (CONCEPTUAL REGION OVERLAY)</text><line x1="62" y1="160" x2="1030" y2="160" stroke="#c4cdd4"/>
+  <g transform="translate(105 195)">
+    <rect class="mesh" x="0" y="0" width="500" height="600"/>
+    <line class="axis" x1="0" y1="0" x2="0" y2="600"/><text class="small" x="-12" y="300" transform="rotate(-90 -12 300)">axis of symmetry, r = 0</text>
+    <text class="small" x="500" y="624" text-anchor="end">r = 0.92 m</text><text class="small" x="-10" y="13" text-anchor="end">z = 5.40</text><text class="small" x="-10" y="600" text-anchor="end">z = -1.35</text>
+    <!-- conceptual engine regions within generic mesh -->
+    <path class="structure" d="M35 55h90v65H35z"/><path class="coolant" d="M48 66h64v43H48z"/>
+    <text class="tiny" x="80" y="85" text-anchor="middle">LH2 tank</text>
+    <path class="shield" d="M130 90h55v48h-55z"/><text class="tiny" x="157" y="82" text-anchor="middle">shield</text>
+    <path class="reflector" d="M195 125h170v230H195z"/><path class="moderator" d="M215 145h130v190H215z"/>
+    <path class="fuel" d="M238 165h84v150H238z"/><path class="coolant" d="M258 165h12v150M290 165h12v150"/>
+    <line x1="238" y1="215" x2="322" y2="215" stroke="#8a5b08"/><line x1="238" y1="265" x2="322" y2="265" stroke="#8a5b08"/>
+    <text class="label" x="280" y="245" text-anchor="middle">core</text><text class="tiny" x="280" y="365" text-anchor="middle">reflector / drum envelope</text>
+    <path class="structure" d="M215 355h130v35H215z"/><text class="tiny" x="280" y="378" text-anchor="middle">support grid</text>
+    <path class="coolant" d="M250 390h60v85H250z"/><path class="wall" d="M230 475h100v65H230z"/>
+    <text class="tiny" x="280" y="445" text-anchor="middle">hot H2</text><text class="tiny" x="280" y="512" text-anchor="middle">chamber</text>
+    <path class="wall" d="M240 540h80l120 50H120z"/><path class="coolant" d="M260 545h40l78 33H182z"/>
+    <text class="tiny" x="280" y="590" text-anchor="middle">nozzle wall / gas path</text>
+    <path class="structure" d="M365 390h45v185h-45z"/><text class="tiny" x="393" y="482" text-anchor="middle" transform="rotate(-90 393 482)">thrust frame / gimbal</text>
+    <path class="coolant" d="M420 410h45v70h-45z"/><text class="tiny" x="442" y="447" text-anchor="middle">pogo</text>
+    <!-- BC marks -->
+    <path class="bc" d="M35 55h90"/><text x="132" y="60" fill="#a72b2f" font-family="Arial" font-size="11">tank cryogenic sink</text>
+    <path class="bc" d="M258 165h44"/><text x="310" y="173" fill="#a72b2f" font-family="Arial" font-size="11">channel convection</text>
+    <path class="bc" d="M120 590h320"/><text x="450" y="594" fill="#a72b2f" font-family="Arial" font-size="11">nozzle radiation proxy</text>
+  </g>
+
+  <g transform="translate(660 190)">
+    <rect class="solve" width="340" height="205"/><text class="label" x="18" y="29">Primary temperature variables</text>
+    <text class="small" x="18" y="58">fuel | moderator | reflector | shield | tank wall</text>
+    <text class="small" x="18" y="83">coolant | regen wall | chamber wall | nozzle wall</text>
+    <text class="small" x="18" y="108">gimbal ring | thrust frame | core support grid</text>
+    <text class="small" x="18" y="133">reflector liner | pogo accumulator | shaft seal</text>
+    <line x1="18" y1="151" x2="322" y2="151" stroke="#8cbba4"/>
+    <text class="tiny" x="18" y="175">Kernel pattern: storage + conduction + prescribed source</text>
+    <text class="tiny" x="18" y="193">Executioner: transient NEWTON / BDF2, 0-900 s</text>
+  </g>
+  <g transform="translate(660 420)">
+    <rect class="import" width="340" height="220"/><text class="label" x="18" y="29">Imported or prescribed auxiliary histories</text>
+    <text class="small" x="18" y="58">core power and decay heat</text><text class="small" x="18" y="82">iodine / xenon inventories and drum angle</text>
+    <text class="small" x="18" y="106">ROCETS mass flow and turbine split</text><text class="small" x="18" y="130">Ledinegg margin and status</text>
+    <text class="small" x="18" y="154">shield heat leak and reflector gamma heating</text><text class="small" x="18" y="178">thrust, grid, pogo, seal, and frequency proxies</text>
+    <text class="tiny" x="18" y="205">Functions → AuxKernels → source / BC / postprocessor consumers</text>
+  </g>
+  <path class="arrow" d="M660 530H610"/>
+  <path class="heat" d="M660 290H610"/>
+
+  <text class="section" x="1060" y="151">B. CREDIBILITY BOUNDARY</text><line x1="1060" y1="160" x2="1538" y2="160" stroke="#c4cdd4"/>
+  <g transform="translate(1060 190)">
+    <rect class="warn" width="478" height="190"/><text class="label" x="18" y="30">Fixture inconsistency that must remain visible</text>
+    <text class="small" x="18" y="62">The declared GeneratedMesh creates a generic rectangular RZ grid.</text>
+    <text class="small" x="18" y="88">It does not create the named material blocks or boundaries used by</text>
+    <text class="small" x="18" y="114">Materials, BCs, and Postprocessors. The engine-shaped overlay at left</text>
+    <text class="small" x="18" y="140">is therefore an intended ownership map, not executable mesh evidence.</text>
+    <text class="tiny" x="18" y="169">Required next step: controlled mesh + valid subdomain/boundary IDs.</text>
+  </g>
+  <g transform="translate(1060 410)">
+    <rect class="frame" width="478" height="230"/><rect class="band" width="478" height="42"/>
+    <text class="white" x="18" y="27" font-family="Arial" font-size="14" font-weight="700">HANDOFF CONTRACT</text>
+    <text class="label" x="18" y="72">From MCNP-like evidence</text><text class="small" x="18" y="94">spatial heating, power shape, shield deposition</text>
+    <text class="label" x="18" y="129">From ROCETS-like system</text><text class="small" x="18" y="151">power, flow, pressure, phase, thrust, control state</text>
+    <text class="label" x="18" y="186">Required transfer checks</text><text class="small" x="18" y="208">units, coordinates, normalization, conservation, uncertainty</text>
+  </g>
+
+  <text class="section" x="62" y="842">C. REVIEW OUTPUTS</text><line x1="62" y1="851" x2="1538" y2="851" stroke="#c4cdd4"/>
+  <g class="small">
+    <text x="75" y="884">Peak fuel / reflector / shield temperature</text><text x="410" y="884">Thermal margin and wall temperatures</text>
+    <text x="785" y="884">Grid pressure-drop and creep proxies</text><text x="1125" y="884">Pogo / phase / coupled-gain proxies</text>
+  </g>
+  <text class="tiny" x="62" y="929">The diagram distinguishes solved primary temperatures from prescribed auxiliary fields and unsupported structural claims.</text>
+  <text class="tiny" x="1538" y="929" text-anchor="end">Source: src/fixtures/moose/ntp_moose.inp</text>
+</svg>

@@ -1,7 +1,11 @@
 import {PowerProfile} from "./PowerProfile";
-import {SummaryCard} from "./SummaryCard";
+import {SummaryCard} from "./cards/SummaryCard";
 import {Metric} from "./Metric";
 import {SourceBadge} from "./SourceBadge";
+import {buildProfilePosture} from "./BuildProfilePosture";
+import {buildPeakingPosture} from "./BuildPeakingPosture";
+import {averageRelativePower} from "./AverageRelativePower";
+import {findPeakPoint} from "./FindPeakPoint";
 
 export type PowerProfilePosture = 'nominal' | 'watch' | 'limit';
 
@@ -54,6 +58,9 @@ const DEFAULT_POWER_PROFILE: PowerProfileSummary = {
     interpretation: [
         'Peak relative power occurs in the upper-middle axial region of the synthetic core fixture.',
         'Radial profile is mildly center-weighted and should be compared against coolant-channel thermomechanical margins.',
+        'Thermal coupling: compare the peak axial/radial bins against the calculated channel-wall criterion margin.',
+        'Finite-element coupling: compare the peak-power station against the peak-stress station.',
+        'Propulsion coupling: compare the power-shape assumption against hydrogen-flow and chamber-pressure conditions.',
         'Use this profile as a UI/parser fixture only; it is not a validated MCNP tally or design-basis distribution.',
     ],
 };
@@ -64,128 +71,61 @@ export function PowerProfilePanel({summary = DEFAULT_POWER_PROFILE}: Readonly<Po
     const axialAverage = averageRelativePower(summary.axialProfile);
     const radialAverage = averageRelativePower(summary.radialProfile);
 
-    return (
-        <section className="panel power-profile-panel">
-            <div className="panel-heading">
-                <p className="eyebrow">neutronics power distribution</p>
-                <h2>Power Profile Review</h2>
-            </div>
+    return <section className="panel power-profile-panel">
+        <div className="panel-heading">
+            <p className="eyebrow">neutronics power distribution</p>
+            <h2>Power Profile Review</h2>
+        </div>
 
-            <p className="muted-copy">
-                {summary.sourceLabel}: normalized axial and radial power-shape data for public UI demonstration.
-                Values are synthetic and are not validated tally output.
-            </p>
+        <p className="muted-copy">
+            {summary.sourceLabel}: normalized axial and radial power-shape data for public UI demonstration.
+            Values are synthetic and are not validated tally output.
+        </p>
 
-            <div className="analysis-source-grid">
-                <SourceBadge label="Profile posture" value={summary.posture} tone={summary.posture}/>
-                <SourceBadge label="Power peaking" value={`${summary.powerPeakingFactor.toFixed(2)} peak / avg`} tone={buildPeakingPosture(summary.powerPeakingFactor)}/>
-                <SourceBadge label="Peak location" value={`${summary.axialPeakLocation}, ${summary.radialPeakLocation}`} tone="nominal"/>
-            </div>
+        <div className="analysis-source-grid">
+            <SourceBadge label="Profile posture" value={summary.posture} tone={summary.posture}/>
+            <SourceBadge label="Power peaking" value={`${summary.powerPeakingFactor.toFixed(2)} peak / avg`}
+                         tone={buildPeakingPosture(summary.powerPeakingFactor)}/>
+            <SourceBadge label="Peak location" value={`${summary.axialPeakLocation}, ${summary.radialPeakLocation}`}
+                         tone="nominal"/>
+        </div>
 
-            <div className="analysis-summary-grid">
-                <SummaryCard title="Axial shape" posture={buildProfilePosture(axialPeak.relativePower)}>
-                    <Metric label="peak zone" value={axialPeak.label}/>
-                    <Metric label="peak relative power" value={axialPeak.relativePower.toFixed(2)}/>
-                    <Metric label="average bin value" value={axialAverage.toFixed(2)}/>
-                    <Metric label="zones" value={summary.axialProfile.length.toString()}/>
-                </SummaryCard>
+        <div className="analysis-summary-grid">
+            <SummaryCard title="Axial shape" posture={buildProfilePosture(axialPeak.relativePower)}>
+                <Metric label="peak zone" value={axialPeak.label}/>
+                <Metric label="peak relative power" value={axialPeak.relativePower.toFixed(2)}/>
+                <Metric label="average bin value" value={axialAverage.toFixed(2)}/>
+                <Metric label="zones" value={summary.axialProfile.length.toString()}/>
+            </SummaryCard>
 
-                <SummaryCard title="Radial shape" posture={buildProfilePosture(radialPeak.relativePower)}>
-                    <Metric label="peak ring" value={radialPeak.label}/>
-                    <Metric label="peak relative power" value={radialPeak.relativePower.toFixed(2)}/>
-                    <Metric label="average ring value" value={radialAverage.toFixed(2)}/>
-                    <Metric label="rings" value={summary.radialProfile.length.toString()}/>
-                </SummaryCard>
+            <SummaryCard title="Radial shape" posture={buildProfilePosture(radialPeak.relativePower)}>
+                <Metric label="peak ring" value={radialPeak.label}/>
+                <Metric label="peak relative power" value={radialPeak.relativePower.toFixed(2)}/>
+                <Metric label="average ring value" value={radialAverage.toFixed(2)}/>
+                <Metric label="rings" value={summary.radialProfile.length.toString()}/>
+            </SummaryCard>
 
-                <SummaryCard title="Coupling note" posture={summary.posture}>
-                    <Metric label="thermal coupling" value="compare to fuel margin"/>
-                    <Metric label="FE coupling" value="compare to peak stress station"/>
-                    <Metric label="propulsion coupling" value="compare to hydrogen flow"/>
-                </SummaryCard>
-            </div>
-
-            <div className="power-profile-grid">
-                <PowerProfile title="Axial relative power" points={summary.axialProfile}/>
-                <PowerProfile title="Radial relative power" points={summary.radialProfile}/>
-            </div>
-
-            <div className="review-callout">
-                <h3>Power-profile interpretation</h3>
-                <ul>
-                    {summary.interpretation.map((item) => (
-                        <li key={item}>{item}</li>
-                    ))}
+            <SummaryCard title="Coupling note" posture={summary.posture}>
+                <ul className="summary-note-list" aria-label="Power-profile coupling checks">
+                    <li>Thermal: wall criterion margin</li>
+                    <li>FE: peak stress</li>
+                    <li>Propulsion: H2 flow</li>
                 </ul>
-            </div>
-        </section>
-    );
-}
+            </SummaryCard>
+        </div>
 
-// TODO(Is duplicate?)
-function findPeakPoint(points: PowerProfilePoint[]): PowerProfilePoint {
-    return points.reduce((currentPeak, point) => {
-        if (point.relativePower > currentPeak.relativePower) {
-            return point;
-        }
+        <div className="power-profile-grid">
+            <PowerProfile title="Axial relative power" points={summary.axialProfile}/>
+            <PowerProfile title="Radial relative power" points={summary.radialProfile}/>
+        </div>
 
-        return currentPeak;
-    }, points[0]);
-}
-
-// TODO(Is duplicate?)
-function averageRelativePower(points: PowerProfilePoint[]): number {
-    const total = points.reduce((sum, point) => sum + point.relativePower, 0);
-    return total / points.length;
-}
-
-// TODO(Is duplicate?)
-function buildPeakingPosture(powerPeakingFactor: number): PowerProfilePosture {
-    if (powerPeakingFactor >= 1.35) {
-        return 'limit';
-    }
-
-    if (powerPeakingFactor >= 1.2) {
-        return 'watch';
-    }
-
-    return 'nominal';
-}
-
-// TODO(Is duplicate?)
-function buildProfilePosture(relativePower: number): PowerProfilePosture {
-    if (relativePower >= 1.35) {
-        return 'limit';
-    }
-
-    if (relativePower >= 1.15) {
-        return 'watch';
-    }
-
-    return 'nominal';
-}
-
-// TODO(Integrate, is duplicate?)
-function buildPostureClassName(posture: PowerProfilePosture): string {
-    if (posture === 'limit') {
-        return 'posture-chip limit';
-    }
-
-    if (posture === 'watch') {
-        return 'posture-chip watch';
-    }
-
-    return 'posture-chip nominal';
-}
-
-// TODO(Integrate, is duplicate?)
-function buildPowerBarClassName(posture: PowerProfilePosture): string {
-    if (posture === 'limit') {
-        return 'power-profile-fill limit';
-    }
-
-    if (posture === 'watch') {
-        return 'power-profile-fill watch';
-    }
-
-    return 'power-profile-fill nominal';
+        <div className="review-callout">
+            <h3>Power-profile interpretation</h3>
+            <ul>
+                {summary.interpretation.map((item) => (
+                    <li key={item}>{item}</li>
+                ))}
+            </ul>
+        </div>
+    </section>;
 }

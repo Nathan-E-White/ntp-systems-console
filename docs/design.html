@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>NTP Analysis Fixture Design and Integration Basis</title>
+  <style>
+    :root {
+      --ink:#182431;--muted:#4d5d6c;--paper:#e9edf1;--panel:#fff;--panel2:#f5f7f9;
+      --line:#bcc7d0;--line-dark:#7c8b98;--navy:#15395b;--navy-dark:#0d2942;
+      --blue:#176a9c;--blue-soft:#e8f2f8;--amber:#8a5b08;--amber-soft:#fff7e6;
+      --red:#a72b2f;--red-soft:#fbeff0;--green:#236746;--green-soft:#eaf5ef;
+      --violet:#604a7b;--violet-soft:#f2eef7;--shadow:0 2px 8px rgb(26 43 58 / 10%);
+      --max:1120px;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth;scroll-padding-top:1rem}
+    body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.58 Arial,"Helvetica Neue",sans-serif}
+    a{color:var(--blue);text-underline-offset:.18em} a:hover{color:var(--navy-dark)}
+    code,pre{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+    header,main,footer{width:min(calc(100% - 2rem),var(--max));margin-inline:auto}
+    header{position:relative;margin-top:1.25rem;border:1px solid var(--line);border-top:8px solid var(--navy);padding:2.35rem 2.5rem 2rem;background:var(--panel);box-shadow:var(--shadow)}
+    header::after{position:absolute;right:0;bottom:0;width:34%;height:5px;background:var(--red);content:""}
+    .eyebrow,.kicker{margin:0 0 .55rem;color:var(--blue);font-size:.74rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+    h1,h2{font-family:Georgia,"Times New Roman",serif;color:var(--navy-dark);line-height:1.16;text-wrap:balance}
+    h1{max-width:900px;margin:0;font-size:clamp(2.15rem,5vw,3.65rem);font-weight:600;letter-spacing:-.025em}
+    h2{margin:0 0 1rem;font-size:clamp(1.55rem,3vw,2.2rem);font-weight:600}
+    h3{margin:1.6rem 0 .55rem;color:var(--navy);font-size:1.15rem}
+    p{margin:.7rem 0}.lede{max-width:850px;color:var(--muted);font:1.08rem/1.55 Georgia,"Times New Roman",serif}
+    .meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:1.5rem;border:1px solid var(--line);border-bottom:0;background:var(--panel2)}
+    .field{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:.55rem .7rem}.field:last-child{border-right:0}
+    .field span{display:block;color:var(--muted);font-size:.64rem;font-weight:700;letter-spacing:.075em;text-transform:uppercase}
+    .field strong{display:block;color:var(--navy-dark);font-size:.8rem}
+    .doc-nav{display:flex;flex-wrap:wrap;gap:.45rem;margin:1rem 0 0}.doc-nav a{border:1px solid var(--line);padding:.34rem .6rem;background:var(--panel2);font-size:.76rem;font-weight:700;text-decoration:none;text-transform:uppercase}
+    section,nav.card{margin:1rem 0;border:1px solid var(--line);border-radius:3px;padding:clamp(1.15rem,3vw,2.2rem);background:var(--panel);box-shadow:var(--shadow)}
+    nav.card ol{columns:2;gap:2rem;margin:.2rem 0 0;padding-left:1.3rem}nav.card li{break-inside:avoid;margin:.34rem 0}
+    .grid2,.grid3,.grid4{display:grid;gap:.9rem;margin:1rem 0}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .box{border:1px solid var(--line);padding:.9rem;background:var(--panel2)}.box h3{margin:0 0 .45rem;font-size:1rem}.box p{color:var(--muted);font-size:.9rem}
+    .status{display:inline-block;border:1px solid var(--line);padding:.2rem .42rem;font-size:.67rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    .solved{color:var(--green);border-color:#8cbba4;background:var(--green-soft)}.fixture{color:var(--amber);border-color:#d6b56e;background:var(--amber-soft)}
+    .called{color:var(--violet);border-color:#b7a5c7;background:var(--violet-soft)}.limit{color:var(--red);border-color:#d7a0a2;background:var(--red-soft)}
+    .notice{margin:1rem 0;border:1px solid #dfc68f;border-left:5px solid var(--amber);padding:.85rem 1rem;background:var(--amber-soft)}
+    .notice strong{display:block;margin-bottom:.2rem}.review{border-color:#b9d4e3;border-left-color:var(--blue);background:var(--blue-soft)}
+    figure{margin:1.35rem 0;border:1px solid var(--line-dark);background:#fff}figure img{display:block;width:100%;height:auto}
+    figcaption{border-top:1px solid var(--line);padding:.7rem .85rem;color:var(--muted);font-size:.82rem;background:var(--panel2)}figcaption strong{color:var(--navy)}
+    table{display:block;width:100%;max-width:100%;overflow-x:auto;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+    th,td{border-bottom:1px solid var(--line);padding:.68rem .62rem;text-align:left;vertical-align:top}th{color:var(--navy);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}td{color:var(--muted)}td strong{color:var(--ink)}
+    .chain{display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));gap:.45rem;margin:1rem 0}.chain div{position:relative;display:grid;place-items:center;min-height:72px;border:1px solid var(--line);padding:.55rem;text-align:center;background:var(--panel2);font-size:.8rem;font-weight:700}
+    .chain div:not(:last-child)::after{position:absolute;right:-.38rem;width:.28rem;height:.28rem;border-top:2px solid var(--blue);border-right:2px solid var(--blue);content:"";transform:rotate(45deg)}
+    pre{overflow:auto;border:1px solid var(--line);padding:1rem;background:var(--panel2);font-size:.82rem}
+    footer{padding:1.5rem 0 4rem;color:var(--muted);font-size:.82rem}
+    @media(max-width:850px){.meta,.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.grid3{grid-template-columns:1fr}.chain{grid-template-columns:1fr 1fr}.chain div::after{display:none}nav.card ol{columns:1}}
+    @media(max-width:520px){header,main,footer{width:min(calc(100% - 1rem),var(--max))}header{padding:1.6rem 1.25rem}.meta,.grid4,.chain{grid-template-columns:1fr}.field{border-right:0}}
+    @media print{:root{--shadow:none}body{background:#fff;font-size:10pt}header{margin-top:0}section,nav.card,figure{box-shadow:none;break-inside:avoid-page}.doc-nav{display:none}a{color:inherit;text-decoration:none}}
+  </style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">SNP Engine Systems Analysis Workbench / Design Definition</p>
+  <h1>NTP Analysis Fixture Design and Integration Basis</h1>
+  <p class="lede">A system-level definition of the synthetic MCNP-like, ROCETS-like, and MOOSE-like fixture set: its modeled engine topology, discipline ownership, data interfaces, review use, and explicit credibility boundaries.</p>
+  <div class="meta">
+    <div class="field"><span>Document Type</span><strong>Conceptual Design Note</strong></div>
+    <div class="field"><span>Revision Date</span><strong>June 9, 2026</strong></div>
+    <div class="field"><span>Application</span><strong>Job-Application Demonstration</strong></div>
+    <div class="field"><span>Analysis Status</span><strong>Synthetic / Not for Design</strong></div>
+  </div>
+  <div class="doc-nav">
+    <a href="physics.html">Physics and equations</a>
+    <a href="reduced-order-model-basis.html">Dashboard model basis</a>
+    <a href="flow.svg">System topology</a>
+    <a href="rocets-guided-input-tour.md">ROCETS tour</a>
+    <a href="mcnp-guided-input-tour.md">MCNP tour</a>
+    <a href="moose-guided-input-tour.md">MOOSE tour</a>
+  </div>
+</header>
+
+<main>
+  <nav class="card" aria-label="Contents">
+    <p class="kicker">Document Contents</p>
+    <ol>
+      <li><a href="#purpose">Purpose and decision context</a></li>
+      <li><a href="#basis">Design basis and operating cases</a></li>
+      <li><a href="#architecture">Integrated engine architecture</a></li>
+      <li><a href="#rocets">ROCETS-like system definition</a></li>
+      <li><a href="#mcnp">MCNP-like transport definition</a></li>
+      <li><a href="#moose">MOOSE-like field-model definition</a></li>
+      <li><a href="#interfaces">Interface control</a></li>
+      <li><a href="#validation-data">Historical validation-data lineage</a></li>
+      <li><a href="#review">Review logic and recommendations</a></li>
+      <li><a href="#limitations">Limitations and maturation path</a></li>
+    </ol>
+  </nav>
+
+  <section id="purpose">
+    <p class="kicker">01 / Purpose</p>
+    <h2>Purpose and Decision Context</h2>
+    <p>The workbench is designed to support a short engine-systems review narrative: define an operating case, assemble synthetic evidence from three analysis families, identify the controlling concern, and recommend the next analysis needed to retire risk. It demonstrates systems-analysis judgment and traceability rather than production solver execution.</p>
+    <div class="grid3">
+      <div class="box"><h3>Customer question</h3><p>Can the engine establish and maintain the requested startup or restart posture without consuming thermal, hydraulic, or stability margin?</p></div>
+      <div class="box"><h3>Review product</h3><p>A concise statement of operating posture, supporting evidence, assumptions, controlling condition, and discipline-specific follow-up actions.</p></div>
+      <div class="box"><h3>Claim boundary</h3><p>No criticality, safety, shielding, materials qualification, computational validation, or flight-design conclusion is supported.</p></div>
+    </div>
+    <div class="notice"><strong>Companion documents</strong>The broader governing physics and fixture interpretation are maintained in <a href="physics.html">Physics Behind the NTP Analysis Fixtures</a>. The exact equations executed by the dashboard, including empirical coefficients and worked substitutions, are maintained in <a href="reduced-order-model-basis.html">Reduced-Order Engine Model Basis</a>.</div>
+  </section>
+
+  <section id="basis">
+    <p class="kicker">02 / Design Basis</p>
+    <h2>Operating Cases and Figures of Merit</h2>
+    <div class="grid2">
+      <div class="box">
+        <span class="status fixture">Prepared case</span>
+        <h3>Pewee-Inspired Benchmark</h3>
+        <p>Establishes the cited Pewee-scale target, hydrogen enthalpy closure, representative axial channel result, and the review flags that remain before a nominal engineering conclusion.</p>
+      </div>
+      <div class="box">
+        <span class="status fixture">Prepared case</span>
+        <h3>Thermal Margin Investigation</h3>
+        <p>Applies a higher-power, reduced-flow posture to expose the relationship among peak channel-wall temperature, channel-only pressure drop, thrust, and immutable fixture evidence.</p>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Figure of merit</th><th>System owner</th><th>Supporting evidence</th><th>Review use</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Thrust and specific impulse</strong></td><td>ROCETS-like</td><td>Nozzle state, mass flow, chamber conditions</td><td>Performance posture</td></tr>
+        <tr><td><strong>Fuel-temperature margin</strong></td><td>MOOSE-like / reduced order</td><td>Power, flow, material limit, thermal response</td><td>Controlling thermal condition</td></tr>
+        <tr><td><strong>Pressure drop and shaft power</strong></td><td>ROCETS-like</td><td>Maps, hydraulic losses, turbine split</td><td>Cycle closure and trade space</td></tr>
+        <tr><td><strong>Power shape and radiation environment</strong></td><td>MCNP-like</td><td>Cells, source posture, tallies, material state</td><td>Spatial handoff and follow-up definition</td></tr>
+        <tr><td><strong>Stability posture</strong></td><td>Integrated interpretation</td><td>Flow, power, pressure-drop and response proxies</td><td>Investigation trigger, not qualification</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="architecture">
+    <p class="kicker">03 / Architecture</p>
+    <h2>Integrated Engine and Analysis Architecture</h2>
+    <div class="chain">
+      <div>Operating case</div><div>ROCETS system state</div><div>Reactor boundary conditions</div>
+      <div>MCNP spatial evidence</div><div>MOOSE field response</div><div>Margins and limitations</div><div>Review recommendation</div>
+    </div>
+    <figure>
+      <a href="flow.svg"><img src="flow.svg" alt="Integrated ROCETS-like NTP engine topology and numerical-closure summary."></a>
+      <figcaption><strong>Figure SYS-01. Integrated engine topology and model closure.</strong> The primary hydrogen path is separated from turbine, shaft, control, stability, and TVC interfaces. The closure panel distinguishes solver variables, residual targets, and imported states.</figcaption>
+    </figure>
+    <div class="review notice"><strong>Architecture rule</strong>Every displayed quantity must identify an authoritative source, units, operating phase, transformation, validation label, and consumer. Manual changes create a “Custom What-If” case and do not imply that any external solver was rerun.</div>
+  </section>
+
+  <section id="rocets">
+    <p class="kicker">04 / System Model</p>
+    <h2>ROCETS-Like System Definition</h2>
+    <p>The ROCETS-like fixture owns the mission sequence, thermodynamic network, component connectivity, map and schedule evaluation, control targets, and balance residuals. It is the orchestration layer of the demonstration. These relationships are consolidated in <a href="#architecture">Figure SYS-01</a>; fixture graphics coordinates are presentation metadata rather than physical dimensions.</p>
+    <div class="grid3">
+      <div class="box"><span class="status solved">System responsibility</span><h3>Balances</h3><p>Mass, energy, shaft power, pressure target, core-power tracking, and TVC parasitic accounting.</p></div>
+      <div class="box"><span class="status fixture">Prescribed data</span><h3>Maps and schedules</h3><p>Property packages, pump/turbine maps, commands, power history, decay heat, poison state, and advisory margins.</p></div>
+      <div class="box"><span class="status called">Qualification need</span><h3>Demonstration evidence</h3><p>Property pedigree, map coverage, startup initial-state transfer, balance sensitivity, and regression cases.</p></div>
+    </div>
+    <p>See the corresponding conservation, turbomachinery, nozzle, and numerical relations in <a href="physics.html#system">physics: system conservation</a> and <a href="physics.html#propulsion">physics: propulsion performance</a>.</p>
+  </section>
+
+  <section id="mcnp">
+    <p class="kicker">05 / Transport Model</p>
+    <h2>MCNP-Like Geometry and Evidence Definition</h2>
+    <p>The MCNP-like fixture family spatializes the engine network into material regions and tally ownership. Its active core is reduced to three axial zones and six azimuthal sector proxies per zone. Two companion workflows now share that geometry: <code>ntp_mcnp.inp</code> prescribes a fixed neutron source, while <code>ntp_crit.inp</code> introduces parser-facing <code>KCODE</code>, <code>KSRC</code>, burnable-cell, and depletion-study records.</p>
+    <figure>
+      <a href="mcnp-geometry.svg"><img src="mcnp-geometry.svg" alt="MCNP-like axial transport geometry and radial core inset."></a>
+      <figcaption><strong>Figure NTR-01. MCNP-like transport decomposition.</strong> The upper view follows the fixture’s axial stations; the radial inset shows the core-sector, reflector, absorber, vessel, source, and tally relationships.</figcaption>
+    </figure>
+    <div class="grid3">
+      <div class="box"><span class="status solved">Fixed-source fixture</span><h3><code>ntp_mcnp</code></h3><p><code>MODE N</code>, <code>SDEF</code>, cell-average flux proxies, and component-level transport handoffs. It does not estimate multiplication.</p></div>
+      <div class="box"><span class="status fixture">Criticality fixture</span><h3><code>ntp_crit</code></h3><p><code>KCODE 5000 1.0 50 250</code>, five axial <code>KSRC</code> points, 18 burnable core cells, and a six-step synthetic depletion grid.</p></div>
+      <div class="box"><span class="status limit">Claim boundary</span><h3>Parser evidence only</h3><p>The reported <code>k_eff</code>, cycle statistics, drum reserve, xenon worth, inventories, and decay heat are fabricated workflow records, not MCNP results.</p></div>
+    </div>
+    <table>
+      <thead><tr><th>Criticality output fixture</th><th>Reported value</th><th>Permitted interpretation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Initial combined <code>k_eff</code></strong></td><td>1.01039 &plusmn; 0.00072</td><td>Exercises eigenvalue-result parsing, uncertainty display, and provenance.</td></tr>
+        <tr><td><strong>Final burnup-step <code>k_eff</code></strong></td><td>0.99284 &plusmn; 0.00094</td><td>Exercises a monotonic synthetic depletion trend across six steps.</td></tr>
+        <tr><td><strong>Restart-memory proxies</strong></td><td>Peak xenon worth &minus;742 pcm; final 100 s decay heat 0.0158 normalized</td><td>Supports traceable restart and cooldown discussion without claiming inventory prediction.</td></tr>
+      </tbody>
+    </table>
+    <div class="notice"><strong>Fixture provenance</strong>Input: <a href="../src/fixtures/mcnp/ntp_crit.inp"><code>src/fixtures/mcnp/ntp_crit.inp</code></a>. Paired synthetic output: <a href="../src/fixtures/mcnp/ntp_crit.out"><code>src/fixtures/mcnp/ntp_crit.out</code></a>. Both declare <code>syntactic_fixture_only</code> and <code>synthetic_kcode_no_design_claim</code>.</div>
+    <p>See <a href="physics.html#neutronics">physics: neutron transport and kinetics</a> and <a href="physics.html#shielding">physics: shielding and radiation heating</a>.</p>
+  </section>
+
+  <section id="moose">
+    <p class="kicker">06 / Field Model</p>
+    <h2>MOOSE-Like Thermal and Multiphysics Definition</h2>
+    <p>The MOOSE-like fixture represents the receiving field model. Primary variables are temperatures; auxiliary variables carry system schedules and review proxies. Its kernel pattern describes transient storage, conduction, and prescribed sources.</p>
+    <figure>
+      <a href="moose-geometry.svg"><img src="moose-geometry.svg" alt="MOOSE-like RZ thermal domain and coupling map."></a>
+      <figcaption><strong>Figure THM-01. Intended axisymmetric thermal domain.</strong> The engine-shaped overlay is an ownership concept. The declared rectangular generated mesh does not create the named subdomains and boundaries referenced elsewhere in the input.</figcaption>
+    </figure>
+    <div class="notice"><strong>Visible fixture inconsistency</strong>The current MOOSE-like input is not necessarily executable. Structural margins are especially unsupported because the file defines no displacement variables, mechanics kernels, constitutive response, contact, or qualified failure criteria.</div>
+    <p>See <a href="physics.html#thermal">physics: thermal conduction and channel heat transfer</a>, <a href="physics.html#structures">physics: thermomechanics</a>, and <a href="physics.html#numerics">physics: numerical methods</a>.</p>
+  </section>
+
+  <section id="interfaces">
+    <p class="kicker">07 / Interface Control</p>
+    <h2>Cross-Discipline Data Contract</h2>
+    <table>
+      <thead><tr><th>Transfer</th><th>Source</th><th>Consumer</th><th>Acceptance checks</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Power and deposited heating</strong></td><td>Reactor physics / MCNP-like</td><td>ROCETS and MOOSE-like</td><td>Normalization, spatial conservation, uncertainty, material state</td></tr>
+        <tr><td><strong>Flow, pressure, temperature, phase</strong></td><td>ROCETS-like</td><td>Transport state and MOOSE-like BCs</td><td>Units, reference state, interpolation, range checking</td></tr>
+        <tr><td><strong>Wall temperature and heat pickup</strong></td><td>MOOSE-like / thermal model</td><td>ROCETS-like cycle model</td><td>Energy closure, time synchronization, convergence protocol</td></tr>
+        <tr><td><strong>Loads and constraints</strong></td><td>ROCETS-like</td><td>Structural model</td><td>Coordinate frame, sign convention, combinations, dynamics</td></tr>
+        <tr><td><strong>Margins and diagnostics</strong></td><td>Discipline owner</td><td>Integrated review</td><td>Requirement, allowable basis, validation label, uncertainty</td></tr>
+      </tbody>
+    </table>
+    <pre><code>quantity_id
+source_model / version / case / operating phase
+physical definition / units / sign convention / reference state
+spatial and temporal mapping / interpolation / normalization
+uncertainty / correlation / validation domain / known limitations
+consumer variable / transformation / conservation residual
+review status / approval authority</code></pre>
+  </section>
+
+  <section id="validation-data">
+    <p class="kicker">08 / Historical Data Lineage</p>
+    <h2>Non-Exhaustive Sources of Real Validation Evidence</h2>
+    <p>The synthetic fixtures deliberately stop short of design use. Before any real design claim, an engineering team would need to replace the fabricated tables with controlled evidence from historical test programs, code benchmarks, fuel and material campaigns, facility data, and independently reviewed modern analyses. The entries below are not treated as equivalent data sources; they are a medium-depth map of where a reviewer might begin looking for real evidence, limitations, and historical precedent.</p>
+    <div class="notice review"><strong>Use of this list</strong>These references are included to support validation planning and literature traceability. They do not validate the present fixture values, authorize design use, or imply that classified, export-controlled, weapons-related, or otherwise restricted information should be sought or reproduced.</div>
+    <table>
+      <thead><tr><th>Lineage or program</th><th>Examples to cite or search</th><th>Potential validation relevance</th><th>Boundary for this demo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Project Rover / NERVA at Los Alamos and Nevada</strong></td><td>Rover overview reports, Finseth's engine-test overview, Gerrish's ground-test history, Kiwi, Phoebus, NRX/EST, NRX/XE, Pewee, and Nuclear Furnace records</td><td>Ground-test chronology, operating envelopes, fuel-element behavior, startup/restart experience, facility interfaces, and integrated reactor/engine evidence</td><td>Useful historical evidence family; not a substitute for reconstructing exact configuration control, instrumentation, uncertainty, and applicability to a new design</td></tr>
+        <tr><td><strong>SNRE / Small Nuclear Rocket Engine</strong></td><td>LANL-derived SNRE studies and later enrichment-zoning or modernization analyses</td><td>Reference compact solid-core NTP architecture, benchmark geometry, enrichment zoning, and lessons learned from late Rover-era design studies</td><td>Relevant as a benchmark lineage and model-development target, not as validation of this fixture geometry or material vector</td></tr>
+        <tr><td><strong>Project Dumbo and other early advanced NTR concepts</strong></td><td>Dumbo folded-flow reactor concept papers and retrospective NTR concept surveys</td><td>Alternative fuel geometry, flow path, moderation, cermet/fuel-washer concepts, and historical trade space beyond NERVA-style graphite cores</td><td>Conceptual literature only unless detailed, controlled test or benchmark data are recovered</td></tr>
+        <tr><td><strong>Project Testwind / Nevada nuclear-rocket infrastructure</strong></td><td>Nuclear Rocket Development Station, test-stand, exhaust-treatment, and facility-history records from Nevada documentation</td><td>Ground-test facility requirements, remote handling, effluent treatment, instrumentation, and operational constraints for nuclear propulsion tests</td><td>Facility and safety-basis context; not engine-performance validation by itself</td></tr>
+        <tr><td><strong>Project Pluto / Tory nuclear ramjet</strong></td><td>LLNL/Lawrence Radiation Laboratory Pluto and Tory reports, plus Nevada Site 401 histories</td><td>High-temperature reactor-airflow testing, materials exposure, facility lessons, and nuclear-airbreathing propulsion cautionary precedent</td><td>Different mission class and working fluid; include as historical nuclear-propulsion boundary data, not as an NTP analog</td></tr>
+        <tr><td><strong>Am-242m and fission-fragment concepts</strong></td><td>Ronen and Leibson, Chapline and LLNL colleagues, and more recent fission-fragment / Project 242-style experimental literature</td><td>Very-high-energy-density fuel concepts, fission-fragment escape, thin-film or low-density fuel ideas, and advanced-propulsion measurement methods</td><td>Advanced concept literature; not a near-term solid-core validation source and not a basis for this demo's fuel material</td></tr>
+        <tr><td><strong>Project Icarus / British Interplanetary Society lineage</strong></td><td>Daedalus/Icarus fusion-propulsion design-study literature</td><td>Systems-engineering discipline, mission-driven trades, uncertainty exposure, and interstellar propulsion design-study conventions</td><td>Fusion/interstellar concept study; useful for review style, not for validating NTP thermal or reactor physics</td></tr>
+        <tr><td><strong>DRACO</strong></td><td>DARPA, NASA TechPort, Lockheed Martin, and BWXT public program records</td><td>Recent regulatory, mission-integration, LEU fuel, contractor-interface, and demonstration-planning lessons</td><td>Cancelled/closed public program; use for requirements and programmatics, not for unavailable flight or ground-test validation data</td></tr>
+        <tr><td><strong>RD-0410 / РД-0410</strong></td><td>KBKhA and Russian open literature on the Soviet nuclear thermal rocket engine</td><td>Independent Soviet/Russian NTP architecture, cold-flow development, reactor test history, and hydrogen-cooled thermal-reactor design comparison</td><td>Open-source foreign-program data must be treated carefully for provenance, translation, uncertainty, and completeness</td></tr>
+        <tr><td><strong>Burevestnik / Буревестник</strong></td><td>Public official statements, arms-control analysis, and accident/reporting literature</td><td>Modern nuclear-propulsion programmatic caution, safety, environmental, and verification concerns</td><td>Current weapons-related system; include only as public cautionary context, not as a technical validation source for this demo</td></tr>
+      </tbody>
+    </table>
+    <p>For this workbench, the practical takeaway is a validation-data plan rather than a literature review: identify candidate data families, classify each by applicability, reconstruct uncertainty and configuration pedigree, and then decide which fixture quantities deserve replacement by controlled evidence.</p>
+  </section>
+
+  <section id="review">
+    <p class="kicker">09 / Integrated Review</p>
+    <h2>Review Logic and Recommended Use</h2>
+    <div class="grid4">
+      <div class="box"><h3>1. Objective</h3><p>State the requested operating condition and customer decision.</p></div>
+      <div class="box"><h3>2. Posture</h3><p>Summarize power, flow, thrust, temperature, pressure drop, and stability signals.</p></div>
+      <div class="box"><h3>3. Evidence</h3><p>Identify which model or fixture supplies each supporting result.</p></div>
+      <div class="box"><h3>4. Concern</h3><p>Name the controlling mechanism, not merely the lowest dashboard score.</p></div>
+      <div class="box"><h3>5. Limits</h3><p>Expose prescribed states, model-form assumptions, and missing qualification.</p></div>
+      <div class="box"><h3>6. Trades</h3><p>Recommend flow, power, geometry, controls, materials, or cycle sensitivities.</p></div>
+      <div class="box"><h3>7. Evidence plan</h3><p>Specify the next analysis, benchmark, or test needed to retire uncertainty.</p></div>
+      <div class="box"><h3>8. Decision</h3><p>Proceed, hold, or revise the case with explicit rationale and ownership.</p></div>
+    </div>
+    <div class="review notice"><strong>Preferred demo conclusion</strong>The investigation case is valuable because it demonstrates how adverse thermal and hydraulic signals are traced across disciplines and converted into a focused analysis plan. The fixture does not predict an engine instability or establish a design limit.</div>
+  </section>
+
+  <section id="limitations">
+    <p class="kicker">10 / Maturation</p>
+    <h2>Limitations and Path to Design Use</h2>
+    <table>
+      <thead><tr><th>Current limitation</th><th>Required maturation evidence</th></tr></thead>
+      <tbody>
+        <tr><td>Prescribed and synthetic source data</td><td>Configuration-controlled solver outputs or test data with provenance and uncertainty</td></tr>
+        <tr><td>Synthetic fixed-source and KCODE/burnup MCNP-like decks</td><td>Executable purpose-specific models, geometry/material verification, nuclear-data pedigree, source convergence, depletion controls, benchmark comparison, uncertainty, independent review, and comparison against applicable Rover/NERVA, SNRE, or other controlled benchmark evidence where defensible</td></tr>
+        <tr><td>Generic MOOSE generated mesh</td><td>Controlled geometry, valid block and boundary IDs, mesh and time-step convergence</td></tr>
+        <tr><td>Missing structural mechanics</td><td>Displacements, constitutive laws, contacts, loads, failure criteria, and correlation</td></tr>
+        <tr><td>Scheduled Ledinegg and coupled-gain proxies</td><td>Derived pressure-flow characteristics, linearized dynamics, nonlinear transients, and test correlation</td></tr>
+        <tr><td>Dashboard margins without uncertainty bands</td><td>Requirement traceability, allowable pedigree, propagation, model discrepancy, and decision thresholds</td></tr>
+      </tbody>
+    </table>
+    <p>Credibility terminology and equation-level limitations are expanded in <a href="physics.html#credibility">physics: credibility and qualification</a>.</p>
+  </section>
+</main>
+
+<footer>
+  This conceptual design note describes synthetic workflow fixtures for demonstration and review discussion.
+  It is not an operating procedure, reactor design, safety basis, validated analysis, or authorization for hardware decisions.
+</footer>
+</body>
+</html>

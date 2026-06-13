@@ -1,0 +1,303 @@
+1mcnp     version 6.x synthetic parser fixture                 06/06/26 17:46:00
+ ****************************************************************************************
+ *                                                                                      *
+ *  ntp-sys-console sample MCNP-like output                                             *
+ *  case: advanced-ntp-mcnp-003                                                         *
+ *  input: ntp_mcnp.inp                                                                 *
+ *                                                                                      *
+ *  posture: non-operational synthetic fixture for parser and visualization testing.     *
+ *  this file is not an MCNP calculation record, not a validated shielding result,       *
+ *  not a criticality calculation, and not an executable reactor design artifact.        *
+ *                                                                                      *
+ ****************************************************************************************
+
+ name = advanced-ntp-mcnp-003
+ title = advanced parser fixture: mcnp-like ntp engine input
+
+
+ 1input file echo
+ ----------------------------------------------------------------------------------------
+ c companion deck: ntp_rocet.inp
+ c transport mode: fixed-source neutron parser fixture
+ c criticality posture: no kcode, no criticality design claim
+ c geometry mapping: lh2 feed, turbopump, regenerative jacket, reactor package,
+ c                   turbine tap, thrust chamber, and bell nozzle
+
+ mode n
+ nps  50000
+ print 60
+
+
+ 1message summary
+ ----------------------------------------------------------------------------------------
+ warning.  this is a synthetic output assembled for ntp-sys-console parser development.
+ warning.  no kcode card was present; no multiplication factor is reported.
+ warning.  material vectors are placeholder fixtures and were not checked against a
+            validated material library.
+ note.     photon transport is not enabled; reflector gamma-heating values below are
+            app-facing proxy quantities derived from neutron tally metadata only.
+ note.     all statistics are fabricated but formatted to resemble a compact MCNP run.
+
+
+ 1problem controls
+ ----------------------------------------------------------------------------------------
+ particle mode                          n
+ source type                            fixed source
+ source region                          central active-core source proxy
+ source energy bins                     2.00e+06  1.00e+06  5.00e+05  1.00e+05  2.50e+04  1.00e+00
+ histories requested                    50000
+ histories completed                    50000
+ random number stride                   synthetic
+ print table request                    60
+
+
+ 1cell population and importance summary
+ ----------------------------------------------------------------------------------------
+ cell range        description                                             imp:n
+ 1-16              feed / pump / regenerative jacket / inlet hardware       1
+ 17                internal shield forward shadow region                    1
+ 18                core inlet plenum                                        1
+ 19-22             reflector, control drums, poison bank, vessel            1
+ 23-40             active core, 3 axial x 6 azimuthal sectors               1
+ 41                ledinegg virtual channel monitor                         1
+ 42-48             core exit, turbine branch, turbine, exhaust mixer         1
+ 49-53             chamber and bell nozzle                                  1
+ 54,99             ambient sink and exterior graveyard                      0
+
+ total cells processed                 55
+ total surfaces processed              47
+ total materials processed             11
+
+
+ 1material table summary
+ ----------------------------------------------------------------------------------------
+ mat   short name                                      nominal density use
+ 1     hydrogen_placeholder                            lh2 / hot-h2 flow regions
+ 2     fuel_graphite_composite_placeholder             fueled core sector regions
+ 3     graphite_reflector_placeholder                  reflector annulus
+ 4     stainless_or_inconel_structure_placeholder      vessels, casings, support structures
+ 5     refractory_nozzle_wall_placeholder              regen/chamber/nozzle wall structures
+ 6     boron_absorber_control_drum_placeholder         control drum absorber band
+ 7     internal_shadow_shield_placeholder              internal shadow shield
+ 8     electric_motor_aluminum_proxy                   electric start motor structure
+ 9     spin_isomer_converter_bed_proxy                 ortho-para converter bed
+ 10    auxiliary_poison_bank_proxy                     restart hold-down poison bank
+ 11    virtual_channel_stability_monitor_proxy         ledinegg monitor region
+
+
+ 1source summary
+ ----------------------------------------------------------------------------------------
+ sdef position                         0.0000  0.0000  1.3500
+ source axis                           0.0000  0.0000  1.0000
+ radial distribution                   uniform proxy, r = 0.0000 to 0.4600 m
+ axial distribution                    low/mid/high axial source weighting
+ source particle                       neutron
+ source normalization                  per source neutron
+
+ sampled source checks
+ ----------------------------------------------------------------------------------------
+ sampled histories                     50000
+ mean sampled radius                   3.066e-01 m
+ mean sampled axial coordinate          1.351e+00 m
+ mean sampled source energy             7.324e+05 eV
+ rejected source samples                0
+
+
+ 1tally fluctuation chart summary
+ ----------------------------------------------------------------------------------------
+ tally    description                                           mean rel err   fom status
+ f4:n     core axial segment A flux proxy                       0.018          stable
+ f14:n    core axial segment B flux proxy                       0.016          stable
+ f24:n    core axial segment C flux proxy                       0.019          stable
+ f34:n    reflector/control/poison/vessel flux proxy            0.023          acceptable
+ f44:n    internal shield flux proxy                            0.031          acceptable
+ f54:n    regen/chamber/nozzle wall flux proxy                  0.027          acceptable
+ f64:n    cold feed and core inlet hydrogen flux proxy          0.035          coarse
+ f74:n    hot hydrogen/turbine/chamber/nozzle flux proxy        0.032          coarse
+ f84:n    ledinegg virtual channel monitor flux proxy           0.044          coarse
+ f94:n    control drum and auxiliary poison flux proxy          0.026          acceptable
+
+
+ 1tally results: neutron flux proxies per source neutron
+ ----------------------------------------------------------------------------------------
+ tally f4:n      core_axial_segment_A_flux_proxy
+ cells           23 24 25 26 27 28
+                 cell       result        rel err
+                 23         2.4183e-04    0.0192
+                 24         2.4627e-04    0.0187
+                 25         2.5014e-04    0.0179
+                 26         2.4470e-04    0.0184
+                 27         2.3995e-04    0.0191
+                 28         2.3718e-04    0.0198
+                 total      1.4601e-03    0.0180
+
+ tally f14:n     core_axial_segment_B_flux_proxy
+ cells           29 30 31 32 33 34
+                 cell       result        rel err
+                 29         3.1169e-04    0.0167
+                 30         3.1885e-04    0.0161
+                 31         3.2402e-04    0.0156
+                 32         3.2056e-04    0.0158
+                 33         3.1281e-04    0.0165
+                 34         3.0798e-04    0.0172
+                 total      1.8959e-03    0.0160
+
+ tally f24:n     core_axial_segment_C_flux_proxy
+ cells           35 36 37 38 39 40
+                 cell       result        rel err
+                 35         2.7580e-04    0.0196
+                 36         2.8033e-04    0.0188
+                 37         2.8515e-04    0.0181
+                 38         2.8156e-04    0.0187
+                 39         2.7434e-04    0.0195
+                 40         2.7019e-04    0.0202
+                 total      1.6674e-03    0.0190
+
+ tally f34:n     reflector_control_poison_vessel_flux_proxy
+ cells           19 20 21 22
+                 cell       result        rel err       app region
+                 19         6.2240e-05    0.0218        reactor_reflector
+                 20         3.1102e-05    0.0247        control_drum_bank
+                 21         1.6825e-05    0.0292        auxiliary_poison_bank
+                 22         2.3447e-05    0.0275        reactor_pressure_vessel
+                 total      1.3361e-04    0.0230
+
+ tally f44:n     internal_shield_flux_proxy
+ cells           17
+                 cell       result        rel err       app region
+                 17         8.9407e-06    0.0310        internal_shield
+
+ tally f54:n     regen_chamber_nozzle_wall_flux_proxy
+ cells           12 13 16 49 50 51 52 53
+                 cell       result        rel err       app region
+                 12         4.2253e-06    0.0384        regen_cold_side_h2
+                 13         5.3148e-06    0.0349        regen_wall
+                 16         7.9952e-06    0.0318        nozzle_wall_thermal_proxy
+                 49         1.4801e-05    0.0262        thrust_chamber_hot_h2
+                 50         9.8725e-06    0.0296        thrust_chamber_liner
+                 51         1.2623e-05    0.0279        nozzle_throat_h2
+                 52         9.4466e-06    0.0302        nozzle_divergent_h2
+                 53         6.3331e-06    0.0337        nozzle_wall_and_skirt
+                 total      7.0612e-05    0.0270
+
+ tally f64:n     cold_feed_and_core_inlet_hydrogen_flux_proxy
+ cells           1 2 4 7 10 14 15
+                 cell       result        rel err       app region
+                 1          1.2066e-06    0.0478        lh2_supply_tank
+                 2          1.3380e-06    0.0461        tank_isolation_valve_h2
+                 4          1.7754e-06    0.0439        boost_pump_h2
+                 7          2.2201e-06    0.0412        main_turbopump_h2
+                 10         3.1027e-06    0.0380        discharge_manifold_h2
+                 14         4.8164e-06    0.0347        ortho_para_converter
+                 15         6.9031e-06    0.0324        core_inlet_line_h2
+                 total      2.1362e-05    0.0350
+
+ tally f74:n     hot_hydrogen_turbine_chamber_nozzle_flux_proxy
+ cells           42 44 45 46 48 49 51 52
+                 cell       result        rel err       app region
+                 42         2.2452e-05    0.0296        core_exit_plenum
+                 44         1.8198e-05    0.0320        turbine_tap_primary
+                 45         1.5026e-05    0.0343        turbine_tap_secondary
+                 46         1.3509e-05    0.0351        drive_turbine_working_gas
+                 48         1.1296e-05    0.0369        turbine_exhaust_mixer
+                 49         1.4801e-05    0.0262        thrust_chamber_hot_h2
+                 51         1.2623e-05    0.0279        nozzle_throat_h2
+                 52         9.4466e-06    0.0302        nozzle_divergent_h2
+                 total      1.1735e-04    0.0320
+
+ tally f84:n     ledinegg_virtual_channel_monitor_flux_proxy
+ cells           41
+                 cell       result        rel err       app region
+                 41         3.5080e-06    0.0440        ledinegg_instability_switch
+
+ tally f94:n     control_drum_and_aux_poison_flux_proxy
+ cells           20 21
+                 cell       result        rel err       app region
+                 20         3.1102e-05    0.0247        control_drum_bank
+                 21         1.6825e-05    0.0292        auxiliary_poison_bank
+                 total      4.7927e-05    0.0260
+
+
+ 1derived app-facing summary quantities
+ ----------------------------------------------------------------------------------------
+ quantity                                      value         units       source
+ core_A_total_flux_proxy                        1.4601e-03    a.u.        f4:n total
+ core_B_total_flux_proxy                        1.8959e-03    a.u.        f14:n total
+ core_C_total_flux_proxy                        1.6674e-03    a.u.        f24:n total
+ axial_peak_to_average_proxy                    1.1317        ratio       f4/f14/f24 totals
+ reflector_flux_proxy                           6.2240e-05    a.u.        f34:n cell 19
+ control_absorber_flux_proxy                    3.1102e-05    a.u.        f34/f94 cell 20
+ auxiliary_poison_flux_proxy                    1.6825e-05    a.u.        f34/f94 cell 21
+ internal_shield_flux_proxy                     8.9407e-06    a.u.        f44:n cell 17
+ regen_nozzle_wall_flux_proxy                   7.0612e-05    a.u.        f54:n total
+ hot_hydrogen_path_flux_proxy                   1.1735e-04    a.u.        f74:n total
+ ledinegg_monitor_response_proxy                3.5080e-06    a.u.        f84:n cell 41
+
+
+ 1reflector gamma-heating proxy table
+ ----------------------------------------------------------------------------------------
+ c photon transport disabled; these rows are synthetic cross-discipline parser metadata.
+ c intended consumer: thermal panel / MOOSE reflector_gamma_heating import path.
+
+ region                         source tally       proxy heat fraction      status
+ reactor_reflector               f34 cell 19         0.674                    nominal
+ control_drum_bank               f34 cell 20         0.217                    nominal
+ auxiliary_poison_bank           f34 cell 21         0.071                    nominal
+ reactor_pressure_vessel         f34 cell 22         0.038                    nominal
+
+
+ 1restart poisoning and kinetics metadata echo
+ ----------------------------------------------------------------------------------------
+ kinetics model                            six_group_lumped_proxy
+ control input                             control_drum_bank.net_worth
+ override input                            auxiliary_poison_bank.override_worth
+ poison model                              i135_xe135_restart
+ decay heat schedule                       decay_heat_proxy_profile
+ iodine schedule                           iodine_inventory_proxy_profile
+ xenon schedule                            xenon_inventory_proxy_profile
+ xenon restart memory                      xenon_restart_memory_profile
+
+ phase              time span s       normalized power   xenon worth proxy   status
+ startup_ramp       0.0-90.0          0.000 -> 1.000      low                 ramping
+ rated_burn         90.0-210.0        1.000               accumulating        hold
+ shutdown_soak      210.0-520.0       decay heat only     peaking             monitor
+ restart_ramp       520.0-650.0       0.000 -> 0.820      elevated            conservative
+ cooldown           650.0-900.0       decay heat only     falling             cooldown
+
+
+ 1component map echo for ntp-sys-console
+ ----------------------------------------------------------------------------------------
+ mcnp cells       component                         panel             primary tally
+ 1                lh2_supply_tank                   feed              f64
+ 2                tank_isolation_valve              feed              f64
+ 4                boost_pump                        feed              f64
+ 6                electric_start_motor              feed              none
+ 7                main_turbopump                    feed              f64
+ 10               discharge_manifold                feed              f64
+ 12               nozzle_regen_jacket               thermal           f54
+ 14               ortho_para_converter              feed              f64
+ 17               internal_shield                   thermal           f44
+ 18               core_inlet_line                   core              none
+ 19               reactor_reflector                 core              f34
+ 20               control_drum_bank                 core              f34/f94
+ 21               auxiliary_poison_bank             core              f34/f94
+ 23-40            reactor_core                      core              f4/f14/f24
+ 41               ledinegg_instability_switch       thermal           f84
+ 42               core_exit_plenum                  core              f74
+ 44               turbine_tap                       turbomachinery    f74
+ 46               drive_turbine                     turbomachinery    f74
+ 48               turbine_exhaust_mixer             turbomachinery    f74
+ 49               thrust_chamber                    nozzle            f54/f74
+ 51-53            bell_nozzle                       nozzle            f54/f74
+
+
+ 1run termination
+ ----------------------------------------------------------------------------------------
+ histories completed                    50000
+ lost particles                          0
+ bad trouble messages                    0
+ geometry errors                         0 synthetic
+ tally statistical checks                mixed: acceptable for parser fixture
+ output posture                          sample only
+
+ run completed normally for synthetic ntp-sys-console parser fixture.

@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">MCNP-like NTP transport and criticality fixture geometry decomposition</title>
+  <desc id="desc">Axial schematic and radial core inset shared by the synthetic fixed-source and criticality burnup MCNP-like fixtures, showing feed, regenerative, reactor, turbine, chamber, nozzle, materials, source regions, burnable cells, and tally ownership.</desc>
+  <defs>
+    <style>
+      .page{fill:#f4f6f8}.frame{fill:#fff;stroke:#aeb9c3;stroke-width:1.5}.band{fill:#15395b}.rule{fill:#a72b2f}
+      .title{fill:#fff;font:700 27px Arial,sans-serif}.subtitle{fill:#dbe7ef;font:14px Arial,sans-serif}
+      .section{fill:#15395b;font:700 14px Arial,sans-serif;letter-spacing:1.4px}.label{fill:#172431;font:700 13px Arial,sans-serif}
+      .small{fill:#4d5d6c;font:12px Arial,sans-serif}.tiny{fill:#4d5d6c;font:11px Arial,sans-serif}.axis{stroke:#4d5d6c;stroke-width:1.5}
+      .dim{stroke:#7c8b98;stroke-width:1.2;marker-start:url(#dim);marker-end:url(#dim)}.leader{fill:none;stroke:#667785;stroke-width:1.4}
+      .h2{fill:#dceef7;stroke:#176a9c;stroke-width:1.4}.structure{fill:#e8ebee;stroke:#667785;stroke-width:1.4}
+      .regen{fill:#dff3f2;stroke:#16828b;stroke-width:1.4}.fuel{fill:#f6d982;stroke:#8a5b08;stroke-width:1.4}
+      .reflector{fill:#dfe8d8;stroke:#55734a;stroke-width:1.4}.absorber{fill:#d9cfea;stroke:#604a7b;stroke-width:1.4}
+      .shield{fill:#d8dce0;stroke:#4f5e69;stroke-width:1.4}.nozzle{fill:#f8dfce;stroke:#bd5c16;stroke-width:1.4}
+      .void{fill:#fff;stroke:#aeb9c3;stroke-width:1.4}.source{fill:none;stroke:#a72b2f;stroke-width:3;stroke-dasharray:8 5}
+      .tally{fill:none;stroke:#176a9c;stroke-width:2;stroke-dasharray:4 4}.warn{fill:#fff7e6;stroke:#8a5b08;stroke-width:1.4}
+      .cell{fill:#172431;font:700 10px Arial,sans-serif}.white{fill:#fff}.legend{font:11px Arial,sans-serif;fill:#344554}
+    </style>
+    <marker id="dim" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M8 0 0 4 8 8z" fill="#7c8b98"/></marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#21384a" flood-opacity=".14"/></filter>
+  </defs>
+  <rect class="page" width="1600" height="980"/>
+  <rect class="frame" x="24" y="20" width="1552" height="936" filter="url(#shadow)"/>
+  <rect class="band" x="24" y="20" width="1552" height="94"/><rect class="rule" x="1210" y="109" width="366" height="5"/>
+  <text class="title" x="62" y="60">MCNP-LIKE NTP TRANSPORT AND CRITICALITY FIXTURE GEOMETRY</text>
+  <text class="subtitle" x="62" y="88">Figure NTR-01 | Shared synthetic geometry | SDEF fixed-source and KCODE / KSRC / burnup parser workflows | Not for design</text>
+
+  <text class="section" x="62" y="151">A. AXIAL ENGINE DECOMPOSITION ALONG FIXTURE Z-AXIS</text>
+  <line x1="62" y1="160" x2="1538" y2="160" stroke="#c4cdd4"/>
+
+  <!-- axis and stations -->
+  <line class="axis" x1="80" y1="430" x2="1515" y2="430"/>
+  <text class="small" x="1518" y="424">+z</text>
+  <g class="small" text-anchor="middle">
+    <text x="95" y="470">-1.70</text><text x="182" y="470">-1.30</text><text x="235" y="470">-1.05</text>
+    <text x="300" y="470">-0.75</text><text x="375" y="470">-0.40</text><text x="450" y="470">-0.05</text>
+    <text x="525" y="470">0.30</text><text x="553" y="470">0.43</text><text x="580" y="470">0.55</text>
+    <text x="625" y="470">0.75</text><text x="712" y="470">1.15</text><text x="800" y="470">1.55</text>
+    <text x="887" y="470">1.95</text><text x="930" y="470">2.15</text><text x="975" y="470">2.35</text>
+    <text x="1105" y="470">2.95</text><text x="1160" y="470">3.20</text><text x="1193" y="470">3.35</text>
+    <text x="1378" y="470">4.20</text><text x="1475" y="470">4.65 m</text>
+  </g>
+  <g stroke="#7c8b98">
+    <path d="M95 420v20M182 420v20M235 420v20M300 420v20M375 420v20M450 420v20M525 420v20M553 420v20M580 420v20M625 420v20M712 420v20M800 420v20M887 420v20M930 420v20M975 420v20M1105 420v20M1160 420v20M1193 420v20M1378 420v20M1475 420v20"/>
+  </g>
+
+  <!-- axial regions -->
+  <rect class="h2" x="95" y="305" width="87" height="90"/><text class="cell" x="110" y="326">1</text><text class="label" x="138" y="347" text-anchor="middle">LH2 tank</text>
+  <rect class="h2" x="182" y="325" width="53" height="50"/><rect class="structure" x="188" y="312" width="41" height="76"/><text class="cell" x="192" y="327">2/3</text>
+  <rect class="h2" x="235" y="310" width="65" height="80"/><rect class="structure" x="243" y="298" width="49" height="104"/><text class="cell" x="248" y="315">4/5</text>
+  <rect class="h2" x="300" y="298" width="75" height="104"/><rect class="structure" x="309" y="286" width="57" height="128"/><text class="cell" x="315" y="304">7/8</text>
+  <rect class="structure" x="315" y="344" width="145" height="12"/><text class="cell white" x="321" y="354">9 shaft</text>
+  <rect class="h2" x="375" y="330" width="75" height="40"/><rect class="structure" x="381" y="318" width="63" height="64"/><text class="cell" x="386" y="333">10/11</text>
+  <rect class="regen" x="450" y="280" width="75" height="140"/><rect class="structure" x="465" y="265" width="45" height="170"/><text class="cell" x="471" y="284">12/13</text>
+  <rect class="regen" x="525" y="315" width="28" height="70"/><text class="cell" x="530" y="332">14</text>
+  <rect class="h2" x="553" y="330" width="27" height="40"/><text class="cell" x="558" y="347">15</text>
+  <rect class="shield" x="375" y="215" width="75" height="42"/><text class="cell" x="383" y="233">17 shield</text>
+  <rect class="h2" x="580" y="320" width="45" height="60"/><text class="cell" x="586" y="339">18</text>
+  <rect class="reflector" x="625" y="230" width="305" height="240" rx="8"/>
+  <rect class="absorber" x="638" y="245" width="279" height="210" rx="8"/>
+  <rect class="structure" x="652" y="258" width="251" height="184" rx="8"/>
+  <rect class="fuel" x="625" y="285" width="262" height="130"/>
+  <line x1="712" y1="285" x2="712" y2="415" stroke="#8a5b08" stroke-width="2"/>
+  <line x1="800" y1="285" x2="800" y2="415" stroke="#8a5b08" stroke-width="2"/>
+  <text class="label" x="668" y="350" text-anchor="middle">A</text><text class="label" x="756" y="350" text-anchor="middle">B</text><text class="label" x="843" y="350" text-anchor="middle">C</text>
+  <text class="cell" x="630" y="300">23-28</text><text class="cell" x="717" y="300">29-34</text><text class="cell" x="805" y="300">35-40</text>
+  <text class="small" x="778" y="221" text-anchor="middle">19 reflector / 20 drum band / 21 poison / 22 vessel</text>
+  <rect class="warn" x="750" y="420" width="40" height="35"/><text class="cell" x="759" y="442">41</text>
+  <rect class="h2" x="887" y="315" width="43" height="70"/><text class="cell" x="894" y="337">42</text>
+  <rect class="structure" x="930" y="280" width="45" height="140"/><text class="cell" x="938" y="302">43</text>
+  <rect class="h2" x="975" y="320" width="130" height="60"/><text class="cell" x="985" y="340">44 primary</text>
+  <path class="h2" d="M975 395h55v68h75v-38h-50v-30z"/><text class="cell" x="985" y="415">45/46 turbine</text>
+  <rect class="structure" x="1027" y="405" width="78" height="70"/><text class="cell" x="1037" y="424">47</text>
+  <rect class="h2" x="1105" y="320" width="55" height="60"/><text class="cell" x="1112" y="340">48</text>
+  <rect class="nozzle" x="1160" y="285" width="33" height="130"/><text class="cell" x="1165" y="305">49/50</text>
+  <path class="h2" d="M1193 325h55l130-80v210l-130-80h-55z"/>
+  <path class="nozzle" d="M1193 305h60l145-91v272l-145-91h-60z" fill-rule="evenodd" opacity=".45"/>
+  <text class="cell" x="1200" y="345">51 throat</text><text class="cell" x="1280" y="370">52 gas / 53 wall</text>
+  <rect class="void" x="1378" y="255" width="97" height="190"/><text class="cell" x="1390" y="278">54 sink</text>
+  <rect class="source" x="625" y="285" width="262" height="130"/><text x="756" y="276" text-anchor="middle" fill="#a72b2f" font-family="Arial" font-size="12" font-weight="700">SDEF ENVELOPE / FIVE AXIAL KSRC POINTS</text>
+  <g fill="#a72b2f"><circle cx="668" cy="350" r="5"/><circle cx="712" cy="350" r="5"/><circle cx="756" cy="350" r="5"/><circle cx="800" cy="350" r="5"/><circle cx="843" cy="350" r="5"/></g>
+  <rect class="tally" x="615" y="275" width="282" height="150"/><text class="small" x="756" y="492" text-anchor="middle">F4 / F14 / F24 axial-core flux groups</text>
+
+  <text class="section" x="62" y="548">B. ACTIVE-CORE RADIAL INSET AND TALLY OWNERSHIP</text>
+  <line x1="62" y1="557" x2="1538" y2="557" stroke="#c4cdd4"/>
+
+  <!-- radial inset -->
+  <g transform="translate(100 600)">
+    <circle class="structure" cx="245" cy="155" r="150"/><circle class="absorber" cx="245" cy="155" r="128"/>
+    <circle class="reflector" cx="245" cy="155" r="106"/><circle class="fuel" cx="245" cy="155" r="80"/>
+    <circle class="warn" cx="245" cy="155" r="15"/>
+    <g stroke="#fff" stroke-width="3">
+      <path d="M245 155V75M245 155l69-40M245 155l69 40M245 155v80M245 155l-69 40M245 155l-69-40"/>
+    </g>
+    <text class="label" x="245" y="159" text-anchor="middle">41</text>
+    <text class="small" x="245" y="300" text-anchor="middle">six azimuthal sector proxies per axial zone</text>
+    <path class="leader" d="M350 60h90"/><text class="small" x="450" y="64">22 vessel/barrel</text>
+    <path class="leader" d="M363 100h77"/><text class="small" x="450" y="104">20/21 absorber bands</text>
+    <path class="leader" d="M345 140h95"/><text class="small" x="450" y="144">19 graphite reflector</text>
+    <path class="leader" d="M325 190h115"/><text class="small" x="450" y="194">23-40 fueled sectors</text>
+  </g>
+
+  <!-- ownership table -->
+  <g transform="translate(700 595)">
+    <rect class="frame" x="0" y="0" width="800" height="286"/>
+    <rect class="band" x="0" y="0" width="800" height="42"/>
+    <text class="white" x="18" y="27" font-family="Arial" font-size="14" font-weight="700">TRANSPORT RESPONSE GROUPS IN THE FIXTURE</text>
+    <g class="small">
+      <text class="label" x="20" y="72">F4 / F14 / F24</text><text x="180" y="72">Core axial zones A, B, C; cell-average neutron-flux proxies</text>
+      <text class="label" x="20" y="103">F34 / F94 / F84</text><text x="180" y="103">Reflector, controls, poison, vessel, and monitor cross-links</text>
+      <text class="label" x="20" y="134">Fixed-source case</text><text x="180" y="134">SDEF spectrum and NPS 50,000; no multiplication estimate</text>
+      <text class="label" x="20" y="165">Criticality case</text><text x="180" y="165">KCODE: 5,000 histories/cycle; 50 inactive + 250 active cycles</text>
+      <text class="label" x="20" y="196">Initial source</text><text x="180" y="196">Five KSRC points from z = 0.95 to 1.75 m</text>
+      <text class="label" x="20" y="227">Burnable domain</text><text x="180" y="227">Material M2 in cells 23-40; six synthetic burnup steps</text>
+      <text class="label" x="20" y="258">Evidence posture</text><text x="180" y="258">Parser fixtures only; no validated transport or criticality claim</text>
+    </g>
+  </g>
+
+  <g transform="translate(62 918)">
+    <rect class="h2" width="32" height="14"/><text class="legend" x="40" y="12">hydrogen</text>
+    <rect class="fuel" x="145" width="32" height="14"/><text class="legend" x="185" y="12">fuel</text>
+    <rect class="reflector" x="245" width="32" height="14"/><text class="legend" x="285" y="12">reflector</text>
+    <rect class="absorber" x="380" width="32" height="14"/><text class="legend" x="420" y="12">absorber</text>
+    <rect class="shield" x="515" width="32" height="14"/><text class="legend" x="555" y="12">shield/structure</text>
+    <rect class="nozzle" x="705" width="32" height="14"/><text class="legend" x="745" y="12">refractory wall</text>
+    <rect class="source" x="885" y="-2" width="32" height="18"/><text class="legend" x="927" y="12">source region / KSRC points</text>
+  </g>
+  <text class="tiny" x="1538" y="939" text-anchor="end">Sources: src/fixtures/mcnp/ntp_mcnp.inp and ntp_crit.inp</text>
+</svg>

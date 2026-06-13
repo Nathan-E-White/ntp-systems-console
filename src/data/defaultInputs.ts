@@ -1,13 +1,4 @@
 import type { EngineInputs } from '../types/EngineState';
+import {MODEL_PROFILES} from '../physics/modelProfiles';
 
-export const defaultInputs: EngineInputs = {
-  thermalPowerMw: 420,
-  massFlowKgPerSec: 13.2,
-  inletTemperatureK: 95,
-  chamberPressureMpa: 5.8,
-  nozzleExpansionRatio: 120,
-  controlDrumAngleDeg: 42,
-  fuelTemperatureLimitK: 2_850,
-  shieldingMassFraction: 0.13,
-  missionMode: 'startup',
-};
+export const defaultInputs: EngineInputs = MODEL_PROFILES.peweeInspired.inputs;

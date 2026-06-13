@@ -1,0 +1,340 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">ROCETS-like nuclear thermal propulsion engine topology and model closure</title>
+  <desc id="desc">Engineering schematic of the synthetic ROCETS fixture showing the liquid hydrogen feed path, regenerative cooling, reactor, turbine bypass, thrust chamber and nozzle, reactor control inputs, shaft coupling, thrust vector control loop, independent solver variables, residual closures, and imported states.</desc>
+
+  <defs>
+    <style>
+      .page { fill: #f4f6f8; }
+      .frame { fill: #fff; stroke: #aeb9c3; stroke-width: 1.5; }
+      .band { fill: #15395b; }
+      .rule { stroke: #a72b2f; stroke-width: 5; }
+      .title { fill: #fff; font: 700 27px Arial, sans-serif; letter-spacing: .4px; }
+      .subtitle { fill: #dbe7ef; font: 14px Arial, sans-serif; }
+      .section { fill: #15395b; font: 700 14px Arial, sans-serif; letter-spacing: 1.4px; }
+      .label { fill: #172431; font: 700 14px Arial, sans-serif; }
+      .small { fill: #4d5d6c; font: 12px Arial, sans-serif; }
+      .tiny { fill: #4d5d6c; font: 11px Arial, sans-serif; }
+      .component { fill: #fff; stroke: #5f7180; stroke-width: 1.5; }
+      .feed-box { fill: #e8f2f8; stroke: #176a9c; stroke-width: 2; }
+      .regen-box { fill: #e9f7f7; stroke: #16828b; stroke-width: 2; }
+      .core-box { fill: #fff5df; stroke: #a36b08; stroke-width: 2; }
+      .turbine-box { fill: #fbeff0; stroke: #a72b2f; stroke-width: 2; }
+      .nozzle-box { fill: #fff1e6; stroke: #bd5c16; stroke-width: 2; }
+      .control-box { fill: #f2eef7; stroke: #604a7b; stroke-width: 1.8; }
+      .neutral-box { fill: #f2f4f6; stroke: #667785; stroke-width: 1.5; }
+      .tvc-box { fill: #eaf5ef; stroke: #236746; stroke-width: 1.8; }
+      .warning-box { fill: #fff7e6; stroke: #8a5b08; stroke-width: 1.8; }
+      .port { fill: #fff; stroke-width: 2; }
+      .feed { fill: none; stroke: #176a9c; stroke-width: 7; marker-end: url(#arrow-feed); }
+      .regen { fill: none; stroke: #16828b; stroke-width: 7; marker-end: url(#arrow-regen); }
+      .core { fill: none; stroke: #a36b08; stroke-width: 7; marker-end: url(#arrow-core); }
+      .turbine { fill: none; stroke: #a72b2f; stroke-width: 6; marker-end: url(#arrow-turbine); }
+      .nozzle { fill: none; stroke: #bd5c16; stroke-width: 7; marker-end: url(#arrow-nozzle); }
+      .control { fill: none; stroke: #604a7b; stroke-width: 2.5; stroke-dasharray: 8 5; marker-end: url(#arrow-control); }
+      .thermal { fill: none; stroke: #667785; stroke-width: 2.5; stroke-dasharray: 3 5; marker-end: url(#arrow-neutral); }
+      .warning { fill: none; stroke: #8a5b08; stroke-width: 2.5; stroke-dasharray: 9 5; marker-end: url(#arrow-warning); }
+      .tvc { fill: none; stroke: #236746; stroke-width: 4; marker-end: url(#arrow-tvc); }
+      .shaft { fill: none; stroke: #586670; stroke-width: 8; }
+      .shaft-link { fill: none; stroke: #586670; stroke-width: 3; stroke-dasharray: 7 5; }
+      .legend-line { stroke-width: 5; }
+    </style>
+
+    <marker id="arrow-feed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#176a9c"/></marker>
+    <marker id="arrow-regen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#16828b"/></marker>
+    <marker id="arrow-core" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#a36b08"/></marker>
+    <marker id="arrow-turbine" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#a72b2f"/></marker>
+    <marker id="arrow-nozzle" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#bd5c16"/></marker>
+    <marker id="arrow-control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#604a7b"/></marker>
+    <marker id="arrow-neutral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#667785"/></marker>
+    <marker id="arrow-warning" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#8a5b08"/></marker>
+    <marker id="arrow-tvc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#236746"/></marker>
+
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#21384a" flood-opacity=".14"/>
+    </filter>
+  </defs>
+
+  <rect class="page" width="1600" height="980"/>
+  <rect class="frame" x="24" y="20" width="1552" height="936" filter="url(#shadow)"/>
+  <rect class="band" x="24" y="20" width="1552" height="94"/>
+  <rect class="rule" x="1210" y="109" width="366" height="5"/>
+  <text class="title" x="62" y="60">ROCETS-LIKE NUCLEAR THERMAL PROPULSION SYSTEM TOPOLOGY</text>
+  <text class="subtitle" x="62" y="88">Figure SYS-01 | Synthetic fixture baseline-ntp-rocets-002 | Connectivity, control, and numerical closure | Not for design</text>
+
+  <!-- Main flow section -->
+  <text class="section" x="62" y="151">PRIMARY HYDROGEN FLOW PATH</text>
+  <line x1="62" y1="160" x2="1538" y2="160" stroke="#c4cdd4"/>
+
+  <!-- Primary flow connectors, drawn beneath components -->
+  <path class="feed" d="M152 295 H205"/>
+  <path class="feed" d="M285 295 H340"/>
+  <path class="feed" d="M440 295 H505"/>
+  <path class="feed" d="M605 295 H655"/>
+  <path class="regen" d="M765 295 H815"/>
+  <path class="regen" d="M915 295 H965"/>
+  <path class="core" d="M1065 295 H1115"/>
+  <path class="core" d="M1235 295 H1275"/>
+  <path class="nozzle" d="M1375 295 H1418"/>
+  <path class="nozzle" d="M1518 295 H1550"/>
+
+  <!-- Tank -->
+  <g transform="translate(62 220)">
+    <rect class="feed-box" width="90" height="150" rx="5"/>
+    <path d="M22 22 Q45 5 68 22 V122 Q45 140 22 122z" fill="#fff" stroke="#176a9c" stroke-width="2"/>
+    <path d="M28 78 H62 V120 Q45 132 28 120z" fill="#8fc6e0" opacity=".8"/>
+    <text class="label" x="45" y="169" text-anchor="middle">LH2 tank</text>
+    <text class="tiny" x="45" y="185" text-anchor="middle">stagnation reservoir</text>
+  </g>
+
+  <!-- Isolation valve -->
+  <g transform="translate(205 260)">
+    <rect class="feed-box" width="80" height="70" rx="4"/>
+    <path d="M18 22 L40 35 L18 48z M62 22 L40 35 L62 48z" fill="#fff" stroke="#176a9c" stroke-width="2"/>
+    <text class="label" x="40" y="91" text-anchor="middle">Isolation</text>
+    <text class="small" x="40" y="107" text-anchor="middle">valve</text>
+  </g>
+
+  <!-- Boost pump -->
+  <g transform="translate(340 248)">
+    <rect class="feed-box" width="100" height="94" rx="4"/>
+    <circle cx="50" cy="42" r="25" fill="#fff" stroke="#176a9c" stroke-width="2"/>
+    <path d="M40 56 Q58 51 62 31 Q46 32 40 56z" fill="#8fc6e0" stroke="#176a9c"/>
+    <text class="label" x="50" y="115" text-anchor="middle">Boost pump</text>
+    <text class="tiny" x="50" y="131" text-anchor="middle">electric start shaft</text>
+  </g>
+
+  <!-- Main turbopump -->
+  <g transform="translate(505 240)">
+    <rect class="feed-box" width="100" height="110" rx="4"/>
+    <circle cx="50" cy="48" r="30" fill="#fff" stroke="#176a9c" stroke-width="2"/>
+    <path d="M34 66 Q60 59 68 32 Q43 34 34 66z" fill="#8fc6e0" stroke="#176a9c"/>
+    <text class="label" x="50" y="130" text-anchor="middle">Main</text>
+    <text class="label" x="50" y="147" text-anchor="middle">turbopump</text>
+  </g>
+
+  <!-- Manifold -->
+  <g transform="translate(655 262)">
+    <rect class="feed-box" width="110" height="66" rx="4"/>
+    <path d="M18 33 H92" stroke="#176a9c" stroke-width="10" stroke-linecap="round"/>
+    <text class="label" x="55" y="88" text-anchor="middle">Discharge</text>
+    <text class="small" x="55" y="104" text-anchor="middle">manifold</text>
+  </g>
+
+  <!-- Regen -->
+  <g transform="translate(815 235)">
+    <rect class="regen-box" width="100" height="120" rx="4"/>
+    <path d="M24 22 C78 34 22 50 76 62 C22 75 78 90 24 101" fill="none" stroke="#16828b" stroke-width="6"/>
+    <text class="label" x="50" y="140" text-anchor="middle">Nozzle regen</text>
+    <text class="small" x="50" y="156" text-anchor="middle">jacket</text>
+  </g>
+
+  <!-- Ortho para -->
+  <g transform="translate(965 252)">
+    <rect class="regen-box" width="100" height="86" rx="4"/>
+    <path d="M20 43 H80 M30 27 L20 43 L30 59 M70 27 L80 43 L70 59" fill="none" stroke="#16828b" stroke-width="3"/>
+    <text class="label" x="50" y="107" text-anchor="middle">Ortho/para</text>
+    <text class="small" x="50" y="123" text-anchor="middle">conditioner</text>
+  </g>
+
+  <!-- Reactor -->
+  <g transform="translate(1115 210)">
+    <rect class="core-box" width="120" height="170" rx="5"/>
+    <rect x="16" y="19" width="88" height="132" rx="42" fill="#fff" stroke="#a36b08" stroke-width="3"/>
+    <path d="M34 35 V135 M50 29 V141 M66 29 V141 M82 35 V135" stroke="#d7a33d" stroke-width="7"/>
+    <path d="M20 73 H100 M20 96 H100" stroke="#a36b08" stroke-width="2"/>
+    <text class="label" x="60" y="193" text-anchor="middle">Reactor core</text>
+    <text class="tiny" x="60" y="209" text-anchor="middle">96-channel abstraction</text>
+  </g>
+
+  <!-- Exit plenum/tap -->
+  <g transform="translate(1275 250)">
+    <rect class="core-box" width="100" height="90" rx="4"/>
+    <path d="M18 45 H67 M67 45 L84 27 M67 45 L84 64" fill="none" stroke="#a36b08" stroke-width="5" stroke-linecap="round"/>
+    <text class="label" x="50" y="111" text-anchor="middle">Exit plenum</text>
+    <text class="small" x="50" y="127" text-anchor="middle">and turbine tap</text>
+  </g>
+
+  <!-- Chamber -->
+  <g transform="translate(1418 245)">
+    <rect class="nozzle-box" width="100" height="100" rx="4"/>
+    <path d="M22 24 H70 L82 40 V60 L70 76 H22z" fill="#fff" stroke="#bd5c16" stroke-width="2"/>
+    <text class="label" x="50" y="121" text-anchor="middle">Thrust</text>
+    <text class="small" x="50" y="137" text-anchor="middle">chamber</text>
+  </g>
+
+  <!-- Nozzle and ambient -->
+  <g transform="translate(1510 226)">
+    <path d="M8 40 H24 C31 60 31 79 24 99 H8z" fill="#fff1e6" stroke="#bd5c16" stroke-width="2"/>
+    <path d="M24 40 L70 16 V123 L24 99z" fill="#fff" stroke="#bd5c16" stroke-width="3"/>
+    <text class="label" x="40" y="150" text-anchor="middle">Bell nozzle</text>
+    <text class="tiny" x="40" y="166" text-anchor="middle">to space sink</text>
+  </g>
+
+  <!-- Turbine bypass -->
+  <text class="section" x="62" y="438">TURBINE BYPASS AND SHAFT POWER</text>
+  <line x1="62" y1="447" x2="1538" y2="447" stroke="#c4cdd4"/>
+  <path class="turbine" d="M1325 340 V485 H1020"/>
+  <path class="turbine" d="M900 535 H1265 V545 H1418 V345"/>
+
+  <g transform="translate(900 485)">
+    <rect class="turbine-box" width="120" height="100" rx="4"/>
+    <path d="M20 50 L95 18 V82z" fill="#fff" stroke="#a72b2f" stroke-width="2"/>
+    <path d="M40 37 V63 M57 30 V70 M74 24 V76" stroke="#a72b2f" stroke-width="3"/>
+    <text class="label" x="60" y="121" text-anchor="middle">Drive turbine</text>
+  </g>
+
+  <g transform="translate(1265 500)">
+    <rect class="turbine-box" width="115" height="90" rx="4"/>
+    <path d="M20 25 L57 45 L20 65 M95 25 L57 45 L95 65" fill="none" stroke="#a72b2f" stroke-width="4"/>
+    <text class="label" x="57" y="111" text-anchor="middle">Exhaust mixer</text>
+  </g>
+
+  <!-- Mechanical shaft -->
+  <path class="shaft" d="M555 416 H960 V485"/>
+  <path class="shaft-link" d="M555 350 V416"/>
+  <text class="tiny" x="755" y="407" text-anchor="middle">main shaft: turbine power closes main-pump demand</text>
+  <circle cx="390" cy="403" r="15" fill="#fff" stroke="#667785" stroke-width="2"/>
+  <path d="M383 403 H397 M390 396 V410" stroke="#667785" stroke-width="2"/>
+  <text class="tiny" x="390" y="425" text-anchor="middle">electric start motor / boost-pump shaft</text>
+  <path class="shaft-link" d="M390 388 V342"/>
+
+  <!-- Reactor controls -->
+  <text class="section" x="62" y="657">REACTOR CONTROL, HEATING, AND CHANNEL-STABILITY INPUTS</text>
+  <line x1="62" y1="666" x2="1000" y2="666" stroke="#c4cdd4"/>
+
+  <g transform="translate(62 698)">
+    <rect class="control-box" width="156" height="66" rx="4"/>
+    <text class="label" x="78" y="27" text-anchor="middle">I-135 / Xe-135</text>
+    <text class="small" x="78" y="46" text-anchor="middle">restart memory proxy</text>
+  </g>
+  <g transform="translate(244 698)">
+    <rect class="control-box" width="145" height="66" rx="4"/>
+    <text class="label" x="72" y="27" text-anchor="middle">Control drums</text>
+    <text class="small" x="72" y="46" text-anchor="middle">scheduled net worth</text>
+  </g>
+  <g transform="translate(415 698)">
+    <rect class="control-box" width="145" height="66" rx="4"/>
+    <text class="label" x="72" y="27" text-anchor="middle">Aux. poison</text>
+    <text class="small" x="72" y="46" text-anchor="middle">restart hold-down</text>
+  </g>
+  <g transform="translate(586 690)">
+    <rect class="control-box" width="155" height="82" rx="4"/>
+    <text class="label" x="77" y="25" text-anchor="middle">Point kinetics</text>
+    <text class="small" x="77" y="45" text-anchor="middle">six-group proxy</text>
+    <text class="tiny" x="77" y="63" text-anchor="middle">thermal-power signal</text>
+  </g>
+  <g transform="translate(767 698)">
+    <rect class="control-box" width="130" height="66" rx="4"/>
+    <text class="label" x="65" y="27" text-anchor="middle">Decay heat</text>
+    <text class="small" x="65" y="46" text-anchor="middle">shutdown load</text>
+  </g>
+  <g transform="translate(62 808)">
+    <rect class="neutral-box" width="156" height="62" rx="4"/>
+    <text class="label" x="78" y="26" text-anchor="middle">Internal shield</text>
+    <text class="small" x="78" y="45" text-anchor="middle">tank heat-leak proxy</text>
+  </g>
+  <g transform="translate(244 808)">
+    <rect class="neutral-box" width="145" height="62" rx="4"/>
+    <text class="label" x="72" y="26" text-anchor="middle">Reflector gamma</text>
+    <text class="small" x="72" y="45" text-anchor="middle">heating proxy</text>
+  </g>
+  <g transform="translate(415 800)">
+    <rect class="core-box" width="145" height="78" rx="4"/>
+    <text class="label" x="72" y="25" text-anchor="middle">Channel bundle</text>
+    <text class="small" x="72" y="45" text-anchor="middle">inner / mid / outer</text>
+    <text class="tiny" x="72" y="62" text-anchor="middle">power and flow split</text>
+  </g>
+  <g transform="translate(586 800)">
+    <rect class="warning-box" width="155" height="78" rx="4"/>
+    <text class="label" x="77" y="25" text-anchor="middle">Ledinegg guard</text>
+    <text class="small" x="77" y="45" text-anchor="middle">advisory margin</text>
+    <text class="tiny" x="77" y="62" text-anchor="middle">not a derived criterion</text>
+  </g>
+
+  <path class="control" d="M218 731 H586"/>
+  <path class="control" d="M389 731 H586"/>
+  <path class="control" d="M560 731 H586"/>
+  <path class="control" d="M741 731 H1085 V295 H1115"/>
+  <path class="control" d="M832 698 V650 H1160 V380"/>
+  <path class="thermal" d="M140 808 V370"/>
+  <path class="thermal" d="M316 808 V675 H1085 V248 H1115"/>
+  <path class="core" d="M560 839 H1085 V335 H1115"/>
+  <path class="warning" d="M560 839 H586"/>
+  <path class="warning" d="M741 839 H1095 V350 H1115"/>
+
+  <!-- Numerical closure summary -->
+  <g transform="translate(770 690)">
+    <rect class="neutral-box" width="220" height="196" rx="4"/>
+    <text class="section" x="16" y="25">NUMERICAL CLOSURE</text>
+    <line x1="16" y1="34" x2="204" y2="34" stroke="#c4cdd4"/>
+    <text class="label" x="16" y="56">Independent variables</text>
+    <text class="tiny" x="16" y="74">shaft speed | turbine split</text>
+    <text class="tiny" x="16" y="90">control-drum angle</text>
+    <text class="label" x="16" y="116">Residual targets</text>
+    <text class="tiny" x="16" y="134">shaft power | chamber pressure</text>
+    <text class="tiny" x="16" y="150">core power | total mass flow</text>
+    <text class="label" x="16" y="176">Imported / prescribed states</text>
+    <text class="tiny" x="16" y="192">power shape | decay heat | margins</text>
+  </g>
+
+  <!-- TVC loop -->
+  <text class="section" x="1015" y="657">THRUST VECTOR CONTROL LOOP</text>
+  <line x1="1015" y1="666" x2="1538" y2="666" stroke="#c4cdd4"/>
+
+  <g transform="translate(1015 700)">
+    <rect class="tvc-box" width="115" height="70" rx="4"/>
+    <text class="label" x="57" y="29" text-anchor="middle">TVC controller</text>
+    <text class="small" x="57" y="49" text-anchor="middle">pitch / yaw</text>
+  </g>
+  <g transform="translate(1155 700)">
+    <rect class="tvc-box" width="115" height="70" rx="4"/>
+    <text class="label" x="57" y="29" text-anchor="middle">Bleed valve</text>
+    <text class="small" x="57" y="49" text-anchor="middle">turbine exhaust</text>
+  </g>
+  <g transform="translate(1295 692)">
+    <rect class="tvc-box" width="125" height="86" rx="4"/>
+    <text class="label" x="62" y="28" text-anchor="middle">Hydraulic</text>
+    <text class="label" x="62" y="46" text-anchor="middle">power unit</text>
+    <text class="tiny" x="62" y="65" text-anchor="middle">hot-gas driven</text>
+  </g>
+  <g transform="translate(1445 700)">
+    <rect class="tvc-box" width="100" height="70" rx="4"/>
+    <text class="label" x="50" y="29" text-anchor="middle">Accumulator</text>
+    <text class="small" x="50" y="49" text-anchor="middle">pressure buffer</text>
+  </g>
+  <g transform="translate(1240 824)">
+    <rect class="tvc-box" width="135" height="70" rx="4"/>
+    <text class="label" x="67" y="29" text-anchor="middle">Actuator ring</text>
+    <text class="small" x="67" y="49" text-anchor="middle">hydraulic return</text>
+  </g>
+  <g transform="translate(1400 824)">
+    <rect class="tvc-box" width="135" height="70" rx="4"/>
+    <text class="label" x="67" y="29" text-anchor="middle">Nozzle gimbal</text>
+    <text class="small" x="67" y="49" text-anchor="middle">mechanical output</text>
+  </g>
+
+  <path class="tvc" d="M1130 735 H1155"/>
+  <path class="tvc" d="M1270 735 H1295"/>
+  <path class="tvc" d="M1420 735 H1445"/>
+  <path class="tvc" d="M1495 770 V800 H1307 V824"/>
+  <path class="tvc" d="M1375 859 H1400"/>
+  <path class="tvc" d="M1307 824 V795 H1358 V778"/>
+  <path class="tvc" d="M1468 824 V620 H1548 V350"/>
+  <path class="tvc" d="M1072 700 V670 H1212 V700"/>
+  <path class="tvc" d="M1072 770 V859 H1240"/>
+  <path class="turbine" d="M960 585 V640 H1212 V700"/>
+  <path class="tvc" d="M1358 692 V625 H1265 V545"/>
+
+  <!-- Legend and footer -->
+  <g transform="translate(62 918)">
+    <line class="legend-line" x1="0" y1="0" x2="42" y2="0" stroke="#176a9c"/><text class="tiny" x="50" y="4">cold LH2</text>
+    <line class="legend-line" x1="135" y1="0" x2="177" y2="0" stroke="#16828b"/><text class="tiny" x="185" y="4">regenerative path</text>
+    <line class="legend-line" x1="325" y1="0" x2="367" y2="0" stroke="#a36b08"/><text class="tiny" x="375" y="4">core-heated H2</text>
+    <line class="legend-line" x1="510" y1="0" x2="552" y2="0" stroke="#a72b2f"/><text class="tiny" x="560" y="4">turbine bypass</text>
+    <line class="legend-line" x1="695" y1="0" x2="737" y2="0" stroke="#bd5c16"/><text class="tiny" x="745" y="4">nozzle flow</text>
+    <line class="legend-line" x1="825" y1="0" x2="867" y2="0" stroke="#604a7b" stroke-dasharray="7 4"/><text class="tiny" x="875" y="4">control/state</text>
+    <line class="legend-line" x1="1005" y1="0" x2="1047" y2="0" stroke="#236746"/><text class="tiny" x="1055" y="4">TVC loop</text>
+    <line class="legend-line" x1="1155" y1="0" x2="1197" y2="0" stroke="#586670"/><text class="tiny" x="1205" y="4">shaft coupling</text>
+  </g>
+  <text class="tiny" x="1538" y="939" text-anchor="end">Source: src/fixtures/rocets/ntp_rocet.inp</text>
+</svg>

@@ -1,0 +1,285 @@
+*****************************************************************************
+***                                                                       ***
+***                 ntp-sys-console MOOSE-like sample output              ***
+***                                                                       ***
+***  Case:        advanced-moose-ntp-003                                  ***
+***  Input:       ntp_moose.inp                                           ***
+***  Pairing:     ntp_rocet.inp, ntp_mcnp.inp                             ***
+***  Discipline:  thermal structures / transient surrogate / CHT metadata ***
+***                                                                       ***
+***  This is a synthetic parser and visualization fixture. It is not a    ***
+***  validated MOOSE execution record, not a safety analysis, not a       ***
+***  reactor design calculation, and not an operational NTP model.        ***
+***                                                                       ***
+*****************************************************************************
+
+Input File: ntp_moose.inp
+Case ID: advanced-moose-ntp-003
+Problem Type: FEProblem
+Coordinate System: RZ
+Mesh Type: GeneratedMesh
+Mesh Dimension: 2
+Elements: 11520 QUAD4
+Nodes: 11753
+Primary Variables: 15
+Auxiliary Variables: 36
+Functions: 31
+AuxKernels: 36
+Kernels: 36
+Materials: 15
+Boundary Conditions: 15
+Postprocessors: 43
+Outputs: csv console exodus
+
+[InputValidation]
+  status = passed_with_fixture_warnings
+  warning = synthetic fixture; no validated material library was loaded
+  warning = surrogate heat sources are app-facing parser metadata
+  warning = point-kinetics and xenon/iodine terms are reduced-order proxies
+  warning = grid pressure-drop equation is metadata-coupled, not CFD-resolved
+[]
+
+[MeshSummary]
+  dim = 2
+  coordinate_system = RZ
+  xmin = 0.000000e+00
+  xmax = 9.200000e-01
+  ymin = -1.350000e+00
+  ymax = 5.400000e+00
+  nx = 72
+  ny = 160
+  elem_type = QUAD4
+  active_elements = 11520
+  active_nodes = 11753
+[]
+
+[VariableSummary]
+  primary = fuel_temperature moderator_temperature reflector_temperature shield_temperature tank_wall_temperature coolant_temperature regen_wall_temperature chamber_wall_temperature nozzle_wall_temperature gimbal_ring_temperature thrust_frame_temperature core_support_grid_temperature reflector_liner_temperature pogo_accumulator_temperature shaft_seal_temperature
+  auxiliary = normalized_core_power decay_heat_fraction iodine_inventory_proxy xenon_inventory_proxy control_drum_angle_proxy aux_poison_insertion_proxy axial_power_shape radial_peaking_proxy rocets_mass_flow_proxy turbine_tap_fraction_proxy ledinegg_margin_proxy ledinegg_status_proxy reflector_gamma_heat_fraction tank_shield_heat_leak_proxy para_fraction_proxy ortho_para_enthalpy_penalty_proxy gimbal_hydraulic_bleed_proxy thermal_margin_proxy thrust_load_proxy thrust_frame_compression_margin_proxy core_support_grid_pressure_drop_proxy core_support_grid_creep_margin_proxy reflector_liner_effusion_fraction_proxy reflector_liner_barrier_margin_proxy pogo_accumulator_damping_ratio_proxy feedline_pressure_wave_proxy helium_purge_flow_proxy shaft_seal_leakage_margin_proxy grid_flow_area_fraction_proxy grid_form_loss_coefficient_proxy grid_exit_density_proxy grid_exit_velocity_proxy grid_coupled_pressure_drop_proxy point_kinetics_matrix_stability_proxy core_density_oscillation_proxy fuel_alignment_shift_proxy thrust_frame_resonance_gain_proxy pogo_suppressor_attenuation_proxy net_coupled_gain_proxy fluid_phase_angle_proxy
+[]
+
+[Executioner]
+  type = Transient
+  scheme = bdf2
+  solve_type = NEWTON
+  petsc_options_iname = '-pc_type -pc_hypre_type -ksp_gmres_restart'
+  petsc_options_value = 'hypre boomeramg 80'
+  dt_initial = 5.000000e-01
+  dt_max = 1.000000e+01
+  end_time = 9.000000e+02
+  nl_abs_tol = 1.000000e-08
+  nl_rel_tol = 1.000000e-07
+  l_tol = 1.000000e-06
+[]
+
+================================================================================
+Transient solve log
+================================================================================
+ time_step       time         dt       nonlinear iters   linear iters   status
+         0    0.000000e+00   ----              ----            ----     initial
+         1    5.000000e-01   0.500                3              18     converged
+         2    1.000000e+00   0.500                3              17     converged
+         3    2.000000e+00   1.000                3              20     converged
+         4    5.000000e+00   3.000                4              24     converged
+         5    1.000000e+01   5.000                4              28     converged
+         6    2.000000e+01  10.000                4              31     converged
+         7    3.000000e+01  10.000                5              35     converged
+         8    4.000000e+01  10.000                5              37     converged
+         9    5.000000e+01  10.000                5              40     converged
+        10    6.000000e+01  10.000                5              42     converged
+        11    7.000000e+01  10.000                5              43     converged
+        12    8.000000e+01  10.000                5              44     converged
+        13    9.000000e+01  10.000                5              45     converged
+        14    1.000000e+02  10.000                4              39     converged
+        15    1.200000e+02  20.000                4              36     converged
+        16    1.500000e+02  30.000                4              34     converged
+        17    1.800000e+02  30.000                4              33     converged
+        18    2.100000e+02  30.000                4              32     converged
+        19    2.400000e+02  30.000                3              27     converged
+        20    3.000000e+02  60.000                3              24     converged
+        21    3.600000e+02  60.000                3              23     converged
+        22    4.200000e+02  60.000                3              22     converged
+        23    5.200000e+02 100.000                4              29     converged
+        24    5.600000e+02  40.000                5              41     converged
+        25    6.000000e+02  40.000                5              44     converged
+        26    6.500000e+02  50.000                5              42     converged
+        27    7.200000e+02  70.000                4              34     converged
+        28    8.100000e+02  90.000                4              31     converged
+        29    9.000000e+02  90.000                4              30     converged
+
+================================================================================
+Postprocessor time history
+================================================================================
+time,normalized_reactor_power,decay_heat_fraction_report,average_core_fuel_temperature,peak_fuel_temperature,average_core_coolant_temperature,peak_reflector_temperature,peak_shield_temperature,tank_wall_average_temperature,peak_regen_wall_temperature,peak_chamber_wall_temperature,peak_nozzle_wall_temperature,peak_gimbal_ring_temperature,peak_thrust_frame_temperature,peak_core_support_grid_temperature,peak_reflector_liner_temperature
+0.000000e+00,0.000000e+00,0.000000e+00,8.500000e+02,8.500000e+02,8.200000e+01,6.900000e+02,2.550000e+02,2.250000e+01,2.950000e+02,3.150000e+02,3.100000e+02,3.150000e+02,2.950000e+02,1.200000e+03,9.000000e+02
+5.000000e-01,5.555600e-03,1.111100e-04,8.593100e+02,8.822000e+02,8.344000e+01,6.908200e+02,2.551100e+02,2.250000e+01,2.956000e+02,3.154000e+02,3.103000e+02,3.150000e+02,2.950000e+02,1.201200e+03,8.998000e+02
+1.000000e+00,1.111100e-02,2.222200e-04,8.681000e+02,9.126000e+02,8.512000e+01,6.918000e+02,2.552500e+02,2.250100e+01,2.964000e+02,3.161000e+02,3.107000e+02,3.151000e+02,2.951000e+02,1.203400e+03,8.995000e+02
+2.000000e+00,2.222200e-02,4.444400e-04,8.852000e+02,9.718000e+02,8.884000e+01,6.941000e+02,2.556000e+02,2.250200e+01,2.982000e+02,3.175000e+02,3.118000e+02,3.152000e+02,2.953000e+02,1.208100e+03,8.993000e+02
+5.000000e+00,5.555600e-02,1.111100e-03,9.318000e+02,1.132500e+03,9.905000e+01,7.018000e+02,2.567000e+02,2.250500e+01,3.039000e+02,3.224000e+02,3.162000e+02,3.156000e+02,2.958000e+02,1.219000e+03,8.989000e+02
+1.000000e+01,1.111100e-01,2.222200e-03,1.002200e+03,1.374300e+03,1.148000e+02,7.154000e+02,2.585000e+02,2.251000e+01,3.149000e+02,3.327000e+02,3.253000e+02,3.164000e+02,2.971000e+02,1.239600e+03,8.986000e+02
+2.000000e+01,2.222200e-01,4.444400e-03,1.140600e+03,1.845600e+03,1.463000e+02,7.431000e+02,2.623000e+02,2.252100e+01,3.379000e+02,3.545000e+02,3.445000e+02,3.181000e+02,3.002000e+02,1.282800e+03,8.992000e+02
+3.000000e+01,3.333300e-01,6.666700e-03,1.276400e+03,2.298700e+03,1.776000e+02,7.731000e+02,2.667000e+02,2.253400e+01,3.616000e+02,3.778000e+02,3.646000e+02,3.203000e+02,3.041000e+02,1.327600e+03,9.016000e+02
+4.000000e+01,4.444400e-01,8.888900e-03,1.408300e+03,2.730200e+03,2.084000e+02,8.052000e+02,2.717000e+02,2.255200e+01,3.851000e+02,4.019000e+02,3.859000e+02,3.232000e+02,3.090000e+02,1.372100e+03,9.064000e+02
+5.000000e+01,5.555600e-01,1.111100e-02,1.533800e+03,3.117900e+03,2.382000e+02,8.383000e+02,2.774000e+02,2.257300e+01,4.082000e+02,4.260000e+02,4.082000e+02,3.269000e+02,3.151000e+02,1.415400e+03,9.135000e+02
+6.000000e+01,6.666700e-01,1.333300e-02,1.649700e+03,3.451000e+03,2.661000e+02,8.708000e+02,2.835000e+02,2.259900e+01,4.301000e+02,4.499000e+02,4.314000e+02,3.314000e+02,3.225000e+02,1.456900e+03,9.229000e+02
+7.000000e+01,7.777800e-01,1.555600e-02,1.752900e+03,3.724400e+03,2.911000e+02,9.019000e+02,2.901000e+02,2.263100e+01,4.503000e+02,4.726000e+02,4.548000e+02,3.366000e+02,3.312000e+02,1.494800e+03,9.342000e+02
+8.000000e+01,8.888900e-01,1.777800e-02,1.840800e+03,3.931100e+03,3.124000e+02,9.301000e+02,2.969000e+02,2.266800e+01,4.681000e+02,4.930000e+02,4.771000e+02,3.423000e+02,3.410000e+02,1.526900e+03,9.468000e+02
+9.000000e+01,1.000000e+00,2.000000e-02,1.912600e+03,4.071500e+03,3.290000e+02,9.548000e+02,3.036000e+02,2.270800e+01,4.826000e+02,5.103000e+02,4.964000e+02,3.482000e+02,3.516000e+02,1.551200e+03,9.600000e+02
+1.000000e+02,1.000000e+00,2.020000e-02,1.930800e+03,4.090100e+03,3.336000e+02,9.620000e+02,3.055000e+02,2.271900e+01,4.863000e+02,5.143000e+02,5.009000e+02,3.497000e+02,3.548000e+02,1.556500e+03,9.639000e+02
+1.200000e+02,1.000000e+00,2.060000e-02,1.949500e+03,4.108700e+03,3.382000e+02,9.707000e+02,3.078000e+02,2.273400e+01,4.914000e+02,5.201000e+02,5.075000e+02,3.522000e+02,3.594000e+02,1.562800e+03,9.705000e+02
+1.500000e+02,1.000000e+00,2.120000e-02,1.964900e+03,4.121200e+03,3.431000e+02,9.800000e+02,3.105000e+02,2.275700e+01,4.974000e+02,5.270000e+02,5.154000e+02,3.558000e+02,3.660000e+02,1.570400e+03,9.790000e+02
+1.800000e+02,1.000000e+00,2.180000e-02,1.973100e+03,4.126900e+03,3.462000e+02,9.858000e+02,3.126000e+02,2.278400e+01,5.022000e+02,5.328000e+02,5.220000e+02,3.596000e+02,3.726000e+02,1.576200e+03,9.866000e+02
+2.100000e+02,1.000000e+00,2.240000e-02,1.977400e+03,4.129300e+03,3.484000e+02,9.891000e+02,3.141000e+02,2.281100e+01,5.060000e+02,5.376000e+02,5.276000e+02,3.633000e+02,3.789000e+02,1.580500e+03,9.931000e+02
+2.400000e+02,1.200000e-01,3.200000e-02,1.201500e+03,1.786100e+03,2.610000e+02,8.090000e+02,2.927000e+02,2.282000e+01,4.352000e+02,4.757000e+02,4.743000e+02,3.595000e+02,3.715000e+02,1.414200e+03,9.751000e+02
+3.000000e+02,7.500000e-02,2.850000e-02,1.036800e+03,1.383000e+03,2.257000e+02,7.520000e+02,2.754000e+02,2.277000e+01,3.857000e+02,4.241000e+02,4.231000e+02,3.507000e+02,3.552000e+02,1.324100e+03,9.501000e+02
+3.600000e+02,5.000000e-02,2.450000e-02,9.589000e+02,1.170900e+03,2.006000e+02,7.205000e+02,2.632000e+02,2.268500e+01,3.539000e+02,3.890000e+02,3.884000e+02,3.401000e+02,3.370000e+02,1.279000e+03,9.263000e+02
+4.200000e+02,3.000000e-02,2.050000e-02,9.132000e+02,1.045400e+03,1.789000e+02,7.020000e+02,2.563000e+02,2.260300e+01,3.329000e+02,3.650000e+02,3.644000e+02,3.294000e+02,3.183000e+02,1.251300e+03,9.065000e+02
+5.200000e+02,0.000000e+00,1.550000e-02,8.787000e+02,9.381000e+02,1.493000e+02,6.900000e+02,2.538000e+02,2.249000e+01,3.096000e+02,3.372000e+02,3.364000e+02,3.146000e+02,2.974000e+02,1.219900e+03,8.868000e+02
+5.600000e+02,2.500000e-01,1.680000e-02,1.119500e+03,1.745200e+03,1.945000e+02,7.390000e+02,2.613000e+02,2.250100e+01,3.481000e+02,3.751000e+02,3.640000e+02,3.178000e+02,3.051000e+02,1.291200e+03,8.969000e+02
+6.000000e+02,6.000000e-01,1.900000e-02,1.484300e+03,3.025400e+03,2.731000e+02,8.465000e+02,2.805000e+02,2.254100e+01,4.126000e+02,4.392000e+02,4.194000e+02,3.281000e+02,3.266000e+02,1.421800e+03,9.244000e+02
+6.500000e+02,8.200000e-01,2.020000e-02,1.712800e+03,3.652100e+03,3.112000e+02,9.046000e+02,2.952000e+02,2.258800e+01,4.615000e+02,4.893000e+02,4.682000e+02,3.397000e+02,3.507000e+02,1.508900e+03,9.559000e+02
+7.200000e+02,1.000000e-01,2.900000e-02,1.070200e+03,1.462400e+03,2.401000e+02,7.620000e+02,2.761000e+02,2.257200e+01,3.791000e+02,4.240000e+02,4.184000e+02,3.342000e+02,3.421000e+02,1.326000e+03,9.361000e+02
+8.100000e+02,5.000000e-02,2.400000e-02,9.538000e+02,1.156800e+03,1.998000e+02,7.210000e+02,2.624000e+02,2.250400e+01,3.486000e+02,3.874000e+02,3.829000e+02,3.240000e+02,3.218000e+02,1.267300e+03,9.085000e+02
+9.000000e+02,2.000000e-02,1.850000e-02,9.034000e+02,1.013200e+03,1.710000e+02,6.995000e+02,2.568000e+02,2.244000e+01,3.281000e+02,3.602000e+02,3.573000e+02,3.135000e+02,3.019000e+02,1.232500e+03,8.904000e+02
+
+================================================================================
+Coupling proxy time history
+================================================================================
+time,iodine_inventory_report,xenon_inventory_report,control_drum_angle_report,minimum_ledinegg_margin_proxy,ledinegg_status_report,reflector_gamma_heat_fraction_report,tank_shield_heat_leak_report,para_fraction_report,gimbal_hydraulic_bleed_report,minimum_thermal_margin_proxy,thrust_load_report,minimum_thrust_frame_compression_margin,core_support_grid_pressure_drop_report,minimum_core_support_grid_creep_margin,reflector_liner_effusion_fraction_report,minimum_reflector_liner_barrier_margin,pogo_accumulator_damping_ratio_report,feedline_pressure_wave_report,helium_purge_flow_report,minimum_shaft_seal_leakage_margin,grid_flow_area_fraction_report,grid_form_loss_coefficient_report,grid_exit_density_report,grid_exit_velocity_report,grid_coupled_pressure_drop_report,minimum_point_kinetics_matrix_stability,core_density_oscillation_report,fuel_alignment_shift_report,thrust_frame_resonance_gain_report,pogo_suppressor_attenuation_report,net_coupled_gain_report,fluid_phase_angle_report
+0.000000e+00,0.000000e+00,0.000000e+00,0.000000e+00,1.000000e+00,0,0.000000e+00,0.000000e+00,9.980000e-01,0.000000e+00,2.500000e+00,0.000000e+00,3.000000e+00,0.000000e+00,2.400000e+00,0.000000e+00,1.800000e+00,8.000000e-02,0.000000e+00,0.000000e+00,2.100000e+00,6.500000e-01,2.250000e+00,8.500000e-01,0.000000e+00,0.000000e+00,1.250000e+00,0.000000e+00,0.000000e+00,1.000000e+00,0.000000e+00,0.000000e+00,0.000000e+00
+9.000000e+01,3.600000e-01,1.200000e-01,8.700000e+01,7.800000e-01,0,6.740000e-01,1.150000e-02,9.941000e-01,0.000000e+00,1.640000e+00,2.120000e+05,2.280000e+00,4.250000e+05,1.760000e+00,2.250000e-02,1.480000e+00,1.850000e-01,3.100000e-02,4.000000e-03,1.760000e+00,6.450000e-01,2.700000e+00,7.200000e-01,1.850000e+02,3.920000e+05,1.120000e+00,5.500000e-03,4.000000e-04,8.800000e-01,2.200000e-01,1.940000e-01,-1.200000e+01
+2.100000e+02,8.400000e-01,5.500000e-01,9.150000e+01,7.100000e-01,0,6.940000e-01,1.460000e-02,9.927000e-01,1.200000e-02,1.420000e+00,2.380000e+05,2.050000e+00,4.620000e+05,1.540000e+00,2.600000e-02,1.330000e+00,2.350000e-01,4.800000e-02,6.000000e-03,1.680000e+00,6.430000e-01,2.900000e+00,6.650000e-01,2.050000e+02,4.330000e+05,1.080000e+00,7.600000e-03,6.500000e-04,9.400000e-01,2.800000e-01,2.632000e-01,-1.850000e+01
+5.200000e+02,1.000000e+00,1.000000e+00,1.200000e+01,8.400000e-01,0,3.200000e-01,7.900000e-03,9.955000e-01,0.000000e+00,2.030000e+00,0.000000e+00,2.660000e+00,1.100000e+05,2.020000e+00,1.100000e-02,1.610000e+00,1.120000e-01,1.900000e-02,7.000000e-03,1.910000e+00,6.480000e-01,2.600000e+00,8.100000e-01,9.500000e+01,2.260000e+05,1.180000e+00,2.000000e-03,1.000000e-04,7.200000e-01,1.500000e-01,1.080000e-01,-4.000000e+00
+6.500000e+02,7.600000e-01,8.800000e-01,7.650000e+01,6.600000e-01,1,6.320000e-01,1.280000e-02,9.939000e-01,2.500000e-02,1.310000e+00,1.960000e+05,1.920000e+00,4.050000e+05,1.430000e+00,2.850000e-02,1.250000e+00,2.800000e-01,6.700000e-02,9.000000e-03,1.560000e+00,6.410000e-01,3.050000e+00,6.100000e-01,2.250000e+02,4.820000e+05,1.040000e+00,9.000000e-03,7.900000e-04,1.120000e+00,3.400000e-01,3.808000e-01,-2.600000e+01
+9.000000e+02,2.000000e-01,3.300000e-01,2.000000e+01,8.900000e-01,0,2.000000e-01,4.100000e-03,9.970000e-01,0.000000e+00,2.210000e+00,0.000000e+00,2.760000e+00,8.800000e+04,2.160000e+00,8.000000e-03,1.690000e+00,9.500000e-02,1.200000e-02,5.000000e-03,1.960000e+00,6.500000e-01,2.300000e+00,8.900000e-01,7.200000e+01,1.660000e+05,1.220000e+00,1.200000e-03,5.000000e-05,6.100000e-01,9.000000e-02,5.490000e-02,-2.000000e+00
+
+================================================================================
+Final postprocessor values
+================================================================================
+peak_fuel_temperature = 4.129300e+03
+average_core_fuel_temperature = 9.034000e+02
+average_core_coolant_temperature = 1.710000e+02
+peak_reflector_temperature = 9.891000e+02
+peak_shield_temperature = 3.141000e+02
+tank_wall_average_temperature = 2.244000e+01
+peak_regen_wall_temperature = 5.060000e+02
+peak_chamber_wall_temperature = 5.376000e+02
+peak_nozzle_wall_temperature = 5.276000e+02
+peak_gimbal_ring_temperature = 3.633000e+02
+peak_thrust_frame_temperature = 3.789000e+02
+peak_core_support_grid_temperature = 1.580500e+03
+peak_reflector_liner_temperature = 9.931000e+02
+normalized_reactor_power = 2.000000e-02
+decay_heat_fraction_report = 1.850000e-02
+iodine_inventory_report = 2.000000e-01
+xenon_inventory_report = 3.300000e-01
+control_drum_angle_report = 2.000000e+01
+minimum_ledinegg_margin_proxy = 6.600000e-01
+ledinegg_status_report = 0
+reflector_gamma_heat_fraction_report = 2.000000e-01
+tank_shield_heat_leak_report = 4.100000e-03
+para_fraction_report = 9.970000e-01
+gimbal_hydraulic_bleed_report = 0.000000e+00
+minimum_thermal_margin_proxy = 1.310000e+00
+thrust_load_report = 0.000000e+00
+minimum_thrust_frame_compression_margin = 1.920000e+00
+core_support_grid_pressure_drop_report = 8.800000e+04
+minimum_core_support_grid_creep_margin = 1.430000e+00
+reflector_liner_effusion_fraction_report = 8.000000e-03
+minimum_reflector_liner_barrier_margin = 1.250000e+00
+pogo_accumulator_damping_ratio_report = 9.500000e-02
+feedline_pressure_wave_report = 1.200000e-02
+helium_purge_flow_report = 5.000000e-03
+minimum_shaft_seal_leakage_margin = 1.560000e+00
+grid_flow_area_fraction_report = 6.500000e-01
+grid_form_loss_coefficient_report = 2.300000e+00
+grid_exit_density_report = 8.900000e-01
+grid_exit_velocity_report = 7.200000e+01
+grid_coupled_pressure_drop_report = 1.660000e+05
+minimum_point_kinetics_matrix_stability = 1.040000e+00
+core_density_oscillation_report = 1.200000e-03
+fuel_alignment_shift_report = 5.000000e-05
+thrust_frame_resonance_gain_report = 6.100000e-01
+pogo_suppressor_attenuation_report = 9.000000e-02
+net_coupled_gain_report = 5.490000e-02
+fluid_phase_angle_report = -2.000000e+00
+
+================================================================================
+App-facing derived summary
+================================================================================
+thermal_panel.status = nominal_after_cooldown
+thermal_panel.peak_fuel_temperature_K = 4.129300e+03
+thermal_panel.peak_fuel_time_s = 2.100000e+02
+thermal_panel.minimum_thermal_margin = 1.310000e+00
+thermal_panel.regen_wall_peak_K = 5.060000e+02
+thermal_panel.chamber_wall_peak_K = 5.376000e+02
+thermal_panel.nozzle_wall_peak_K = 5.276000e+02
+thermal_panel.reflector_gamma_heat_fraction_peak = 6.940000e-01
+thermal_panel.tank_heat_leak_peak = 1.460000e-02
+
+core_panel.power_ramp_status = completed
+core_panel.restart_status = completed_with_elevated_xenon
+core_panel.iodine_inventory_peak = 1.000000e+00
+core_panel.xenon_inventory_peak = 1.000000e+00
+core_panel.minimum_ledinegg_margin = 6.600000e-01
+core_panel.ledinegg_advisory_count = 1
+core_panel.minimum_point_kinetics_stability = 1.040000e+00
+
+structures_panel.thrust_frame_peak_K = 3.789000e+02
+structures_panel.minimum_thrust_frame_compression_margin = 1.920000e+00
+structures_panel.core_support_grid_peak_K = 1.580500e+03
+structures_panel.minimum_grid_creep_margin = 1.430000e+00
+structures_panel.grid_coupled_pressure_drop_peak_Pa = 4.820000e+05
+structures_panel.fuel_alignment_shift_peak_m = 7.900000e-04
+
+propulsion_panel.mass_flow_source = rocets_mass_flow_proxy
+propulsion_panel.gimbal_bleed_peak_fraction = 2.500000e-02
+propulsion_panel.para_fraction_final = 9.970000e-01
+propulsion_panel.ortho_para_conditioning_status = nominal
+propulsion_panel.helium_purge_flow_final = 5.000000e-03
+propulsion_panel.shaft_seal_leakage_margin_min = 1.560000e+00
+
+stability_panel.pogo_damping_ratio_peak = 2.800000e-01
+stability_panel.feedline_pressure_wave_peak = 6.700000e-02
+stability_panel.thrust_frame_resonance_gain_peak = 1.120000e+00
+stability_panel.pogo_suppressor_attenuation_peak = 3.400000e-01
+stability_panel.net_coupled_gain_peak = 3.808000e-01
+stability_panel.fluid_phase_angle_min_deg = -2.600000e+01
+
+================================================================================
+Cross-link echo
+================================================================================
+[CrossLinks/mcnp_geometry]
+  mcnp_input = ntp_mcnp.inp
+  imported_core_flux_proxy = f4_f14_f24_axial_segments
+  imported_reflector_heating_proxy = f34_reflector_control_poison_vessel
+  imported_shield_proxy = f44_internal_shield
+[]
+
+[CrossLinks/rocets_system]
+  rocets_input = ntp_rocet.inp
+  imported_mass_flow_proxy = rocets_mass_flow_proxy
+  imported_turbine_tap_fraction = turbine_tap_fraction_proxy
+  imported_gimbal_bleed_fraction = gimbal_hydraulic_bleed_proxy
+[]
+
+[CrossLinks/coupled_stability_architecture]
+  vibration_neutronic_coupling = point_kinetics_matrix_stability_proxy
+  thermal_mechanical_integrity = thrust_frame_compression_margin_proxy
+  fluid_hydraulic_node_coupling = grid_coupled_pressure_drop_proxy
+  structural_dynamic_frequency_map = net_coupled_gain_proxy
+[]
+
+================================================================================
+Performance summary
+================================================================================
+Total nonlinear iterations = 123
+Total linear iterations = 947
+Average nonlinear iterations per step = 4.241379e+00
+Average linear iterations per step = 3.265517e+01
+Final time = 9.000000e+02
+Final dt = 9.000000e+01
+Solve status = converged
+Fixture status = complete
+
+Finished Executing

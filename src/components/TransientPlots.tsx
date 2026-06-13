@@ -1,5 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { TransientPoint } from '../types/TransientPoint';
+import {useAnalysisLinkRegistry, useChartWorkspace} from './analysis';
+import {useEngineStore} from '../state/EngineStore';
 
 interface TransientPlotsProps {
   data: TransientPoint[];
@@ -24,7 +26,7 @@ const TRACE_STYLES = {
 } as const;
 
 
-type TraceName = 'Power MW' | 'Thermal margin K' | 'Thrust kN' | 'Stability';
+type TraceName = 'Power MW' | 'Wall criterion margin K' | 'Thrust kN' | 'Basis completeness';
 
 interface TooltipPayloadItem {
   color?: string;
@@ -40,9 +42,9 @@ interface PlotTooltipProps {
 
 const TRACE_METADATA: Record<TraceName, { label: string; unit: string; fractionDigits: number }> = {
   'Power MW': { label: 'Power', unit: 'MW', fractionDigits: 1 },
-  'Thermal margin K': { label: 'Thermal margin', unit: 'K', fractionDigits: 0 },
+  'Wall criterion margin K': { label: 'Wall criterion margin', unit: 'K', fractionDigits: 0 },
   'Thrust kN': { label: 'Thrust', unit: 'kN', fractionDigits: 1 },
-  Stability: { label: 'Stability', unit: '', fractionDigits: 0 },
+  'Basis completeness': { label: 'Basis completeness', unit: '%', fractionDigits: 0 },
 };
 
 function formatPlotValue(value: unknown, name: unknown): [string, string] {
@@ -67,12 +69,12 @@ function normalizeTraceName(name: unknown): TraceName {
     return candidate as TraceName;
   }
 
-  return 'Stability';
+  return 'Basis completeness';
 }
 
 function formatLegendLabel(value: string): string {
   const traceName = normalizeTraceName(value);
-  const axisLabel = traceName === 'Power MW' || traceName === 'Thermal margin K' ? 'left' : 'right';
+  const axisLabel = traceName === 'Power MW' || traceName === 'Wall criterion margin K' ? 'left' : 'right';
 
   return `${TRACE_METADATA[traceName].label} [${axisLabel}]`;
 }
@@ -144,11 +146,31 @@ function PlotTooltip({ active, label, payload }: PlotTooltipProps) {
 }
 
 export function TransientPlots({ data }: TransientPlotsProps) {
+  const charts = useChartWorkspace();
+  const links = useAnalysisLinkRegistry();
+  const selectedTransientTimeSec = useEngineStore((state) => state.selectedTransientTimeSec);
+  const setSelectedTransientTimeSec = useEngineStore((state) => state.setSelectedTransientTimeSec);
+
+  const selectConcern = (linkId: 'thermal-margin' | 'propulsion-stability') => {
+    charts.selectSeries('reduced-order-transient');
+    links.activateLink(linkId);
+  };
+
   return (
     <section className="panel plot-panel">
       <div className="panel-heading">
         <p className="eyebrow">startup / shutdown trace</p>
         <h2>Transient Overview</h2>
+        <div className="trace-link-buttons">
+          <button className={links.state.activeLinkId === 'thermal-margin' ? 'active' : ''}
+                  onClick={() => selectConcern('thermal-margin')} type="button">
+            Wall criterion trace
+          </button>
+          <button className={links.state.activeLinkId === 'propulsion-stability' ? 'active' : ''}
+                  onClick={() => selectConcern('propulsion-stability')} type="button">
+            Propulsion / basis traces
+          </button>
+        </div>
       </div>
       <ResponsiveContainer width="100%" height={310}>
         <LineChart data={data} margin={{ top: 12, right: 28, bottom: 8, left: 12 }}>
@@ -163,7 +185,7 @@ export function TransientPlots({ data }: TransientPlotsProps) {
             orientation="right"
             stroke="#94a3b8"
             yAxisId="secondary"
-            label={{ value: 'Thrust / stability', angle: 90, position: 'insideRight' }}
+            label={{ value: 'Thrust / basis', angle: 90, position: 'insideRight' }}
           />
           <Tooltip content={<PlotTooltip />} />
           <Legend formatter={formatLegendLabel} />
@@ -178,8 +200,8 @@ export function TransientPlots({ data }: TransientPlotsProps) {
           />
           <Line
             type="monotone"
-            dataKey="thermalMarginK"
-            name="Thermal margin K"
+            dataKey="channelWallCriterionMarginK"
+            name="Wall criterion margin K"
             dot={false}
             stroke={TRACE_STYLES.thermalMargin.stroke}
             strokeDasharray={TRACE_STYLES.thermalMargin.strokeDasharray}
@@ -198,8 +220,8 @@ export function TransientPlots({ data }: TransientPlotsProps) {
           />
           <Line
             type="monotone"
-            dataKey="stabilityScore"
-            name="Stability"
+            dataKey="basisCompletenessPercent"
+            name="Basis completeness"
             dot={false}
             stroke={TRACE_STYLES.stability.stroke}
             strokeDasharray={TRACE_STYLES.stability.strokeDasharray}
@@ -208,6 +230,36 @@ export function TransientPlots({ data }: TransientPlotsProps) {
           />
         </LineChart>
       </ResponsiveContainer>
+      <div className="transient-time-control">
+        <span>Inspect generated transient point</span>
+        <span className="transient-time-control__buttons">
+          <button
+            type="button"
+            disabled={selectedTransientTimeSec <= 0}
+            onClick={() => setSelectedTransientTimeSec(Math.max(0, selectedTransientTimeSec - 5))}
+          >
+            Previous 5 s
+          </button>
+          <strong>{selectedTransientTimeSec} s</strong>
+          <button
+            type="button"
+            disabled={selectedTransientTimeSec >= 200}
+            onClick={() => setSelectedTransientTimeSec(Math.min(200, selectedTransientTimeSec + 5))}
+          >
+            Next 5 s
+          </button>
+        </span>
+        <input
+          aria-label="Selected transient time"
+          type="range"
+          min={0}
+          max={200}
+          step={5}
+          value={selectedTransientTimeSec}
+          onChange={(event) => setSelectedTransientTimeSec(Number(event.target.value))}
+        />
+        <small>Each point regenerates power and drum position, then runs the same traceable steady-case evaluator.</small>
+      </div>
     </section>
   );
 }

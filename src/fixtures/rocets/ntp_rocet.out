@@ -1,0 +1,311 @@
+================================================================================
+ ROCETS-LIKE SYSTEM SOLVER OUTPUT
+ Case: baseline-ntp-rocets-002
+ Title: NTP breadboard: LH2 feed, reactor kinetics, turbine loop, nozzle
+ Program: ntp_sys_console parser fixture
+ Units: SI
+ Run posture: non-operational synthetic output for import/parser development
+ ================================================================================
+
+ Input deck echo
+ -------------------------------------------------------------------------------
+   source file                 : ntp_rocet.inp
+   fixture family              : rocets_like
+   vehicle context             : upper_stage_demo
+   fidelity                    : parser_visualization_enhanced
+   safety posture              : non_operational_synthetic_fixture
+   solution mode               : transient
+   start time                  : 0.000000E+00 s
+   stop time                   : 9.000000E+02 s
+   initial dt                  : 1.000000E-03 s
+   max dt                      : 2.500000E-01 s
+   min dt                      : 1.000000E-06 s
+   steady initialization       : enabled
+
+ Parser summary
+ -------------------------------------------------------------------------------
+   sections read               : 24
+   components read             : 25
+   boundaries read             : 2
+   fluids read                 : 2
+   nodes read                  : 15
+   sensors read                : 6
+   connects read               : 22
+   maps read                   : 7
+   schedules read              : 28
+   outputs requested           : 22
+   mission phases              : 5
+   graphics tuples             : 40
+   comments skipped            : 84
+   quoted strings              : 5
+   state references            : 21
+   schedule references         : 53
+   map references              : 9
+
+ Fluids
+ -------------------------------------------------------------------------------
+   fluid lh2
+     species                   : H2
+     phase model               : cryogenic_real_fluid
+     property table            : props/h2_cryo_to_superheated.tbl
+     status                    : synthetic table loaded
+
+   fluid hot_h2
+     species                   : H2
+     phase model               : high_temperature_equilibrium
+     property table            : props/h2_hot_core_exit.tbl
+     status                    : synthetic table loaded
+
+ Component inventory
+ -------------------------------------------------------------------------------
+   feed
+     tank_isolation_valve      : valve
+     boost_pump                : pump
+     main_turbopump            : pump
+     discharge_manifold        : line
+
+   regen
+     nozzle_regen_jacket       : heat_exchanger
+     ortho_para_converter      : fluid_conditioner
+     core_inlet_line           : line
+
+   neutronics and core
+     internal_shield           : radiation_shield
+     reactor_neutronics        : point_kinetics
+     fission_product_poisoning : iodine_xenon_proxy
+     reactor_reflector         : reflector
+     control_drum_bank         : control_drums
+     auxiliary_poison_bank     : poison_override
+     reactor_core              : core_heat_exchanger
+     ledinegg_instability_switch : stability_guard
+     core_exit_plenum          : volume
+
+   turbine and shaft
+     turbine_tap               : splitter
+     drive_turbine             : turbine
+     turbine_exhaust_mixer     : mixer
+     main_turbomachinery_shaft : rotating_shaft
+     electric_start_motor_shaft: rotating_shaft
+     electric_start_motor      : motor
+
+   nozzle
+     thrust_chamber            : volume
+     bell_nozzle               : expansion_nozzle
+     deep_space_bell_nozzle    : expansion_nozzle_preset disabled
+
+ Connectivity check
+ -------------------------------------------------------------------------------
+   graph nodes                 : 15
+   graph edges                 : 22
+   disconnected components     : 1
+   disabled presets            : 1
+   primary flow path           : complete
+   turbine bypass loop         : complete
+   neutronics control links    : complete
+   tank heat leak link         : complete
+   advisory stability link     : complete
+
+   NOTE 0001: component deep_space_bell_nozzle is disabled by input flag.
+   NOTE 0002: component deep_space_bell_nozzle is retained as app preset metadata.
+
+ Initial condition report
+ -------------------------------------------------------------------------------
+   node                         pressure(Pa)    temperature(K)
+   n_lh2_tank_outlet           1.350000E+06      2.250000E+01
+   n_turbopump_inlet           1.200000E+06      2.300000E+01
+   n_turbopump_discharge       1.300000E+06      2.400000E+01
+   n_regen_exit                1.100000E+06      8.000000E+01
+   n_core_inlet_plenum         1.000000E+06      1.100000E+02
+   n_core_exit_plenum          2.500000E+05      6.500000E+02
+   n_chamber                   2.000000E+05      6.500000E+02
+   n_nozzle_exit               1.500000E+05      6.200000E+02
+
+ Steady initialization
+ -------------------------------------------------------------------------------
+   nonlinear solver            : newton
+   linear solver               : sparse_direct
+   relative tolerance          : 1.000000E-06
+   absolute tolerance          : 1.000000E-08
+   maximum nonlinear iters     : 35
+   mass balance check          : strict
+   energy balance check        : report
+   reactivity check            : bounded_fixture_only
+
+   init iter      mass_resid       energy_resid      shaft_resid       status
+        1        2.814000E-01     5.332000E+06     4.892000E+05     reducing
+        2        6.418000E-02     1.104000E+06     1.773000E+05     reducing
+        3        1.029000E-02     2.481000E+05     5.188000E+04     reducing
+        4        1.221000E-03     4.910000E+04     9.430000E+03     reducing
+        5        6.300000E-05     7.280000E+03     1.210000E+03     converged
+
+   steady initialization status : converged
+   initial shaft speed          : 4.500000E+02 rpm
+   initial chamber pressure     : 2.000000E+05 Pa
+   initial core power           : 0.000000E+00 W
+
+ Transient integration log
+ -------------------------------------------------------------------------------
+   time(s)       dt(s)       phase              nonlin  cuts  max_resid     event
+   0.000000E+00  1.000E-03   startup_ramp           4     0   6.230E-07     begin
+   2.000000E+00  5.000E-03   startup_ramp           5     0   7.420E-07     tank valve cracked open
+   6.000000E+00  1.000E-02   startup_ramp           5     0   5.980E-07     boost pump accelerating
+   8.000000E+00  1.000E-02   startup_ramp           6     0   8.310E-07     point kinetics power ramp
+   2.500000E+01  5.000E-02   startup_ramp           6     0   6.770E-07     turbine flow established
+   3.500000E+01  1.000E-01   startup_ramp           5     0   4.820E-07     turbine split near command
+   9.000000E+01  2.500E-01   rated_burn             4     0   5.110E-07     rated hold entered
+   2.100000E+02  2.500E-01   rated_burn             4     0   5.090E-07     shutdown command
+   2.250000E+02  1.000E-01   shutdown_soak          5     0   7.880E-07     tank valve closed
+   2.600000E+02  2.500E-01   shutdown_soak          4     0   6.210E-07     decay heat dominated
+   3.200000E+02  2.500E-01   shutdown_soak          4     0   5.950E-07     xenon proxy peak
+   5.200000E+02  2.500E-01   restart_ramp           5     0   8.440E-07     restart sequence armed
+   5.300000E+02  5.000E-02   restart_ramp           6     1   9.670E-07     valve reopening time cut
+   5.600000E+02  1.000E-01   restart_ramp           6     0   7.930E-07     poison override withdrawing
+   6.500000E+02  2.500E-01   cooldown               5     0   6.700E-07     restart rated point reached
+   7.600000E+02  2.500E-01   cooldown               4     0   5.620E-07     reduced power hold
+   9.000000E+02  2.500E-01   cooldown               4     0   5.480E-07     end of run
+
+ Mission phase summary
+ -------------------------------------------------------------------------------
+   phase                 start(s)    stop(s)    samples    status
+   startup_ramp             0.000     90.000       1425    complete
+   rated_burn              90.000    210.000        480    complete
+   shutdown_soak          210.000    520.000       1240    complete
+   restart_ramp           520.000    650.000        650    complete
+   cooldown               650.000    900.000       1000    complete
+
+ Solver residual summary
+ -------------------------------------------------------------------------------
+   residual name              max_abs         rms             final          tolerance       status
+   shaft_power_balance        4.110000E+03   8.420000E+02   6.500000E+02   5.000000E+03   pass
+   chamber_pressure_target    4.720000E+04   1.340000E+04   1.900000E+04   5.000000E+04   pass
+   core_power_tracking        2.110000E+06   4.900000E+05   7.500000E+05   2.500000E+06   pass
+   mass_flow_closure          3.800000E-02   9.100000E-03   1.700000E-02   5.000000E-02   pass
+
+ Advisory diagnostics
+ -------------------------------------------------------------------------------
+   MASS BALANCE              : pass, strict closure satisfied
+   ENERGY BALANCE            : report, synthetic fixture closure within band
+   CAVITATION CHECK          : report only; minimum NPSH margin 1.18 at 530.0 s
+   REACTIVITY CHECK          : bounded fixture only; no design claim made
+   LEDINEGG SWITCH           : advisory only; WATCH during restart/cooldown window
+   REFLECTOR GAMMA HEATING   : schedule coupled to thermal report channel
+   IODINE/XENON MEMORY       : restart penalty visible in 520-650 s window
+   DECAY HEAT                : schedule coupled to shutdown soak and cooldown
+
+ Warning and note list
+ -------------------------------------------------------------------------------
+   WARN 0104 at 5.300000E+02 s: restart ramp required one time-step cut.
+   WARN 0211 at 6.500000E+02 s: ledinegg_instability_switch status = watch.
+   NOTE 0300: deep_space_bell_nozzle disabled; baseline bell_nozzle used.
+   NOTE 0301: frozen_flow=false interpreted as equilibrium_proxy performance mode.
+   NOTE 0400: all warnings are parser-fixture advisories, not design findings.
+
+ Time history: overview snapshot output
+ -------------------------------------------------------------------------------
+   time(s)  phase            tank_P(Pa)  core_P(W)   decay_W     mdot(kg/s)  shaft_rpm  chamber_P(Pa)  thrust_N   xenon    margin   ledinegg
+      0.0   startup_ramp    1.350E+06   0.000E+00  0.000E+00   0.000      450.0     2.000E+05      0.000E+00  0.000   0.020    nominal
+     25.0   startup_ramp    1.315E+06   6.000E+07  1.500E+06   3.950     2680.0    1.850E+06      1.720E+04  0.020   0.015    nominal
+     90.0   rated_burn      1.240E+06   3.500E+08  1.200E+07   8.040     5220.0    5.020E+06      7.180E+04  0.120   0.009    nominal
+    210.0   rated_burn      1.100E+06   3.500E+08  1.800E+07   7.960     5185.0    4.980E+06      7.090E+04  0.450   0.006    nominal
+    260.0   shutdown_soak   1.085E+06   2.500E+07  1.420E+07   0.320      790.0     3.800E+05      1.900E+03  0.620   0.004    recovering
+    320.0   shutdown_soak   1.072E+06   1.180E+07  1.000E+07   0.080      510.0     2.420E+05      4.600E+02  0.740   0.002    recovering
+    520.0   restart_ramp    1.050E+06   1.500E+07  4.000E+06   0.000      450.0     2.000E+05      0.000E+00  0.880   0.001    reset
+    560.0   restart_ramp    1.025E+06   1.220E+08  6.800E+06   5.720     3610.0    2.720E+06      3.850E+04  0.690   0.004    watch
+    650.0   cooldown        9.700E+05   2.500E+08  1.200E+07   6.880     4820.0    4.210E+06      5.980E+04  0.580   0.006    watch
+    760.0   cooldown        9.520E+05   2.500E+08  8.400E+06   6.730     4760.0    4.120E+06      5.820E+04  0.460   0.008    watch
+    900.0   cooldown        9.200E+05   5.000E+07  2.500E+06   0.410      620.0     2.150E+05      8.500E+02  0.350   0.012    nominal
+
+ Time history: feed and turbomachinery channels
+ -------------------------------------------------------------------------------
+   time(s)  tank_P(Pa) tank_T(K) para_eq  boost_rpm main_rpm pump_mdot pump_dp(Pa) turbine_split turbine_power(W)
+      0.0   1.350E+06   22.50    0.998       0.0     450.0    0.000   0.000E+00     0.000       0.000E+00
+     25.0   1.315E+06   23.20    0.965    2200.0    2680.0    3.950   2.280E+06     0.050       5.900E+05
+     90.0   1.240E+06   23.90    0.920    1800.0    5220.0    8.040   6.020E+06     0.050       1.530E+06
+    210.0   1.100E+06   25.00    0.880    1800.0    5185.0    7.960   5.930E+06     0.050       1.480E+06
+    320.0   1.072E+06   25.90    0.890       0.0     510.0    0.080   1.400E+04     0.000       0.000E+00
+    520.0   1.050E+06   27.00    0.900       0.0     450.0    0.000   0.000E+00     0.000       0.000E+00
+    560.0   1.015E+06   27.35    0.885    1800.0    3610.0    5.720   3.900E+06     0.045       9.100E+05
+    650.0   9.700E+05   27.95    0.870    1600.0    4820.0    6.880   4.940E+06     0.040       1.120E+06
+    900.0   9.200E+05   29.00    0.940       0.0     620.0    0.410   6.500E+04     0.000       0.000E+00
+
+ Time history: neutronics and thermal channels
+ -------------------------------------------------------------------------------
+   time(s)  drum_deg  drum_worth  aux_worth  xe_worth   iodine  xenon  core_power(W) refl_heat(W) shield_heat(W) core_exit_T(K)
+      0.0      0.00  -8.000E-02  0.000E+00  0.000E+00   0.000  0.000   0.000E+00   0.000E+00    1.000E+02      650.0
+     25.0     55.00  -2.000E-02  0.000E+00 -1.000E-03   0.100  0.020   6.000E+07   4.800E+05    1.200E+03     1220.0
+     90.0     92.00   0.000E+00  0.000E+00 -2.000E-03   0.380  0.120   3.500E+08   1.500E+06    3.500E+03     2720.0
+    210.0     92.00   0.000E+00  0.000E+00 -6.000E-03   0.840  0.450   3.500E+08   1.500E+06    3.500E+03     2745.0
+    320.0      0.00  -8.000E-02 -1.200E-02 -1.000E-02   0.920  0.740   1.180E+07   3.400E+05    1.100E+03      890.0
+    520.0     10.00  -6.000E-02 -1.200E-02 -1.200E-02   0.700  0.880   1.500E+07   2.000E+05    7.500E+02      760.0
+    560.0     70.00  -2.700E-02 -4.000E-03 -9.000E-03   0.760  0.690   1.220E+08   6.200E+05    1.900E+03     1980.0
+    650.0     86.00  -1.000E-02  0.000E+00 -7.000E-03   0.780  0.580   2.500E+08   1.000E+06    2.800E+03     2510.0
+    900.0      0.00  -8.000E-02 -1.200E-02 -4.000E-03   0.420  0.350   5.000E+07   1.000E+05    4.000E+02      820.0
+
+ Time history: nozzle and performance channels
+ -------------------------------------------------------------------------------
+   time(s)  chamber_P(Pa) chamber_T(K) nozzle_mdot(kg/s) throat_P(Pa) area_ratio cd     div_eff  isp_proxy(s) thrust_proxy(N)
+      0.0    2.000E+05      650.0        0.000          0.000E+00     38.0   0.985  0.970       0.0       0.000E+00
+     25.0    1.850E+06     1220.0        3.910          1.210E+06     38.0   0.985  0.970     448.0       1.720E+04
+     90.0    5.020E+06     2720.0        8.000          3.250E+06     38.0   0.985  0.970     914.0       7.180E+04
+    210.0    4.980E+06     2745.0        7.910          3.210E+06     38.0   0.985  0.970     913.0       7.090E+04
+    320.0    2.420E+05      890.0        0.080          1.360E+05     38.0   0.985  0.970     586.0       4.600E+02
+    520.0    2.000E+05      760.0        0.000          0.000E+00     38.0   0.985  0.970       0.0       0.000E+00
+    560.0    2.720E+06     1980.0        5.680          1.810E+06     38.0   0.985  0.970     691.0       3.850E+04
+    650.0    4.210E+06     2510.0        6.830          2.760E+06     38.0   0.985  0.970     892.0       5.980E+04
+    900.0    2.150E+05      820.0        0.410          1.100E+05     38.0   0.985  0.970     211.0       8.500E+02
+
+ Output requests satisfied
+ -------------------------------------------------------------------------------
+   panel feed
+     tank_pressure                         interval=0.25 status=written
+     para_fraction                         interval=0.25 status=written
+     boost_pump_speed                      interval=0.25 status=written
+     main_pump_mdot                        interval=0.25 status=written
+
+   panel turbomachinery
+     shaft_speed                           interval=0.25 status=written
+
+   panel core
+     core_power                            interval=0.25 status=written
+     decay_heat                            interval=0.25 status=written
+     iodine_inventory                      interval=0.25 status=written
+     xenon_inventory                       interval=0.25 status=written
+     xenon_poison_worth                    interval=0.25 status=written
+     poisoned_reactivity_margin            interval=0.25 status=written
+     control_drum_angle                    interval=0.25 status=written
+     aux_poison_insertion                  interval=0.25 status=written
+
+   panel thermal
+     shield_tank_heat                      interval=0.25 status=written
+     core_exit_temperature                 interval=0.25 status=written
+     ledinegg_margin                       interval=0.25 status=written
+     ledinegg_status                       interval=0.25 status=written
+
+   panel nozzle
+     chamber_pressure                      interval=0.25 status=written
+     nozzle_mass_flow                      interval=0.25 status=written
+     thrust_proxy                          interval=0.25 status=written
+
+   panel overview
+     mission_sequence                      snapshots=6 status=written
+
+ Final run summary
+ -------------------------------------------------------------------------------
+   final time                  : 9.000000E+02 s
+   accepted steps              : 4795
+   rejected steps              : 1
+   nonlinear iterations        : 21984
+   maximum time cuts           : 1
+   wall clock synthetic        : 00:00:03.842
+   output records written      : 96540
+   final mass balance residual : 1.700000E-02 kg/s
+   final energy residual       : 1.840000E+04 W
+   final chamber pressure      : 2.150000E+05 Pa
+   final thrust proxy          : 8.500000E+02 N
+   final xenon inventory       : 3.500000E-01 arb
+   final ledinegg status       : nominal
+   run status                  : NORMAL TERMINATION
+
+ ================================================================================
+ END ROCETS-LIKE SYSTEM SOLVER OUTPUT
+ ================================================================================
