@@ -10,6 +10,10 @@ export interface FixtureEvidenceWorkspaceModel {
     readonly boundary: AnalysisBoundary;
 }
 
+/** Boundary: parsed fixture evidence enters here and remains immutable downstream.
+ *  Current milestone is read-only fixture inspection only (input/output views).
+ *  The future milestone may add graphical fixture editing actions within the same artifact shell.
+ */
 export function buildFixtureEvidenceWorkspaceModel(
     overrides: Partial<FixtureEvidenceWorkspaceModel> = {},
 ): FixtureEvidenceWorkspaceModel {
@@ -56,7 +60,7 @@ export function buildFixtureEvidenceWorkspaceModel(
         boundary: {
             scope: 'Catalogs parsed engineering fixtures and exposes immutable evidence selections.',
             owns: ['fixture identity', 'parser status', 'provenance', 'validation labels'],
-            excludes: ['solver execution', 'manual parameter edits', 'reduced-order outputs'],
+            excludes: ['solver execution', 'manual parameter edits', 'reduced-order outputs', 'graphical fixture mutation'],
         },
         ...overrides,
     };

@@ -72,7 +72,7 @@ export function EvidenceInspector({onOpenModelEvidence}: Readonly<{
                         })}
                     </dl>
                     <p className="evidence-inspector__separation">
-                        Calculated values are shown separately. The synthetic fixture was not rerun for this case.
+                        Calculated case · fixture reference
                     </p>
                 </div>
             </div>

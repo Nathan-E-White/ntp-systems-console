@@ -150,7 +150,7 @@ const createSummaryCards = (parsed: unknown): ParsedSummaryCard[] => {
   const performance = getParsedRecord(parsed, ["performance", "performanceSummary", "solverPerformance"]);
   const steadyInitialization = getParsedRecord(parsed, ["steadyInitialization", "steadyState", "initialization"]);
   const transientLog = getParsedArray(parsed, ["transientLog", "transientIntegrationLog", "timeHistory", "history"]);
-  const warnings = getParsedArray(parsed, ["warnings", "notes", "diagnostics"]);
+  const warnings = getParsedArray(parsed, ["warningsAndNotes", "warnings", "notes", "diagnostics"]);
   const missionPhases = getParsedArray(parsed, ["missionPhases", "phases", "runPhases"]);
 
   const runStatus = findRunStatus(parsed);
@@ -322,15 +322,21 @@ const createTables = (parsed: unknown): ParsedTable[] =>
       "Operating phases reported by the simulation.",
     ),
     createTable(
+      "overview-snapshots",
+      "Overview snapshots",
+      getParsedArray(parsed, ["overviewSnapshots", "snapshots", "runSnapshots"]),
+      "Overview state snapshots parsed from the ROCETS output.",
+    ),
+    createTable(
       "feed-turbomachinery-history",
       "Feed and turbomachinery history",
-      getParsedArray(parsed, ["feedHistory", "turbomachineryHistory", "pumpHistory", "turbineHistory"]),
+      getParsedArray(parsed, ["feedTurbomachineryHistory", "feedHistory", "turbomachineryHistory", "pumpHistory", "turbineHistory"]),
       "Feed-system, pump, turbine, or expander quantities parsed from the output.",
     ),
     createTable(
       "nozzle-performance-history",
       "Nozzle performance history",
-      getParsedArray(parsed, ["nozzleHistory", "nozzlePerformance", "performanceHistory"]),
+      getParsedArray(parsed, ["nozzlePerformanceHistory", "nozzleHistory", "nozzlePerformance", "performanceHistory"]),
       "Nozzle and thrust-performance quantities parsed from the output.",
     ),
     createTable(
@@ -342,13 +348,31 @@ const createTables = (parsed: unknown): ParsedTable[] =>
     createTable(
       "neutronics-history",
       "Neutronics coupling history",
-      getParsedArray(parsed, ["neutronicsHistory", "reactorHistory", "powerHistory"]),
+      getParsedArray(parsed, ["neutronicsThermalHistory", "neutronicsHistory", "reactorHistory", "powerHistory"]),
       "Reactor, power, or neutronic coupling quantities reported by the run.",
+    ),
+    createTable(
+      "solver-residuals",
+      "Solver residuals",
+      getParsedArray(parsed, ["solverResiduals", "residuals", "solverResidualHistory"]),
+      "Solver residual summary records parsed from the ROCETS output.",
+    ),
+    createTable(
+      "advisory-diagnostics",
+      "Advisory diagnostics",
+      getParsedArray(parsed, ["advisoryDiagnostics", "advisories", "diagnosticAdvisories"]),
+      "Advisory diagnostic records parsed from the ROCETS output.",
+    ),
+    createTable(
+      "output-requests",
+      "Output requests",
+      getParsedArray(parsed, ["outputRequests", "outputs", "requestedOutputs"]),
+      "Output request status records parsed from the ROCETS output.",
     ),
     createTable(
       "warnings",
       "Warnings and notes",
-      getParsedArray(parsed, ["warnings", "notes", "diagnostics"]),
+      getParsedArray(parsed, ["warningsAndNotes", "warnings", "notes", "diagnostics"]),
       "Warnings, notes, or diagnostic messages emitted by the run.",
     ),
   ].filter((table): table is ParsedTable => table !== undefined);
@@ -414,12 +438,12 @@ const createTimeSeries = (parsed: unknown): ParsedTimeSeries[] =>
     createTimeSeriesFromRows(
       "feed-turbomachinery-history",
       "Feed and turbomachinery history",
-      getParsedArray(parsed, ["feedHistory", "turbomachineryHistory", "pumpHistory", "turbineHistory"]),
+      getParsedArray(parsed, ["feedTurbomachineryHistory", "feedHistory", "turbomachineryHistory", "pumpHistory", "turbineHistory"]),
     ),
     createTimeSeriesFromRows(
       "nozzle-performance-history",
       "Nozzle performance history",
-      getParsedArray(parsed, ["nozzleHistory", "nozzlePerformance", "performanceHistory"]),
+      getParsedArray(parsed, ["nozzlePerformanceHistory", "nozzleHistory", "nozzlePerformance", "performanceHistory"]),
       {
         isp: "s",
         specificImpulse: "s",
@@ -433,7 +457,7 @@ const createTimeSeries = (parsed: unknown): ParsedTimeSeries[] =>
     createTimeSeriesFromRows(
       "neutronics-history",
       "Neutronics coupling history",
-      getParsedArray(parsed, ["neutronicsHistory", "reactorHistory", "powerHistory"]),
+      getParsedArray(parsed, ["neutronicsThermalHistory", "neutronicsHistory", "reactorHistory", "powerHistory"]),
     ),
   ].filter((series): series is ParsedTimeSeries => series !== undefined);
 
@@ -470,7 +494,7 @@ const createGraph = (parsed: unknown): ParsedGraphModel | undefined => {
 };
 
 const diagnosticsFromWarnings = (parsed: unknown): ParserDiagnostic[] =>
-  getParsedArray(parsed, ["warnings", "notes", "diagnostics"]).map((warning, index) => {
+  getParsedArray(parsed, ["warningsAndNotes", "warnings", "notes", "diagnostics"]).map((warning, index) => {
     const severity = getString(warning, ["severity", "level", "type"], "warning").toLowerCase();
 
     return {

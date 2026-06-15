@@ -12,11 +12,11 @@ describe('reference-controlled model evaluation', () => {
         const investigation = evaluateEngineCase(ENGINE_INPUT_PRESETS.thermalMarginInvestigation);
         expect(baseline.outputs.outletTemperatureK).toBeCloseTo(2550, 8);
         expect(baseline.outputs.thrustKn).toBeCloseTo(113.5746, 3);
-        expect(baseline.outputs.stabilityStatus).toBe('watch');
+        expect(baseline.outputs.reviewPosture).toBe('watch');
         expect(baseline.basis.completeness).toBe('screening');
-        expect(investigation.outputs.thermalMarginK).toBeLessThan(0);
-        expect(investigation.outputs.stabilityStatus).toBe('limit');
-});
+        expect(investigation.outputs.channelWallCriterionMarginK).toBeLessThan(0);
+        expect(investigation.outputs.reviewPosture).toBe('limit');
+	});
     it('makes every displayed output equal its root trace result', () => {
         const evaluation = evaluateEngineCase(ENGINE_INPUT_PRESETS.baselineStartup);
         const displayedKeys: readonly (keyof ReferenceControlledEngineOutputs)[] = [
@@ -60,14 +60,6 @@ describe('reference-controlled model evaluation', () => {
         });
         expect(evaluation.basis.completeness).toBe('incomplete');
         expect(evaluation.basis.diagnostics.some((item) => item.id === 'inlet-real-fluid-required')).toBe(true);
-    });
-
-    it('keeps the unsupported model isolated behind the explicit legacy profile', () => {
-        const legacy = evaluateEngineCase(ENGINE_INPUT_PRESETS.legacyDemo);
-        expect(legacy.basis.completeness).toBe('legacy');
-        expect(legacy.trace.nodes.every((node) => node.equationId.startsWith('LEGACY-'))).toBe(true);
-        expect(evaluateEngineCase(ENGINE_INPUT_PRESETS.baselineStartup).trace.nodes
-            .some((node) => node.equationId.startsWith('LEGACY-'))).toBe(false);
     });
 
     it('reproduces every plotted transient value from its point evaluation', () => {

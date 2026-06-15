@@ -27,7 +27,7 @@ export function OperatingCaseSection({
     return (
         <SectionShell eyebrow="engine operations" title="Operating Case"
                       titleId="operating-case-title"
-                      description="Define an operating phase, inspect the reduced-order response, and identify the condition that should drive higher-fidelity model handoff.">
+                      description="Set the operating point and identify the controlling condition.">
             <SectionGrid variant="console">
                 <ParameterPanel inputs={inputs}/>
                 <section className="panel engine-panel">
@@ -43,12 +43,6 @@ export function OperatingCaseSection({
             <EvidenceInspector onOpenModelEvidence={onOpenModelEvidence}/>
             <SectionGrid>
                 <DesignReviewPanel inputs={inputs} outputs={outputs}/>
-                <section className="panel model-boundary-panel">
-                    <p className="eyebrow">claim boundary</p>
-                    <h2>What changed?</h2>
-                    <p>Performance, channel-wall criterion margin, channel pressure drop, and model-basis completeness are recalculated from the controls.</p>
-                    <p>MCNP-like, MOOSE-like, and ROCETS-like evidence remains static until a fixture is explicitly reparsed.</p>
-                </section>
             </SectionGrid>
         </SectionShell>
     );

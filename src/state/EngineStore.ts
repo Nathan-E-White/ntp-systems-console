@@ -1,26 +1,23 @@
 import {create} from 'zustand';
 
-import type {EngineInputs, MissionMode} from '../types/EngineState';
+import type {EngineInputs} from '../types/EngineState';
 import {MODEL_PROFILES} from '../physics/modelProfiles';
 import {derivePeweeClosureEfficiency} from '../physics/representativeChannelModel';
 
 export type EngineVisualizationMode = 'systems' | 'thermal' | 'flow' | 'review';
 export type EngineWorkspace = 'reactor' | 'propulsion' | 'transients' | 'review';
-export type EnginePresetId = 'baselineStartup' | 'thermalMarginInvestigation' | 'legacyDemo';
+export type EnginePresetId = 'baselineStartup' | 'thermalMarginInvestigation';
 export type EngineCaseSelection = EnginePresetId | 'customWhatIf';
 
 export interface EngineStoreState {
     inputs: EngineInputs;
     selectedPresetId: EngineCaseSelection;
     basePresetId: EnginePresetId;
-    selectedTransientTimeSec: number;
     selectedChannelStationIndex: number | null;
     visualizationMode: EngineVisualizationMode;
     activeWorkspace: EngineWorkspace;
     demoResetRevision: number;
     setInput: <Key extends keyof EngineInputs>(key: Key, value: EngineInputs[Key]) => void;
-    setMissionMode: (missionMode: MissionMode) => void;
-    setSelectedTransientTimeSec: (timeSec: number) => void;
     setSelectedChannelStationIndex: (stationIndex: number | null) => void;
     setVisualizationMode: (visualizationMode: EngineVisualizationMode) => void;
     focusWorkspace: (activeWorkspace: EngineWorkspace) => void;
@@ -31,7 +28,6 @@ export interface EngineStoreState {
 export const ENGINE_INPUT_PRESETS: Record<EnginePresetId, EngineInputs> = {
     baselineStartup: MODEL_PROFILES.peweeInspired.inputs,
     thermalMarginInvestigation: MODEL_PROFILES.thermalInvestigation.inputs,
-    legacyDemo: MODEL_PROFILES.legacyDemo.inputs,
 };
 
 export const DEFAULT_ENGINE_PRESET_ID: EnginePresetId = 'baselineStartup';
@@ -41,7 +37,6 @@ export const useEngineStore = create<EngineStoreState>((set) => ({
     inputs: DEFAULT_ENGINE_INPUTS,
     selectedPresetId: DEFAULT_ENGINE_PRESET_ID,
     basePresetId: DEFAULT_ENGINE_PRESET_ID,
-    selectedTransientTimeSec: 0,
     selectedChannelStationIndex: null,
     visualizationMode: 'systems',
     activeWorkspace: 'reactor',
@@ -66,13 +61,6 @@ export const useEngineStore = create<EngineStoreState>((set) => ({
             };
         });
     },
-    setMissionMode: (missionMode) => {
-        set((state) => ({
-            inputs: {...state.inputs, missionMode},
-            selectedPresetId: 'customWhatIf',
-        }));
-    },
-    setSelectedTransientTimeSec: (selectedTransientTimeSec) => set({selectedTransientTimeSec}),
     setSelectedChannelStationIndex: (selectedChannelStationIndex) => set({selectedChannelStationIndex}),
     setVisualizationMode: (visualizationMode) => set({visualizationMode}),
     focusWorkspace: (activeWorkspace) => set({activeWorkspace}),
@@ -82,7 +70,6 @@ export const useEngineStore = create<EngineStoreState>((set) => ({
             selectedPresetId: presetId,
             basePresetId: presetId,
             visualizationMode: presetId === 'thermalMarginInvestigation' ? 'thermal' : 'systems',
-            selectedTransientTimeSec: 0,
             selectedChannelStationIndex: null,
         });
     },
@@ -93,7 +80,6 @@ export const useEngineStore = create<EngineStoreState>((set) => ({
             basePresetId: DEFAULT_ENGINE_PRESET_ID,
             visualizationMode: 'systems',
             activeWorkspace: 'reactor',
-            selectedTransientTimeSec: 0,
             selectedChannelStationIndex: null,
             demoResetRevision: state.demoResetRevision + 1,
         }));

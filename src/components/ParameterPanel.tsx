@@ -1,11 +1,10 @@
-import type {EngineInputs, MissionMode} from '../types/EngineState';
+import type {EngineInputs} from '../types/EngineState';
 import {useOutputWorkspace, useParameterWorkspace} from './analysis';
 import {collectInputDependencies, findCalculationNode} from '../physics/calculationTrace';
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
 import {
     ENGINE_INPUT_PRESETS,
     type EnginePresetId,
-    type EngineVisualizationMode,
     useEngineStore,
 } from '../state/EngineStore';
 
@@ -22,20 +21,11 @@ const CASES: Array<{id: EnginePresetId; label: string; note: string}> = [
     {id: 'thermalMarginInvestigation', label: 'Thermal Margin Investigation', note: 'User-defined power-to-flow concern'},
 ];
 
-const MODES: Array<{id: EngineVisualizationMode; label: string}> = [
-    {id: 'systems', label: 'Systems'},
-    {id: 'thermal', label: 'Thermal'},
-    {id: 'flow', label: 'Flow'},
-    {id: 'review', label: 'Controls'},
-];
-
 export function ParameterPanel({inputs}: Readonly<ParameterPanelProps>) {
     const parameterWorkspace = useParameterWorkspace();
     const outputWorkspace = useOutputWorkspace();
     const setInput = useEngineStore((state) => state.setInput);
-    const setMissionMode = useEngineStore((state) => state.setMissionMode);
     const selectedPresetId = useEngineStore((state) => state.selectedPresetId);
-    const visualizationMode = useEngineStore((state) => state.visualizationMode);
     const loadPreset = useEngineStore((state) => state.loadPreset);
     const evaluation = evaluateEngineCase(inputs);
     const selectedOutputKey = outputWorkspace.state.selectedOutputKey ?? 'channelWallCriterionMarginK';
@@ -76,12 +66,6 @@ export function ParameterPanel({inputs}: Readonly<ParameterPanelProps>) {
                     </button>
                 ))}
             </div>
-            <details className="legacy-profile-control">
-                <summary>Legacy regression comparison</summary>
-                <p>Unsupported former demo coefficients. Excluded from the guided engineering walkthrough.</p>
-                <button type="button" onClick={() => loadPreparedCase('legacyDemo')}>Load Legacy Demo Model</button>
-            </details>
-
             {selectedPresetId === 'customWhatIf' ? (
                 <p className="what-if-notice">
                     Custom What-If: {parameterWorkspace.state.dirtyKeys.length || 1} parameter
@@ -93,30 +77,6 @@ export function ParameterPanel({inputs}: Readonly<ParameterPanelProps>) {
             <Slider highlighted={influentialInputs.has('massFlowKgPerSec')} recent={lastEditedKey === 'massFlowKgPerSec'} label="Hydrogen mass flow" value={inputs.massFlowKgPerSec} min={4} max={24} step={0.1} suffix="kg/s" onChange={updateNumber('massFlowKgPerSec')}/>
             <Slider highlighted={influentialInputs.has('controlDrumAngleDeg')} recent={lastEditedKey === 'controlDrumAngleDeg'} label="Control drum angle" value={inputs.controlDrumAngleDeg} min={0} max={90} step={1} suffix="deg" onChange={updateNumber('controlDrumAngleDeg')}/>
             <Slider highlighted={influentialInputs.has('channelWallCriterionK')} recent={lastEditedKey === 'channelWallCriterionK'} label="Channel wall criterion" value={inputs.channelWallCriterionK} min={2200} max={3300} step={10} suffix="K" onChange={updateNumber('channelWallCriterionK')}/>
-
-            <div className={`control-section ${influentialInputs.has('missionMode') ? 'calculation-input-highlight' : ''}`}>
-                <h3>Operating phase</h3>
-                <div className="mode-buttons">
-                    {(['startup', 'steadyBurn', 'shutdown', 'cooldown'] as MissionMode[]).map((mode) => (
-                        <button className={mode === inputs.missionMode ? 'active' : ''} key={mode}
-                                onClick={() => setMissionMode(mode)} type="button">
-                            {formatPhase(mode)}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="control-section">
-                <h3>Scene emphasis</h3>
-                <div className="mode-buttons">
-                    {MODES.map((mode) => (
-                        <button className={mode.id === visualizationMode ? 'active' : ''} key={mode.id}
-                                onClick={() => useEngineStore.getState().setVisualizationMode(mode.id)} type="button">
-                            {mode.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
 
             <details className="advanced-controls">
                 <summary>What-if controls</summary>
@@ -140,10 +100,6 @@ export function ParameterPanel({inputs}: Readonly<ParameterPanelProps>) {
             </details>
         </aside>
     );
-}
-
-function formatPhase(mode: MissionMode): string {
-    return mode === 'steadyBurn' ? 'Steady burn' : mode[0].toUpperCase() + mode.slice(1);
 }
 
 function Slider({label, value, min, max, step, suffix, highlighted = false, recent = false, onChange}: {

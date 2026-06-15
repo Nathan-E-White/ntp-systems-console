@@ -69,8 +69,8 @@ export function ReactorPhysicsPanel({summary = DEFAULT_REACTOR_PHYSICS_SUMMARY}:
         </div>
 
         <p className="muted-copy">
-            {summary.sourceLabel}: illustrative MCNP-like neutronics summary for UI and parser development.
-            These values are synthetic fixture data, not validated criticality or reactor-design results.
+            {summary.sourceLabel}: synthetic MCNP-like neutronics for UI/parser.
+            Not validated criticality or reactor-design output.
         </p>
 
         <div className="analysis-source-grid">

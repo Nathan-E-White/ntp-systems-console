@@ -1,7 +1,6 @@
 import type {ParserFamily, ParserStatus} from '../../parser/parserTypes';
 import type {
     EngineInputs,
-    LegacyEngineOutputAliases,
     ReferenceControlledEngineOutputs,
 } from '../../types/EngineState';
 
@@ -12,7 +11,7 @@ export type NumericInputKey = {
 export type NumericOutputKey = {
     [Key in keyof ReferenceControlledEngineOutputs]:
     ReferenceControlledEngineOutputs[Key] extends number ? Key : never;
-}[keyof ReferenceControlledEngineOutputs] & Exclude<string, keyof LegacyEngineOutputAliases>;
+}[keyof ReferenceControlledEngineOutputs];
 
 export interface EngineeringFixtureReference {
     readonly id: string;

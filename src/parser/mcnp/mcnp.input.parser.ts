@@ -119,6 +119,7 @@ export interface McnpParserDiagnostic {
 }
 
 type Section = "cells" | "surfaces" | "data" | "metadata";
+type LabelableCard = McnpCellCard | McnpSurfaceCard | McnpMaterialCard | McnpTallyCard;
 
 const COMMENT_RE = /^\s*[cC](?:\s+|$)/;
 const CELL_RE = /^\s*(\d+)\s+(-?\d+)\s+(.*)$/;
@@ -150,7 +151,7 @@ export function parseMcnpInput(input: string): McnpParseResult {
     };
 
     let section: Section = "cells";
-    let pendingLabel: string | undefined;
+    let cardAwaitingCommentMetadataLabel: LabelableCard | undefined;
 
     input
         .replace(/\r\n?/g, "\n")
@@ -162,29 +163,38 @@ export function parseMcnpInput(input: string): McnpParseResult {
             section = updateSection(section, raw);
 
             if (trimmed.length === 0) {
+                cardAwaitingCommentMetadataLabel = undefined;
                 return;
             }
 
             if (COMMENT_RE.test(raw)) {
-                const label = parseLabelComment(raw);
+                const label = parseCommentLineMetadataLabel(raw);
 
                 if (label !== undefined) {
-                    pendingLabel = label;
+                    // MCNP ignores the entire C-line; this is app fixture metadata, not active input syntax.
+                    const metadataTarget = cardAwaitingCommentMetadataLabel;
+                    if (metadataTarget !== undefined && metadataTarget.label === undefined) {
+                        metadataTarget.label = label;
+                        cardAwaitingCommentMetadataLabel = undefined;
+                        return;
+                    }
+
                     return;
                 }
 
+                cardAwaitingCommentMetadataLabel = undefined;
                 parseStructuredComment(raw, lineNumber, result);
                 return;
             }
 
             const body = stripInlineComment(raw).trim();
+            const eolCommentLabel = parseEndOfLineCommentLabel(raw);
 
             if (body.length === 0) {
                 return;
             }
 
-            const label = pendingLabel;
-            pendingLabel = undefined;
+            const label = eolCommentLabel;
 
             const parsed =
                 parseMaterial(body, raw, lineNumber, label) ??
@@ -192,12 +202,29 @@ export function parseMcnpInput(input: string): McnpParseResult {
                 parseSource(body, raw, lineNumber) ??
                 parseDistribution(body, raw, lineNumber);
 
-            if (parsed?.kind === "material") result.materials.push(parsed);
-            else if (parsed?.kind === "tally") result.tallies.push(parsed);
-            else if (parsed?.kind === "source") result.sourceCards.push(parsed);
-            else if (parsed?.kind === "distribution") result.distributions.push(parsed);
-            else if (section === "surfaces") result.surfaces.push(parseSurface(body, raw, lineNumber, label, result));
-            else if (section === "cells") result.cells.push(parseCell(body, raw, lineNumber, label, result));
+            if (parsed?.kind === "material") {
+                result.materials.push(parsed);
+                cardAwaitingCommentMetadataLabel = parsed.label === undefined ? parsed : undefined;
+            } else if (parsed?.kind === "tally") {
+                result.tallies.push(parsed);
+                cardAwaitingCommentMetadataLabel = parsed.label === undefined ? parsed : undefined;
+            } else {
+                if (parsed?.kind === "source") result.sourceCards.push(parsed);
+                else if (parsed?.kind === "distribution") result.distributions.push(parsed);
+                else if (section === "surfaces") {
+                    const surface = parseSurface(body, raw, lineNumber, label, result);
+                    result.surfaces.push(surface);
+                    cardAwaitingCommentMetadataLabel = surface.label === undefined ? surface : undefined;
+                    return;
+                } else if (section === "cells") {
+                    const cell = parseCell(body, raw, lineNumber, label, result);
+                    result.cells.push(cell);
+                    cardAwaitingCommentMetadataLabel = cell.label === undefined ? cell : undefined;
+                    return;
+                }
+
+                cardAwaitingCommentMetadataLabel = undefined;
+            }
         });
 
     return result;
@@ -236,7 +263,15 @@ function stripInlineComment(raw: string): string {
     return commentIndex < 0 ? raw : raw.slice(0, commentIndex);
 }
 
-function parseLabelComment(raw: string): string | undefined {
+function parseEndOfLineCommentLabel(raw: string): string | undefined {
+    const commentIndex = raw.indexOf("$");
+    if (commentIndex < 0) return undefined;
+
+    const label = raw.slice(commentIndex + 1).trim();
+    return label.length > 0 ? label : undefined;
+}
+
+function parseCommentLineMetadataLabel(raw: string): string | undefined {
     const text = raw.replace(COMMENT_RE, "").trim();
 
     if (!text.startsWith("$")) {

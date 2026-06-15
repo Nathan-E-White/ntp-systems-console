@@ -1,8 +1,6 @@
 import {ENGINE_INPUT_PRESETS} from '../../state/EngineStore';
 import {computeEngineOutputs} from '../../physics/propulsionModel';
 import type {EngineInputs, EngineOutputs} from '../../types/EngineState';
-import type {TransientPoint} from '../../types/TransientPoint';
-import {TransientPlots} from '../TransientPlots';
 import {SectionGrid} from '../layout/SectionGrid';
 import {SectionShell} from '../layout/SectionShell';
 import {InvestigationThread, useGuidedInvestigation} from '../visualization';
@@ -11,10 +9,9 @@ import {evaluateEngineCase} from '../../physics/evaluateEngineCase';
 import {buildChannelAnalysisResult} from '../../physics/channelAnalysisModel';
 import {useEngineStore} from '../../state/EngineStore';
 
-export function StabilitySection({inputs, outputs, transient}: Readonly<{
+export function StabilitySection({inputs, outputs}: Readonly<{
     inputs: EngineInputs;
     outputs: EngineOutputs;
-    transient: TransientPoint[];
 }>) {
     const baseline = computeEngineOutputs(ENGINE_INPUT_PRESETS.baselineStartup);
     const investigation = computeEngineOutputs(ENGINE_INPUT_PRESETS.thermalMarginInvestigation);
@@ -38,10 +35,9 @@ export function StabilitySection({inputs, outputs, transient}: Readonly<{
     return (
         <SectionShell eyebrow="ROCETS-result interpretation" title="Stability Investigation"
                       titleId="stability-title"
-                      description="Interpret channel hydraulics, model-basis completeness, and prepared-case review flags before requesting higher-fidelity analysis.">
+                      description="Compare prepared cases and disposition the controlling flags.">
             <section className="panel stability-disclaimer">
-                <strong>Interpretation boundary:</strong> no synthetic 0-100 engine-stability score is used.
-                This section routes explicit thermal, hydraulic, correlation-range, and completeness flags to follow-up analysis.
+                <strong>Flag basis:</strong> thermal, hydraulic, correlation-range, and completeness checks; no composite score.
             </section>
             <InvestigationThread/>
             <SectionGrid>
@@ -52,7 +48,6 @@ export function StabilitySection({inputs, outputs, transient}: Readonly<{
                         {channelAnalysis.reviewFlags.map((item) => (
                             <div className={item.severity} key={item.id}>
                                 <span>{item.severity}</span><strong>{item.title}</strong>
-                                <small>{item.message}</small>
                             </div>
                         ))}
                     </div>
@@ -72,18 +67,10 @@ export function StabilitySection({inputs, outputs, transient}: Readonly<{
                     </table>
                 </section>
             </SectionGrid>
-            <TransientPlots data={transient}/>
             <section className="panel review-callout">
-                <p className="eyebrow">selected evidence interpretation</p>
+                <p className="eyebrow">evidence context</p>
                 <h3>{selectedEvidence?.title ?? component.label}</h3>
                 <p>{selectedEvidence?.interpretation ?? component.claimBoundary}</p>
-                <h3>Discipline follow-up</h3>
-                <ul>
-                    <li>Neutronics: correlate control-drum schedule and power peaking with the limiting time.</li>
-                    <li>Thermal/fuel: evaluate hot-channel conduction, qualified material criteria, and property sensitivity.</li>
-                    <li>Propulsion: close feed-system, regenerative, pump, and turbine pressure losses using applicable maps or geometry.</li>
-                    <li>Transient analysis: replace the illustrative timeline with a time-integrated model before startup or restart conclusions.</li>
-                </ul>
             </section>
         </SectionShell>
     );

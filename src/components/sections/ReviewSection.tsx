@@ -24,7 +24,7 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
     return (
         <SectionShell eyebrow="design milestone communication" title="Integrated Engineering Review"
                       titleId="review-title"
-                      description="Summarize the customer objective, supporting evidence, controlling concern, and recommended resolution path.">
+                      description="Decision posture, evidence basis, and resolution path.">
             <InvestigationThread/>
             <article className="panel review-summary print-review">
                 <div className="review-summary__header">
@@ -35,11 +35,8 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
                     </div>
                 </div>
                 <div className="review-decision-grid">
-                    <ReviewBlock title="Selected investigation">
+                    <ReviewBlock title="Selected case">
                         <p><strong>{review.selectedFocus.label}</strong> · {review.selectedFocus.discipline}</p>
-                        <ul>{review.selectedFocus.currentValues.map((item) => <li key={item}>{item}</li>)}</ul>
-                    </ReviewBlock>
-                    <ReviewBlock title="Current operating posture">
                         <p>{Math.round(outputs.thrustKn)} kN thrust, {Math.round(outputs.specificImpulseSec)} s Isp,
                             {' '}{Math.round(outputs.channelWallCriterionMarginK)} K wall criterion margin,
                             {' '}basis completeness {outputs.basisCompletenessPercent}%.</p>

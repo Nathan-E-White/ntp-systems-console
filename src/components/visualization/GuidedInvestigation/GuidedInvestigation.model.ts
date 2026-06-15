@@ -52,7 +52,7 @@ export function buildGuidedInvestigationModel(): GuidedInvestigationModel {
             descriptor('propulsion-stability', 'Flow stability', 'Engine systems', ['feed-system-assembly', 'power-conversion-assembly', 'flow-path-overlay'], 'propulsion-stability', 'propulsion-stability', ['rocets', 'moose'], ['rocets-output', 'moose-output'], ['massFlowKgPerSec', 'chamberPressureMpa'], ['pressureDropMpa', 'basisCompletenessPercent'], [-0.35, -0.75, 1.15]),
         ],
         boundary: {
-            scope: 'Maps presentation-only component selection to analysis links and immutable evidence views.',
+            scope: 'Maps component selection to analysis links and immutable evidence views.',
             owns: ['component identity', 'selection ownership', 'evidence-view routing'],
             excludes: ['engineering calculations', 'fixture mutation', 'section navigation'],
         },
@@ -84,6 +84,6 @@ function descriptor(
         inputKeys,
         outputKeys,
         anchor,
-        claimBoundary: 'Synthetic workflow evidence and representative geometry; not validated design analysis.',
+        claimBoundary: 'Synthetic evidence and representative geometry; not validated design analysis.',
     };
 }

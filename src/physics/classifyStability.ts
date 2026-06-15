@@ -1,4 +1,4 @@
-import type {EngineOutputs} from "../types/EngineState";
+import type {ReferenceControlledEngineOutputs} from "../types/EngineState";
 import {
     STABILITY_LIMIT_SCORE,
     STABILITY_WATCH_SCORE,
@@ -13,7 +13,7 @@ export function classifyStability(
     watchScore: number = STABILITY_WATCH_SCORE,
     limitMargin: number = THERMAL_LIMIT_MARGIN_K,
     watchMargin: number = THERMAL_WATCH_MARGIN_K
-): EngineOutputs['stabilityStatus'] {
+): ReferenceControlledEngineOutputs['reviewPosture'] {
 
     if (score < limitScore || marginK < limitMargin) return 'limit';
 

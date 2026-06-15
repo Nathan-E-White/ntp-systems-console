@@ -41,7 +41,7 @@ export function buildActiveCaseWorkspace({
             fixtures: DEFAULT_ANALYSIS_EVIDENCE.map((evidence) => ({
                 id: evidence.id,
                 family: evidence.family,
-                direction: evidence.artifact.parsed?.direction ?? 'output',
+                direction: evidence.direction,
                 filename: evidence.sourceFile,
                 parserStatus: evidence.parserStatus,
                 provenance: evidence.provenance,

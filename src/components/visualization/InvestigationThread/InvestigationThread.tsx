@@ -30,10 +30,6 @@ export function InvestigationThread({
                     <dt>Current result</dt>
                     <dd>{formatOutput(component.outputKeys[0], outputs.model)}</dd>
                 </div>
-                <div>
-                    <dt>Boundary</dt>
-                    <dd>{component.claimBoundary}</dd>
-                </div>
             </dl>
             {onReturnToOperatingCase && (
                 <button type="button" onClick={onReturnToOperatingCase}>Return to engine view</button>

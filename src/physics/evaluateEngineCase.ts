@@ -2,7 +2,6 @@ import {
     type EngineInputs,
     type EngineOutputs,
     type ReferenceControlledEngineOutputs,
-    withLegacyEngineOutputAliases,
 } from '../types/EngineState';
 import type {
     CalculationNode,
@@ -28,8 +27,6 @@ const assumption = (label: string, detail: string, active = true): ModelAssumpti
     ({label, detail, active});
 
 export function evaluateEngineCase(inputs: EngineInputs): ModelEvaluation {
-    if (inputs.modelProfileId === 'legacyDemo') return evaluateLegacyCase(inputs);
-
     const channel = solveRepresentativeChannel(inputs);
     const nozzle = evaluateNozzlePerformance({
         chamberTemperatureK: channel.outletTemperatureK,
@@ -46,7 +43,7 @@ export function evaluateEngineCase(inputs: EngineInputs): ModelEvaluation {
     const reviewPosture: ReferenceControlledEngineOutputs['reviewPosture'] = wallCriterionMarginK < 0
         ? 'limit'
         : completeness === 'complete' ? 'nominal' : 'watch';
-    const outputs = withLegacyEngineOutputAliases({
+    const outputs: EngineOutputs = {
         outletTemperatureK: channel.outletTemperatureK,
         exhaustVelocityMPerSec: nozzle.deliveredExitVelocityMPerSec,
         specificImpulseSec: nozzle.specificImpulseSec,
@@ -56,7 +53,7 @@ export function evaluateEngineCase(inputs: EngineInputs): ModelEvaluation {
         pressureDropMpa: channel.pressureDropMpa,
         basisCompletenessPercent,
         reviewPosture,
-    });
+    };
     const nodes = buildReferenceNodes(inputs, outputs, channel, nozzle, diagnostics);
     return {
         outputs,
@@ -324,92 +321,4 @@ function deriveCompleteness(diagnostics: readonly BasisDiagnostic[]): ModelBasis
 
 function deduplicate(diagnostics: readonly BasisDiagnostic[]): BasisDiagnostic[] {
     return [...new Map(diagnostics.map((item) => [item.id, item])).values()];
-}
-
-function evaluateLegacyCase(inputs: EngineInputs): ModelEvaluation {
-    const cp = 14_300;
-    const efficiency = 0.82;
-    const rawOutlet = inputs.inletTemperatureK
-        + efficiency * inputs.thermalPowerMw * 1_000_000 / (inputs.massFlowKgPerSec * cp);
-    const outlet = Math.min(Math.max(rawOutlet, inputs.inletTemperatureK), 3_200);
-    const gamma = 1.4;
-    const gasConstant = 4_124;
-    const gain = Math.min(Math.max(0.86 + 0.035 * Math.log(Math.max(inputs.nozzleExpansionRatio, 1)), 0.82), 1.08);
-    const exhaust = Math.sqrt(2 * gamma * gasConstant * outlet / (gamma - 1)) * gain;
-    const fuel = outlet + 340 + Math.abs(inputs.controlDrumAngleDeg - 45) * 2.6;
-    const margin = inputs.fuelTemperatureLimitK - fuel;
-    const pressureDrop = Math.min(Math.max(0.018 * inputs.massFlowKgPerSec ** 1.35 + 0.015 * inputs.chamberPressureMpa, 0.05), 3.5);
-    const score = Math.round(Math.min(Math.max(100
-        - Math.abs(inputs.controlDrumAngleDeg - 45) * 0.55
-        - Math.max(0, pressureDrop - 1.2) * 18
-        - Math.max(0, 220 - margin) * 0.16, 0), 100));
-    const reviewPosture: ReferenceControlledEngineOutputs['reviewPosture'] = score < 55 || margin < 80
-        ? 'limit' : score < 78 || margin < 220 ? 'watch' : 'nominal';
-    const outputs = withLegacyEngineOutputAliases({
-        outletTemperatureK: outlet,
-        exhaustVelocityMPerSec: exhaust,
-        specificImpulseSec: exhaust / G0_M_PER_S2,
-        thrustKn: inputs.massFlowKgPerSec * exhaust / 1_000,
-        peakChannelWallTemperatureK: fuel,
-        channelWallCriterionMarginK: margin,
-        pressureDropMpa: pressureDrop,
-        basisCompletenessPercent: score,
-        reviewPosture,
-    });
-    const legacyDiagnostic: BasisDiagnostic = {
-        id: 'legacy-unsupported',
-        severity: 'warning',
-        basisId: 'legacy-model',
-        message: 'Unsupported demonstration coefficients are active. This profile is excluded from the default walkthrough.',
-    };
-    const nodes = buildLegacyNodes(inputs, outputs, legacyDiagnostic);
-    return {
-        outputs,
-        trace: {nodes},
-        basis: {
-            profileId: 'legacyDemo',
-            profileLabel: 'Legacy Demo Model',
-            completeness: 'legacy',
-            diagnostics: [legacyDiagnostic],
-            activeBasisIds: ['legacy-model'],
-            claimBoundary: 'Regression comparison only; unsupported coefficients must not be used for engineering conclusions.',
-        },
-        channel: null,
-    };
-}
-
-function buildLegacyNodes(
-    inputs: EngineInputs,
-    outputs: EngineOutputs,
-    diagnostic: BasisDiagnostic,
-): CalculationNode[] {
-    const labels: Array<[CalculationNode['id'], keyof EngineOutputs, string, string, string]> = [
-        ['outlet-temperature', 'outletTemperatureK', 'Legacy outlet temperature', 'LEGACY-TH-001', 'K'],
-        ['exhaust-velocity', 'exhaustVelocityMPerSec', 'Legacy exhaust velocity', 'LEGACY-PR-001', 'm/s'],
-        ['specific-impulse', 'specificImpulseSec', 'Legacy specific impulse', 'LEGACY-PR-002', 's'],
-        ['thrust', 'thrustKn', 'Legacy thrust', 'LEGACY-PR-003', 'kN'],
-        ['fuel-temperature', 'peakChannelWallTemperatureK', 'Legacy fuel temperature proxy', 'LEGACY-TH-002', 'K'],
-        ['thermal-margin', 'channelWallCriterionMarginK', 'Legacy fuel margin', 'LEGACY-TH-003', 'K'],
-        ['pressure-drop', 'pressureDropMpa', 'Legacy pressure-drop proxy', 'LEGACY-FL-001', 'MPa'],
-        ['stability-score', 'basisCompletenessPercent', 'Legacy advisory score', 'LEGACY-ST-001', ''],
-        ['stability-posture', 'reviewPosture', 'Legacy posture', 'LEGACY-ST-002', ''],
-    ];
-    return labels.map(([id, outputKey, label, equationId, unit]) => ({
-        id,
-        outputKey,
-        label,
-        equationId,
-        equationText: 'Legacy unsupported demonstration relation',
-        classification: 'empirical-screening-correlation',
-        dependencies: [],
-        terms: [term('profile', 'Model profile', inputs.modelProfileId, '')],
-        substitution: `${label} = ${String(outputs[outputKey])}${unit ? ` ${unit}` : ''}`,
-        rawValue: outputs[outputKey],
-        finalValue: outputs[outputKey],
-        unit,
-        assumptions: [assumption('Legacy-only', diagnostic.message)],
-        limitation: diagnostic.message,
-        basisId: 'legacy-model',
-        diagnostics: [diagnostic],
-    }));
 }

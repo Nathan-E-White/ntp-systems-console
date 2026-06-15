@@ -75,12 +75,12 @@ export function buildEvidenceWorkspace(evidence: readonly AnalysisEvidence[]): E
     return {
         datasets,
         views: [
-            view('reactor-transport', 'Reactor transport evidence', 'Compare the three fixture axial regions and their reported relative errors.', 'mcnp-transport-axial', ['channelWallCriterionMarginK']),
-            view('reactor-criticality', 'Criticality and restart evidence', 'Track the synthetic burnup k-effective trend while reviewing xenon and decay-heat restart memory.', 'mcnp-criticality-burnup', ['channelWallCriterionMarginK']),
-            view('thermal-margin', 'Thermal response evidence', 'Relate the static MOOSE-like temperature history to the calculated channel-wall criterion margin.', 'moose-thermal-history', ['peakChannelWallTemperatureK', 'channelWallCriterionMarginK']),
-            view('feed-system', 'Feed and turbomachinery evidence', 'Inspect mass flow, pump pressure rise, shaft speed, and turbine power through the ROCETS-like mission history.', 'rocets-feed-history', ['pressureDropMpa', 'basisCompletenessPercent']),
-            view('nozzle-performance', 'Nozzle performance evidence', 'Inspect chamber pressure, nozzle mass flow, specific impulse, and thrust as independent fixture evidence.', 'rocets-nozzle-history', ['thrustKn', 'pressureDropMpa']),
-            view('propulsion-stability', 'Transient stability evidence', 'Review fixture stability events separately from the current channel pressure drop and model-basis completeness.', 'rocets-stability-history', ['basisCompletenessPercent', 'pressureDropMpa']),
+            view('reactor-transport', 'Reactor transport evidence', 'Compare axial regions and relative errors.', 'mcnp-transport-axial', ['channelWallCriterionMarginK']),
+            view('reactor-criticality', 'Criticality and restart evidence', 'Track synthetic burnup trend and xenon/restart memory.', 'mcnp-criticality-burnup', ['channelWallCriterionMarginK']),
+            view('thermal-margin', 'Thermal response evidence', 'Compare static MOOSE-like temperature history to channel-wall criterion margin.', 'moose-thermal-history', ['peakChannelWallTemperatureK', 'channelWallCriterionMarginK']),
+            view('feed-system', 'Feed and turbomachinery evidence', 'Inspect mass flow, pump pressure rise, shaft speed, and turbine power through ROCETS-like history.', 'rocets-feed-history', ['pressureDropMpa', 'basisCompletenessPercent']),
+            view('nozzle-performance', 'Nozzle performance evidence', 'Inspect chamber pressure, mass flow, Isp, and thrust as fixture evidence.', 'rocets-nozzle-history', ['thrustKn', 'pressureDropMpa']),
+            view('propulsion-stability', 'Transient stability evidence', 'Review stability events apart from current pressure-drop and basis-completeness results.', 'rocets-stability-history', ['basisCompletenessPercent', 'pressureDropMpa']),
         ],
     };
 }

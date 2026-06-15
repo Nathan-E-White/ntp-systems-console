@@ -342,8 +342,48 @@ const createTable = (
     };
 };
 
+const getStringArray = (record: UnknownRecord | undefined, keys: string[]): string[] => {
+    if (!record) {
+        return [];
+    }
+
+    const value = getRecordValue(record, keys);
+    return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+};
+
+const createCrossLinkInputRows = (parsed: unknown): UnknownRecord[] => {
+    const crossLinks = getParsedRecord(parsed, ["crossLinks", "CrossLinks"]);
+    const mcnpInputs = getStringArray(crossLinks, ["mcnpInputs", "mcnp_inputs", "mcnp"]);
+    const rocetsInputs = getStringArray(crossLinks, ["rocetsInputs", "rocets_inputs", "rocets"]);
+
+    return [
+        ...mcnpInputs.map((filename) => ({family: "MCNP", filename})),
+        ...rocetsInputs.map((filename) => ({family: "ROCETS", filename})),
+    ];
+};
+
+const createImportedProxyRows = (parsed: unknown): UnknownRecord[] => {
+    const crossLinks = getParsedRecord(parsed, ["crossLinks", "CrossLinks"]);
+    return getStringArray(crossLinks, ["importedProxies", "imported_proxies", "proxies"]).map((proxy, index) => ({
+        index: index + 1,
+        proxy,
+    }));
+};
+
 const createTables = (parsed: unknown): ParsedTable[] =>
     [
+        createTable(
+            "cross-link-inputs",
+            "Cross-link inputs",
+            createCrossLinkInputRows(parsed),
+            "Input artifacts referenced by the MOOSE fixture.",
+        ),
+        createTable(
+            "imported-proxies",
+            "Imported proxies",
+            createImportedProxyRows(parsed),
+            "MCNP, ROCETS, and app-facing proxy values imported into the MOOSE fixture.",
+        ),
         createTable(
             "variables",
             "Variables",

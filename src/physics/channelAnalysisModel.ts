@@ -63,7 +63,7 @@ export function buildChannelAnalysisResult(
         axialRegions: buildAxialRegions(stations),
         reviewFlags: buildReviewFlags(inputs, outputs, channel, peakWallStation),
         evidenceCorrelations: buildEvidenceCorrelations(inputs, outputs, channel, peakWallStation),
-        claimBoundary: 'One representative steady one-dimensional channel is correlated qualitatively with immutable synthetic fixture evidence. It is not a full-core reconstruction, transient solver, or validation result.',
+        claimBoundary: 'Steady 1D channel is compared qualitatively to immutable synthetic fixture evidence; not full-core, transient, or validated.',
     };
 }
 
@@ -160,7 +160,7 @@ function buildReviewFlags(
         id: 'transient-model-unavailable',
         severity: 'information',
         title: 'Transient channel response unavailable',
-        message: 'The axial solution is steady; the displayed mission timeline is an illustrative sequence of independently evaluated points.',
+        message: 'The available axial solution is steady-state; no time-integrated channel response is calculated.',
         source: 'Model scope',
         recommendedAction: 'Use a time-integrated thermal-hydraulic model for startup, shutdown, and restart conclusions.',
         clearingCondition: 'A transient conservation model and validation basis are supplied.',
@@ -212,8 +212,8 @@ function buildEvidenceCorrelations(
             calculatedValue: `Peak channel wall response in ${peakRegion}`,
             fixtureArtifactId: 'mcnp-output',
             fixtureLabel: 'ntp_mcnp.out axial flux totals',
-            interpretation: 'Use the shared A/B/C axial partition to ask whether the synthetic transport peaking and the channel hot location are directionally consistent.',
-            claimBoundary: 'Flux proxy and deposited heat are not interchangeable; no transport-to-thermal normalization is asserted.',
+            interpretation: 'Check whether synthetic transport peaking tracks the shared A/B/C axial hot-location pattern.',
+            claimBoundary: 'Flux proxy and heat deposition are separate; no transport-to-thermal normalization is claimed.',
         },
         {
             id: 'channel-to-moose-temperature',
@@ -222,8 +222,8 @@ function buildEvidenceCorrelations(
             calculatedValue: `${outputs.peakChannelWallTemperatureK.toFixed(0)} K at station ${(peakWallStation?.index ?? 0) + 1}`,
             fixtureArtifactId: 'moose-output',
             fixtureLabel: 'ntp_moose.out thermal constraints',
-            interpretation: 'Compare location, trend, and limiting discipline before requesting a coupled hot-channel calculation.',
-            claimBoundary: 'The fixture peak fuel and stress values are synthetic and describe different quantities than the calculated fluid-channel wall.',
+            interpretation: 'Compare location, trend, and limits before requesting a coupled hot-channel calculation.',
+            claimBoundary: 'Fixture peak fuel and stress are synthetic and differ from calculated channel-wall values.',
         },
         {
             id: 'channel-to-rocets-flow',
@@ -232,8 +232,8 @@ function buildEvidenceCorrelations(
             calculatedValue: `${inputs.massFlowKgPerSec.toFixed(2)} kg/s; ${outputs.pressureDropMpa.toFixed(3)} MPa channel drop`,
             fixtureArtifactId: 'rocets-output',
             fixtureLabel: 'ntp_rocet.out feed and stability channels',
-            interpretation: 'Use the immutable engine-system trace to identify the pump, turbine, and stability records needed to close the whole-path pressure basis.',
-            claimBoundary: 'The reduced-order channel result is not substituted into or overlaid with the ROCETS-like fixture.',
+            interpretation: 'Use the immutable engine trace to identify pump, turbine, and stability records for pressure-basis closure.',
+            claimBoundary: 'Reduced-order channel results are not substituted into or overlaid with ROCETS-like fixtures.',
         },
     ];
 }

@@ -3,6 +3,7 @@ import {describe, expect, it} from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 import {buildDesignReviewModel, DesignReviewPanel} from '../components/DesignReviewPanel';
+import {PEWEE_DERIVED_MASS_FLOW_KG_PER_SEC} from '../physics/modelProfiles';
 import type {EngineInputs, EngineOutputs} from '../types/EngineState';
 import {ENGINE_INPUT_PRESETS} from '../state/EngineStore';
 
@@ -13,15 +14,11 @@ const nominalInputs: EngineInputs = {
 const nominalOutputs: EngineOutputs = {
     outletTemperatureK: 2680,
     exhaustVelocityMPerSec: 8580,
-    fuelTemperatureK: 2625,
-    thermalMarginK: 225,
     peakChannelWallTemperatureK: 2625,
     channelWallCriterionMarginK: 225,
     specificImpulseSec: 875,
     thrustKn: 118,
     pressureDropMpa: 1.1,
-    stabilityScore: 92,
-    stabilityStatus: 'nominal',
     basisCompletenessPercent: 92,
     reviewPosture: 'nominal',
 };
@@ -30,14 +27,9 @@ describe('buildDesignReviewModel', () => {
     it('builds the expected baseline model for a nominal case', () => {
         const model = buildDesignReviewModel(nominalOutputs);
 
-        expect(model.risks).toEqual(['reduced-order model', 'not a flight/design tool']);
-        expect(model.recommendations).toEqual([
-            'Compare transient outlet-temperature response against a ROCETS-style system trace.',
-            'Correlate the synthetic axial/radial power profile with MCNP/OpenMC handoff documentation.',
-            'Evaluate payload-side shielding trades against mass fraction and mission architecture.',
-        ]);
+        expect(model.risks).toEqual(['screening model']);
         expect(model.casePosture).toBe(
-            'The case appears suitable for a first-pass design-review walkthrough, subject to higher-fidelity model handoff.',
+            'First-pass review ready; higher-fidelity handoff pending.',
         );
     });
 
@@ -49,10 +41,7 @@ describe('buildDesignReviewModel', () => {
 
         expect(model.risks).toContain('channel wall criterion watch');
         expect(model.casePosture).toBe(
-            'The case should be treated as a constrained thermal-margin scenario before any performance claims are emphasized.',
-        );
-        expect(model.recommendations).toContain(
-            'Route peak channel-wall temperature into a coupled conduction and qualified material-criterion follow-up case.',
+            'Thermal margin controls; defer performance claims.',
         );
     });
 
@@ -64,10 +53,7 @@ describe('buildDesignReviewModel', () => {
 
         expect(model.risks).toContain('pressure-drop watch');
         expect(model.casePosture).toBe(
-            'The case is performance-positive, but pressure-drop and flow-path assumptions deserve review.',
-        );
-        expect(model.recommendations).toContain(
-            'Review propellant channel pressure-drop assumptions and candidate flow-area trades.',
+            'Performance-positive; pressure-drop basis remains open.',
         );
     });
 
@@ -79,10 +65,7 @@ describe('buildDesignReviewModel', () => {
         });
 
         expect(model.risks).toContain('model-basis closure required');
-        expect(model.casePosture).toBe('The calculated operating point remains subject to explicit property, component-pressure, and transient-model limitations.');
-        expect(model.recommendations).toContain(
-            'Close the property, whole-engine pressure-loss, and transient-model review flags before asserting a nominal posture.',
-        );
+        expect(model.casePosture).toBe('Property, component-pressure, and transient-model limits control.');
     });
 });
 
@@ -90,7 +73,24 @@ describe('DesignReviewPanel', () => {
     it('renders the design-review region with the expected accessible heading', () => {
         render(<DesignReviewPanel inputs={nominalInputs} outputs={nominalOutputs}/>);
 
-        expect(screen.getByRole('heading', {name: 'Analyst Notes'})).toBeInTheDocument();
-        expect(screen.getByRole('heading', {name: 'Recommended follow-up analyses'})).toBeInTheDocument();
+        expect(screen.getByRole('heading', {name: 'Case Readout'})).toBeInTheDocument();
+        expect(screen.queryByRole('heading', {name: 'Recommended follow-up analyses'})).not.toBeInTheDocument();
+    });
+
+    it('formats calculated input values at appropriate display precision', () => {
+        render(
+            <DesignReviewPanel
+                inputs={{
+                    ...nominalInputs,
+                    thermalPowerMw: 500,
+                    massFlowKgPerSec: PEWEE_DERIVED_MASS_FLOW_KG_PER_SEC,
+                }}
+                outputs={nominalOutputs}
+            />,
+        );
+
+        expect(screen.getByText('500 MWth')).toBeInTheDocument();
+        expect(screen.getByText('12.96 kg/s')).toBeInTheDocument();
+        expect(screen.queryByText(`${PEWEE_DERIVED_MASS_FLOW_KG_PER_SEC} kg/s`)).not.toBeInTheDocument();
     });
 });

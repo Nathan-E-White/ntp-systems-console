@@ -56,12 +56,12 @@ const DEFAULT_POWER_PROFILE: PowerProfileSummary = {
     radialPeakLocation: 'inner ring R1',
     posture: 'nominal',
     interpretation: [
-        'Peak relative power occurs in the upper-middle axial region of the synthetic core fixture.',
-        'Radial profile is mildly center-weighted and should be compared against coolant-channel thermomechanical margins.',
-        'Thermal coupling: compare the peak axial/radial bins against the calculated channel-wall criterion margin.',
-        'Finite-element coupling: compare the peak-power station against the peak-stress station.',
-        'Propulsion coupling: compare the power-shape assumption against hydrogen-flow and chamber-pressure conditions.',
-        'Use this profile as a UI/parser fixture only; it is not a validated MCNP tally or design-basis distribution.',
+        'Peak axial power is in the upper-middle core region.',
+        'Radial profile is center-weighted; review against coolant-channel and stress margins.',
+        'Thermal coupling: compare peak bins to channel-wall criterion margin.',
+        'Finite-element coupling: compare peak-power and peak-stress stations.',
+        'Propulsion coupling: compare power-shape vs hydrogen-flow/chamber-pressure assumptions.',
+        'Fixture-only UI/parser profile; not validated tally or design-basis output.',
     ],
 };
 
@@ -78,8 +78,8 @@ export function PowerProfilePanel({summary = DEFAULT_POWER_PROFILE}: Readonly<Po
         </div>
 
         <p className="muted-copy">
-            {summary.sourceLabel}: normalized axial and radial power-shape data for public UI demonstration.
-            Values are synthetic and are not validated tally output.
+            {summary.sourceLabel}: synthetic power-shape fixture for UI/parser.
+            Not validated tally output.
         </p>
 
         <div className="analysis-source-grid">

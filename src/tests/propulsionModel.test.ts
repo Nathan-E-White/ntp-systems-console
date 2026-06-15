@@ -11,8 +11,8 @@ describe('computeEngineOutputs', () => {
     expect(outputs.outletTemperatureK).toBeGreaterThan(defaultInputs.inletTemperatureK);
     expect(outputs.specificImpulseSec).toBeGreaterThan(300);
     expect(outputs.thrustKn).toBeGreaterThan(0);
-    expect(outputs.stabilityScore).toBeGreaterThanOrEqual(0);
-    expect(outputs.stabilityScore).toBeLessThanOrEqual(100);
+    expect(outputs.basisCompletenessPercent).toBeGreaterThanOrEqual(0);
+    expect(outputs.basisCompletenessPercent).toBeLessThanOrEqual(100);
   });
 
   it('increases thrust when mass flow is increased for the same case', () => {

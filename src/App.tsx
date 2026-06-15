@@ -38,7 +38,6 @@ export function App() {
             <Workbench
                 inputs={inputs}
                 outputs={outputs}
-                transient={transient}
             />
         </ActiveCaseProviders>
     );
@@ -47,11 +46,9 @@ export function App() {
 function Workbench({
     inputs,
     outputs,
-    transient,
 }: Readonly<{
     inputs: ReturnType<typeof useEngineInputs>;
     outputs: ReturnType<typeof useEngineOutputs>;
-    transient: ReturnType<typeof useEngineTransient>;
 }>) {
     const [activeSectionId, setActiveSectionId] = useState<AppSectionId>('operating-case');
     const investigation = useGuidedInvestigation();
@@ -87,7 +84,7 @@ function Workbench({
                 <ModelEvidenceSection onReturnToOperatingCase={() => setActiveSectionId('operating-case')}/>
             )}
             {activeSectionId === 'stability' && (
-                <StabilitySection inputs={inputs} outputs={outputs} transient={transient}/>
+                <StabilitySection inputs={inputs} outputs={outputs}/>
             )}
             {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>}
         </AppLayout>

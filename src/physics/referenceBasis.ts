@@ -5,7 +5,6 @@ export type BasisClassification =
     | 'calibrated'
     | 'user-supplied'
     | 'fixture'
-    | 'legacy-unsupported'
     | 'missing';
 
 export type ReferenceApplicability =
@@ -58,7 +57,7 @@ export interface BasisDiagnostic {
 export interface ModelBasisSummary {
     readonly profileId: string;
     readonly profileLabel: string;
-    readonly completeness: 'complete' | 'screening' | 'incomplete' | 'legacy';
+    readonly completeness: 'complete' | 'screening' | 'incomplete';
     readonly diagnostics: readonly BasisDiagnostic[];
     readonly activeBasisIds: readonly string[];
     readonly claimBoundary: string;

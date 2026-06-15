@@ -13,6 +13,7 @@ import {buildChannelAnalysisResult, getAxialRegionForStation} from '../physics/c
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
 import {useEngineStore} from '../state/EngineStore';
 import type {EngineInputs} from '../types/EngineState';
+import {ChannelStationLayout} from './ChannelStationLayout';
 
 export function ChannelAnalysisPanel({inputs}: Readonly<{inputs: EngineInputs}>) {
     const selectedStationIndex = useEngineStore((state) => state.selectedChannelStationIndex);
@@ -72,6 +73,13 @@ export function ChannelAnalysisPanel({inputs}: Readonly<{inputs: EngineInputs}>)
                 />
                 <Metric label="Channel pressure drop" value={`${evaluation.outputs.pressureDropMpa.toFixed(3)} MPa`}/>
             </div>
+
+            <ChannelStationLayout
+                onSelectStation={setSelectedStationIndex}
+                regions={analysis.axialRegions}
+                selectedStation={selected}
+                stations={analysis.stations}
+            />
 
             <div className="channel-analysis__charts">
                 <ChannelChart

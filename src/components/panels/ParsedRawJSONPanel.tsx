@@ -2,6 +2,7 @@
 
 import {ReactNode, createContext, useContext, useMemo} from 'react';
 import type {ParsedFileViewModel} from '../../parser/parserTypes';
+import {StructuredCodeViewer} from '../StructuredCodeViewer';
 
 export interface ParsedRawJSONPanelProps {
     readonly parsed: ParsedFileViewModel;
@@ -130,13 +131,15 @@ export function ParsedRawJSONPanelCodeBlock() {
     const {maxHeight, serializedValue} = useParsedRawJSONPanelContext();
 
     return (
-        <pre
+        <StructuredCodeViewer
+            ariaLabel="Parsed raw JSON"
             className="parsed-json-panel"
-            style={{maxHeight, overflow: 'auto'}}
-            tabIndex={0}
-        >
-            <code>{serializedValue}</code>
-        </pre>
+            content={serializedValue}
+            direction={undefined}
+            family={undefined}
+            language="json"
+            maxHeight={maxHeight}
+        />
     );
 }
 

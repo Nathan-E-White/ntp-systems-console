@@ -5,6 +5,7 @@ import type {FixtureEvidenceWorkspaceModel} from './FixtureEvidenceWorkspace.mod
 export interface FixtureEvidenceWorkspaceProps {
     readonly model: FixtureEvidenceWorkspaceModel;
     readonly initialSelectedFixtureId?: string | null;
+    readonly children?: ReactNode;
 }
 
 export interface FixtureEvidenceWorkspaceState {
@@ -24,7 +25,11 @@ export interface FixtureEvidenceWorkspaceProviderProps extends FixtureEvidenceWo
 const FixtureEvidenceWorkspaceContext =
     createContext<FixtureEvidenceWorkspaceContextValue | undefined>(undefined);
 
-/** Boundary: parsed fixture evidence enters here and remains immutable downstream. */
+/** Boundary: parsed fixture evidence enters here and remains immutable downstream.
+ *  Current milestone: read-only fixture selection, direction filtering, and parser rendering.
+ *  Future milestone: optional graphical editors can be hosted in this same context by
+ *  introducing an edit mode state branch only.
+ */
 export function FixtureEvidenceWorkspaceProvider({
     model,
     initialSelectedFixtureId = null,
@@ -62,10 +67,14 @@ export function FixtureEvidenceWorkspaceView() {
     );
 }
 
-export function FixtureEvidenceWorkspace(props: Readonly<FixtureEvidenceWorkspaceProps>) {
+export function FixtureEvidenceWorkspace({
+    children,
+    ...props
+}: Readonly<FixtureEvidenceWorkspaceProps>) {
     return (
         <FixtureEvidenceWorkspaceProvider {...props}>
             <FixtureEvidenceWorkspaceView/>
+            {children}
         </FixtureEvidenceWorkspaceProvider>
     );
 }

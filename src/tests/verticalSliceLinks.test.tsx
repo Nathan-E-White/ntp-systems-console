@@ -67,6 +67,84 @@ describe('vertical-slice concern linking', () => {
         expect(screen.getByRole('heading', {name: 'Neutronics / transport evidence'}).closest('article'))
             .not.toHaveClass('focused-evidence');
     });
+
+    it('filters model evidence by fixture direction without changing fixture execution state', () => {
+        render(
+            <ActiveCaseProviders model={workspace}>
+                <ModelEvidenceSection onReturnToOperatingCase={() => undefined}/>
+            </ActiveCaseProviders>,
+        );
+
+        expect(screen.getAllByRole('button', {name: /ALL \(8\)/i})).toHaveLength(2);
+        expect(screen.getByRole('button', {name: /INPUT/i})).toBeInTheDocument();
+        expect(screen.getByRole('button', {name: /OUTPUT/i})).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', {name: /INPUT/i}));
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(4);
+        expect(screen.getByRole('heading', {name: 'Fixed-source input deck'})).toBeVisible();
+        expect(screen.getByRole('heading', {name: 'Criticality input deck'})).toBeVisible();
+        expect(screen.queryByRole('heading', {name: 'Neutronics / transport evidence'})).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', {name: /OUTPUT/i}));
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(4);
+        expect(screen.getByRole('heading', {name: 'Neutronics / transport evidence'})).toBeVisible();
+        expect(screen.queryByRole('heading', {name: 'Criticality input deck'})).not.toBeInTheDocument();
+    });
+
+    it('filters model evidence by fixture family and shows pairing inventory', () => {
+        render(
+            <ActiveCaseProviders model={workspace}>
+                <ModelEvidenceSection onReturnToOperatingCase={() => undefined}/>
+            </ActiveCaseProviders>,
+        );
+
+        expect(screen.getByRole('heading', {name: 'Paired Fixture Inventory'})).toBeVisible();
+        expect(screen.getByText(/MCNP fixed-source transport/i)).toBeVisible();
+        expect(screen.getByText(/ROCETS system network/i)).toBeVisible();
+
+        fireEvent.click(screen.getByRole('button', {name: /MOOSE \(2\)/i}));
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(2);
+        expect(screen.getByRole('heading', {name: 'Thermomechanics input deck'})).toBeVisible();
+        expect(screen.getByRole('heading', {name: 'Thermomechanics evidence'})).toBeVisible();
+        expect(screen.queryByRole('heading', {name: 'Fixed-source input deck'})).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', {name: /INPUT/i}));
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(1);
+        expect(screen.getByRole('heading', {name: 'Thermomechanics input deck'})).toBeVisible();
+    });
+
+    it('shows read-only messaging on model evidence cards and keeps input/output parse surfaces separate', () => {
+        render(
+            <ActiveCaseProviders model={workspace}>
+                <ModelEvidenceSection onReturnToOperatingCase={() => undefined}/>
+            </ActiveCaseProviders>,
+        );
+
+        fireEvent.click(screen.getByRole('button', {name: /INPUT/i}));
+        const criticalityArticle = screen.getByRole('heading', {name: 'Criticality input deck'}).closest('article');
+        expect(criticalityArticle).toBeDefined();
+        if (!criticalityArticle) return;
+        fireEvent.click(criticalityArticle);
+
+        expect(screen.getByText('Criticality input deck')).toBeVisible();
+        expect(screen.getByRole('heading', {name: 'Criticality input deck'}).closest('article'))
+            .toHaveClass('evidence-card--expanded');
+        expect(document.querySelector('.evidence-inspection-workspace')).toBeInTheDocument();
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(1);
+        expect(screen.getByText(/Read-only parser output/i)).toBeInTheDocument();
+        expect(screen.getByText(/Solver execution and validation claims/i)).toBeVisible();
+        expect(screen.queryByText(/No parser diagnostics/i)).not.toBeInTheDocument();
+        expect(screen.getByLabelText(/Criticality input deck parsed inventory/i)).toBeInTheDocument();
+        expect(screen.getByText('Parsed tables and records')).toBeVisible();
+        expect(screen.getByRole('button', {name: /Cells/i})).toBeInTheDocument();
+        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.getByRole('button', {name: 'Raw JSON'})).toBeInTheDocument();
+        expect(screen.queryByRole('button', {name: 'Inspect'})).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', {name: /Parse another fixture/i})).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', {name: /OUTPUT/i}));
+        expect(screen.getByRole('heading', {name: 'Neutronics / transport evidence'})).toBeVisible();
+    }, 10000);
 });
 
 function SelectCriticality() {

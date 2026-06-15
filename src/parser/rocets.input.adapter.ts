@@ -130,9 +130,9 @@ const findCaseId = (parsed: unknown): string | undefined => {
 
 const createSummaryCards = (parsed: unknown): ParsedSummaryCard[] => {
   const components = getParsedArray(parsed, ["components", "componentDefinitions", "componentCards"]);
-  const connections = getParsedArray(parsed, ["connections", "connectors", "connectCards", "links"]);
+  const connections = getParsedArray(parsed, ["connects", "connections", "connectors", "connectCards", "links"]);
   const fluids = getParsedArray(parsed, ["fluids", "fluidDefinitions"]);
-  const controls = getParsedArray(parsed, ["controls", "controlBlocks", "controlDefinitions"]);
+  const controls = getParsedArray(parsed, ["schedules", "controls", "controlBlocks", "controlDefinitions"]);
   const initialConditions = getParsedArray(parsed, ["initialConditions", "initials", "ic"]);
   const solver = getParsedRecord(parsed, ["solver", "solverControl", "solverControls"]);
   const timeControl = getParsedRecord(parsed, ["timeControl", "timeControls", "time"]);
@@ -273,16 +273,52 @@ const createTables = (parsed: unknown): ParsedTable[] =>
       "Working-fluid cards parsed from the ROCETS input deck.",
     ),
     createTable(
+      "nodes",
+      "Nodes",
+      getParsedArray(parsed, ["nodes", "nodeDefinitions", "nodeCards"]),
+      "Network nodes parsed from the ROCETS input deck.",
+    ),
+    createTable(
+      "boundaries",
+      "Boundaries",
+      getParsedArray(parsed, ["boundaries", "boundaryDefinitions", "boundaryCards"]),
+      "Boundary condition nodes and external interfaces parsed from the ROCETS input deck.",
+    ),
+    createTable(
       "components",
       "Components",
       getParsedArray(parsed, ["components", "componentDefinitions", "componentCards"]),
       "System components parsed from the ROCETS input deck.",
     ),
     createTable(
+      "sensors",
+      "Sensors",
+      getParsedArray(parsed, ["sensors", "sensorDefinitions", "sensorCards"]),
+      "Sensor and monitor definitions parsed from the ROCETS input deck.",
+    ),
+    createTable(
       "connections",
       "Connections",
-      getParsedArray(parsed, ["connections", "connectors", "connectCards", "links"]),
+      getParsedArray(parsed, ["connects", "connections", "connectors", "connectCards", "links"]),
       "Flow, control, or signal connectivity parsed from the ROCETS input deck.",
+    ),
+    createTable(
+      "solver-residuals",
+      "Solver residuals",
+      getParsedArray(parsed, ["solverResiduals", "residuals", "solverResidualDefinitions"]),
+      "Solver residual monitors declared in the ROCETS input deck.",
+    ),
+    createTable(
+      "maps",
+      "Maps",
+      getParsedArray(parsed, ["maps", "mapDefinitions", "performanceMaps"]),
+      "Performance maps parsed from the ROCETS input deck.",
+    ),
+    createTable(
+      "schedules",
+      "Schedules",
+      getParsedArray(parsed, ["schedules", "scheduleDefinitions", "profiles"]),
+      "Time schedules, profiles, and command tables parsed from the ROCETS input deck.",
     ),
     createTable(
       "initial-conditions",
@@ -291,10 +327,10 @@ const createTables = (parsed: unknown): ParsedTable[] =>
       "Initial state cards parsed from the ROCETS input deck.",
     ),
     createTable(
-      "controls",
-      "Controls",
-      getParsedArray(parsed, ["controls", "controlBlocks", "controlDefinitions"]),
-      "Control logic, schedules, and command blocks parsed from the ROCETS input deck.",
+      "outputs",
+      "Output requests",
+      getParsedArray(parsed, ["outputs", "outputRequests", "requestedOutputs"]),
+      "Output requests and panel bindings parsed from the ROCETS input deck.",
     ),
   ].filter((table): table is ParsedTable => table !== undefined);
 
@@ -309,7 +345,7 @@ const connectionEndpoint = (connection: UnknownRecord, keys: string[]): string |
 
 const createGraph = (parsed: unknown): ParsedGraphModel | undefined => {
   const components = getParsedArray(parsed, ["components", "componentDefinitions", "componentCards"]);
-  const connections = getParsedArray(parsed, ["connections", "connectors", "connectCards", "links"]);
+  const connections = getParsedArray(parsed, ["connects", "connections", "connectors", "connectCards", "links"]);
 
   if (components.length === 0 && connections.length === 0) {
     return undefined;

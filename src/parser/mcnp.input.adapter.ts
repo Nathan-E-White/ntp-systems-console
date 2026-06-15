@@ -3,6 +3,7 @@ import type {
     ParsedFileViewModel,
     ParsedGraphModel,
     ParsedRecordValue,
+    ParsedScalarValue,
     ParsedSection,
     ParsedSummaryCard,
     ParsedTable,
@@ -53,6 +54,20 @@ const toParsedRecordValue = (value: unknown): ParsedRecordValue => {
 
     if (value === undefined) {
         return null;
+    }
+
+    if (isRecord(value)) {
+        const entries = Object.entries(value);
+        const parsedEntries = entries.filter((entry): entry is [string, ParsedScalarValue | ParsedScalarValue[]] => {
+            const entryValue = entry[1];
+            return entryValue === null ||
+                ["string", "number", "boolean"].includes(typeof entryValue) ||
+                (Array.isArray(entryValue) && entryValue.every((item) => item === null || ["string", "number", "boolean"].includes(typeof item)));
+        });
+
+        if (parsedEntries.length === entries.length) {
+            return Object.fromEntries(parsedEntries) as Record<string, ParsedScalarValue | ParsedScalarValue[]>;
+        }
     }
 
     return JSON.stringify(value);

@@ -99,6 +99,46 @@ const getParsedArray = (parsed: unknown, candidateKeys: string[]): UnknownRecord
     return asRecordArray(value);
 };
 
+const tableRowsFromValue = (value: unknown): UnknownRecord[] => {
+    if (Array.isArray(value)) {
+        return value.filter(isRecord).map(flattenTableRow);
+    }
+
+    if (!isRecord(value)) {
+        return [];
+    }
+
+    if (Array.isArray(value.rows)) {
+        return value.rows.filter(isRecord).map(flattenTableRow);
+    }
+
+    return Object.entries(value)
+        .filter(([, entryValue]) => entryValue === null || ["string", "number", "boolean"].includes(typeof entryValue))
+        .map(([name, value]) => ({name, value}));
+};
+
+const flattenTableRow = (row: UnknownRecord): UnknownRecord => {
+    const values = row.values;
+
+    if (!isRecord(values)) {
+        return row;
+    }
+
+    const rest = Object.fromEntries(Object.entries(row).filter(([key]) => key !== "values"));
+    return {
+        ...rest,
+        ...values,
+    };
+};
+
+const getTableRows = (parsed: unknown, candidateKeys: string[]): UnknownRecord[] => {
+    if (!isRecord(parsed)) {
+        return [];
+    }
+
+    return tableRowsFromValue(getRecordValue(parsed, candidateKeys));
+};
+
 const getParsedRecord = (parsed: unknown, candidateKeys: string[]): UnknownRecord | undefined => {
     if (!isRecord(parsed)) {
         return undefined;
@@ -149,9 +189,9 @@ const createSummaryCards = (parsed: unknown): ParsedSummaryCard[] => {
     const meshSummary = getParsedRecord(parsed, ["meshSummary", "mesh", "MeshSummary"]);
     const executioner = getParsedRecord(parsed, ["executioner", "Executioner"]);
     const performance = getParsedRecord(parsed, ["performance", "performanceSummary", "solverPerformance"]);
-    const finalValues = getParsedArray(parsed, ["finalPostprocessorValues", "finalValues", "postprocessorFinalValues"]);
-    const postprocessorHistory = getParsedArray(parsed, ["postprocessorHistory", "postprocessorTimeHistory", "timeHistory"]);
-    const couplingHistory = getParsedArray(parsed, ["couplingHistory", "couplingProxyHistory", "appCouplingHistory"]);
+    const finalValues = getTableRows(parsed, ["finalPostprocessorValues", "finalValues", "postprocessorFinalValues"]);
+    const postprocessorHistory = getTableRows(parsed, ["postprocessorHistory", "postprocessorTimeHistory", "timeHistory"]);
+    const couplingHistory = getTableRows(parsed, ["couplingHistory", "couplingProxyHistory", "couplingProxyTimeHistory", "appCouplingHistory"]);
     const warnings = getParsedArray(parsed, ["warnings", "notes", "diagnostics", "messages"]);
 
     const runStatus = findRunStatus(parsed);
@@ -325,33 +365,39 @@ const createTable = (
 const createTables = (parsed: unknown): ParsedTable[] =>
     [
         createTable(
+            "transient-solve-log",
+            "Transient solve log",
+            getTableRows(parsed, ["transientSolveLog", "solveLog", "executionLog"]),
+            "Transient execution steps parsed from the MOOSE output.",
+        ),
+        createTable(
             "postprocessor-history",
             "Postprocessor time history",
-            getParsedArray(parsed, ["postprocessorHistory", "postprocessorTimeHistory", "timeHistory"]),
+            getTableRows(parsed, ["postprocessorHistory", "postprocessorTimeHistory", "timeHistory"]),
             "Postprocessor values reported over time.",
         ),
         createTable(
             "final-postprocessor-values",
             "Final postprocessor values",
-            getParsedArray(parsed, ["finalPostprocessorValues", "finalValues", "postprocessorFinalValues"]),
+            getTableRows(parsed, ["finalPostprocessorValues", "finalValues", "postprocessorFinalValues"]),
             "Final postprocessor values parsed from the output.",
         ),
         createTable(
             "coupling-history",
             "Coupling proxy history",
-            getParsedArray(parsed, ["couplingHistory", "couplingProxyHistory", "appCouplingHistory"]),
+            getTableRows(parsed, ["couplingHistory", "couplingProxyHistory", "couplingProxyTimeHistory", "appCouplingHistory"]),
             "App-facing coupling proxy values reported over time.",
         ),
         createTable(
             "residual-history",
             "Residual history",
-            getParsedArray(parsed, ["residualHistory", "nonlinearResidualHistory", "solverHistory"]),
+            getTableRows(parsed, ["residualHistory", "nonlinearResidualHistory", "solverHistory"]),
             "Nonlinear or linear solver residual records.",
         ),
         createTable(
             "materials-history",
             "Material response history",
-            getParsedArray(parsed, ["materialsHistory", "materialHistory", "propertyHistory"]),
+            getTableRows(parsed, ["materialsHistory", "materialHistory", "propertyHistory"]),
             "Material property or response values reported over time.",
         ),
         createTable(
@@ -414,22 +460,22 @@ const createTimeSeries = (parsed: unknown): ParsedTimeSeries[] =>
         createTimeSeriesFromRows(
             "postprocessor-history",
             "Postprocessor time history",
-            getParsedArray(parsed, ["postprocessorHistory", "postprocessorTimeHistory", "timeHistory"]),
+            getTableRows(parsed, ["postprocessorHistory", "postprocessorTimeHistory", "timeHistory"]),
         ),
         createTimeSeriesFromRows(
             "coupling-history",
             "Coupling proxy history",
-            getParsedArray(parsed, ["couplingHistory", "couplingProxyHistory", "appCouplingHistory"]),
+            getTableRows(parsed, ["couplingHistory", "couplingProxyHistory", "couplingProxyTimeHistory", "appCouplingHistory"]),
         ),
         createTimeSeriesFromRows(
             "residual-history",
             "Residual history",
-            getParsedArray(parsed, ["residualHistory", "nonlinearResidualHistory", "solverHistory"]),
+            getTableRows(parsed, ["residualHistory", "nonlinearResidualHistory", "solverHistory"]),
         ),
         createTimeSeriesFromRows(
             "materials-history",
             "Material response history",
-            getParsedArray(parsed, ["materialsHistory", "materialHistory", "propertyHistory"]),
+            getTableRows(parsed, ["materialsHistory", "materialHistory", "propertyHistory"]),
         ),
     ].filter((series): series is ParsedTimeSeries => series !== undefined);
 

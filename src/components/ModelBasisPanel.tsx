@@ -10,7 +10,6 @@ const BADGE_LABELS = {
     calibrated: 'Calibrated',
     'user-supplied': 'User',
     fixture: 'Fixture',
-    'legacy-unsupported': 'Legacy',
     missing: 'Missing',
 } as const;
 
@@ -28,7 +27,7 @@ export function ModelBasisPanel({inputs}: Readonly<{inputs: EngineInputs}>) {
             <header className="model-basis-panel__header">
                 <div>
                     <p className="eyebrow">source-controlled calculation posture</p>
-                    <h2>Model Basis</h2>
+                    <h2>Basis &amp; Limits</h2>
                     <p>{profile.description}</p>
                 </div>
                 <div className="model-basis-panel__status">
@@ -74,7 +73,7 @@ export function ModelBasisPanel({inputs}: Readonly<{inputs: EngineInputs}>) {
                         <div><dt>Missing prerequisites</dt><dd>{incompleteCount}</dd></div>
                         <div><dt>Thermal coupling</dt><dd>{inputs.thermalCouplingMode === 'benchmarkClosure' ? 'Calibrated to 2550 K benchmark' : 'User supplied'}</dd></div>
                         <div><dt>Channel geometry</dt><dd>Representative NERVA-family basis</dd></div>
-                        <div><dt>Fixture evidence</dt><dd>Immutable and separate</dd></div>
+                        <div><dt>Fixture evidence</dt><dd>Immutable</dd></div>
                     </dl>
                     {inputs.overrideRationale ? (
                         <p className="basis-override"><strong>Active override:</strong> {inputs.overrideRationale}</p>

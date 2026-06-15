@@ -1,7 +1,7 @@
 import type {EngineInputs} from '../types/EngineState';
 import type {ParameterBasis} from './referenceBasis';
 
-export type ModelProfileId = 'peweeInspired' | 'thermalInvestigation' | 'legacyDemo';
+export type ModelProfileId = 'peweeInspired' | 'thermalInvestigation';
 
 export interface ReferenceProfile {
     readonly id: ModelProfileId;
@@ -114,34 +114,6 @@ export const MODEL_PROFILES: Readonly<Record<ModelProfileId, ReferenceProfile>> 
             label: 'Investigation input changes',
             classification: 'user-supplied',
             rationale: 'Deliberate what-if departure from the public benchmark for workflow demonstration.',
-        }],
-    },
-    legacyDemo: {
-        id: 'legacyDemo',
-        label: 'Legacy Demo Model',
-        description: 'Preserved unsupported coefficients for regression comparison only.',
-        expectedPosture: 'nominal',
-        inputs: {
-            ...representativeChannelInputs,
-            modelProfileId: 'legacyDemo',
-            thermalPowerMw: 450,
-            massFlowKgPerSec: 14,
-            inletTemperatureK: 120,
-            chamberPressureMpa: 4.1,
-            nozzleExpansionRatio: 80,
-            controlDrumAngleDeg: 45,
-            fuelTemperatureLimitK: 2850,
-            shieldingMassFraction: 0.08,
-            missionMode: 'startup',
-            thermalCouplingMode: 'fixedEfficiency',
-            thermalCouplingEfficiency: 0.82,
-            overrideRationale: 'Legacy regression profile only.',
-        },
-        basis: [{
-            id: 'legacy-model',
-            label: 'Legacy demonstration coefficients',
-            classification: 'legacy-unsupported',
-            rationale: 'Retained only to show the prior implementation and protect regression comparisons.',
         }],
     },
 };

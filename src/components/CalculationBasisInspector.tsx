@@ -7,7 +7,6 @@ import {
     type CalculationNode,
 } from '../physics/calculationTrace';
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
-import {generateTransientEvaluation} from '../physics/transientModel';
 import {getReferenceRecord} from '../physics/referenceBasis';
 
 export function CalculationBasisInspector({inputs}: Readonly<{inputs: EngineInputs}>) {
@@ -15,7 +14,6 @@ export function CalculationBasisInspector({inputs}: Readonly<{inputs: EngineInpu
     const parameters = useParameterWorkspace();
     const selection = useEngineStore((state) => state.selectedPresetId);
     const basePresetId = useEngineStore((state) => state.basePresetId);
-    const selectedTransientTimeSec = useEngineStore((state) => state.selectedTransientTimeSec);
     const evaluation = evaluateEngineCase(inputs);
     const selectedOutputKey = outputs.state.selectedOutputKey ?? 'channelWallCriterionMarginK';
     const selectedDefinition = outputs.model.definitions.find((definition) => definition.key === selectedOutputKey);
@@ -26,11 +24,6 @@ export function CalculationBasisInspector({inputs}: Readonly<{inputs: EngineInpu
     const baseInputs = ENGINE_INPUT_PRESETS[basePresetId];
     const baseEvaluation = evaluateEngineCase(baseInputs);
     const baseNode = findCalculationNode(baseEvaluation.trace, selectedOutputKey);
-    const transientEvaluation = generateTransientEvaluation(inputs).reduce((nearest, candidate) =>
-        Math.abs(candidate.timeSec - selectedTransientTimeSec) < Math.abs(nearest.timeSec - selectedTransientTimeSec)
-            ? candidate
-            : nearest,
-    );
     const reference = selectedNode.referenceId ? getReferenceRecord(selectedNode.referenceId) : undefined;
 
     return (
@@ -166,25 +159,8 @@ export function CalculationBasisInspector({inputs}: Readonly<{inputs: EngineInpu
                     </p>
                     <p className="what-if-notice">
                         {selection === 'customWhatIf'
-                            ? `${parameters.state.dirtyKeys.length || 1} operator parameter(s) changed. MCNP-, MOOSE-, and ROCETS-like fixtures were not rerun.`
-                            : 'Prepared inputs feed only the reduced-order evaluator; synthetic fixture evidence remains immutable.'}
-                    </p>
-                </section>
-                <section>
-                    <p className="eyebrow">illustrative transient point</p>
-                    <h3>{transientEvaluation.timeSec} s · ramp {Math.round(transientEvaluation.rampFraction * 100)}%</h3>
-                    <p>
-                        Generated power {transientEvaluation.generatedInputs.thermalPowerMw.toFixed(1)} MWth;
-                        {' '}drum angle {transientEvaluation.generatedInputs.controlDrumAngleDeg.toFixed(1)} deg;
-                        {' '}{selectedNode.label.toLowerCase()} {
-                            formatResult(
-                                findCalculationNode(transientEvaluation.evaluation.trace, selectedOutputKey)?.finalValue ?? 'n/a',
-                                selectedNode.unit,
-                            )
-                        }.
-                    </p>
-                    <p className="calculation-basis__boundary">
-                        This is a deterministic 41-point presentation trajectory, not a time-integrated engine solver.
+                            ? `${parameters.state.dirtyKeys.length || 1} operator parameter(s) changed; fixtures unchanged.`
+                            : 'Prepared-case calculation.'}
                     </p>
                 </section>
             </div>
@@ -256,6 +232,5 @@ function formatInputKey(key: keyof EngineInputs): string {
 
 function formatPreset(value: keyof typeof ENGINE_INPUT_PRESETS): string {
     if (value === 'baselineStartup') return 'Pewee-Inspired Benchmark';
-    if (value === 'legacyDemo') return 'Legacy Demo Model';
     return 'Thermal Margin Investigation';
 }

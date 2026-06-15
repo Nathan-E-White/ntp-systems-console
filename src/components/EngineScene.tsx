@@ -36,11 +36,6 @@ import {
 } from '../theatre/guidedDemoSequence';
 import type {EngineInputs, EngineOutputs} from '../types/EngineState';
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
-import {ControlDrum} from './ControlDrum';
-import {CoreViewer} from './CoreViewer';
-import {HydrogenFlow} from './HydrogenFlow';
-import {Nozzle} from './Nozzle';
-import {Shield} from './Shield';
 
 interface EngineSceneProps {
     inputs: EngineInputs;
@@ -178,10 +173,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         mode: effectiveMode,
     }), [effectiveMode, workspace.model.caseLabel]);
     const visibleCalloutIds = getVisibleCalloutIds(effectiveMode);
-    const legacyScene = import.meta.env.DEV
-        && typeof window !== 'undefined'
-        && new URLSearchParams(window.location.search).has('legacyScene');
-
     const selectComponent = useCallback((componentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') => {
         const descriptor = investigationModel.components.find((component) => component.id === componentId);
         selectInvestigationComponent(componentId, owner);
@@ -405,22 +396,16 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                     onManualCameraPoseChange={captureManualPose}
                     onPointerMissed={clearSelection}
                 >
-                    {legacyScene
-                        ? <LegacyEngineGeometry inputs={inputs} outputs={outputs} yaw={theatreYaw}/>
-                        : (
-                            <>
-                                <EngineAssembly
-                                    model={engineAssemblyModel}
-                                    onSelectComponent={selectComponent}
-                                    presentation={presentation}
-                                />
-                                <SceneSelectionMarkers
-                                    components={investigationModel.components}
-                                    onSelectComponent={selectComponent}
-                                    selectedComponentId={investigationState.selectedComponentId}
-                                />
-                            </>
-                        )}
+                    <EngineAssembly
+                        model={engineAssemblyModel}
+                        onSelectComponent={selectComponent}
+                        presentation={presentation}
+                    />
+                    <SceneSelectionMarkers
+                        components={investigationModel.components}
+                        onSelectComponent={selectComponent}
+                        selectedComponentId={investigationState.selectedComponentId}
+                    />
                     </SceneCanvas>
 
                 {overlaysVisible && (
@@ -460,37 +445,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                 </div>
             </Fragment>
         </EngineVisualizationProvider>
-    );
-}
-
-function LegacyEngineGeometry({
-    inputs,
-    outputs,
-    yaw,
-}: Readonly<EngineSceneProps & {yaw: number}>) {
-    const hotScale = Math.min(Math.max((outputs.outletTemperatureK - 800) / 2_200, 0.15), 1);
-    return (
-        <group rotation={[0.1, yaw, 0]}>
-            <CoreViewer
-                fuelTemperatureMarginK={outputs.channelWallCriterionMarginK}
-                outletTemperatureK={outputs.outletTemperatureK}
-                thermalPowerMw={inputs.thermalPowerMw}
-            />
-            <Nozzle emphasis={1} hotScale={hotScale}/>
-            {[0, 60, 120, 180, 240, 300].map((azimuthDegrees) => (
-                <ControlDrum
-                    angleDegrees={inputs.controlDrumAngleDeg}
-                    azimuthDegrees={azimuthDegrees}
-                    drumRadius={0.13}
-                    emphasis={1}
-                    height={2.4}
-                    key={azimuthDegrees}
-                    radius={1.45}
-                />
-            ))}
-            <HydrogenFlow emphasis={1} hotScale={hotScale}/>
-            <Shield emphasis={1} massFraction={inputs.shieldingMassFraction}/>
-        </group>
     );
 }
 

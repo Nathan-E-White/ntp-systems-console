@@ -1,6 +1,6 @@
 export type MissionMode = 'startup' | 'steadyBurn' | 'shutdown' | 'cooldown';
 export type ThermalCouplingMode = 'benchmarkClosure' | 'fixedEfficiency';
-export type EngineModelProfileId = 'peweeInspired' | 'thermalInvestigation' | 'legacyDemo';
+export type EngineModelProfileId = 'peweeInspired' | 'thermalInvestigation';
 
 export interface EngineInputs {
   modelProfileId: EngineModelProfileId;
@@ -39,30 +39,7 @@ export interface ReferenceControlledEngineOutputs {
   reviewPosture: 'nominal' | 'watch' | 'limit';
 }
 
-/**
- * Temporary compatibility aliases for legacy components and regression fixtures.
- * New application surfaces must use the reference-controlled names above.
- */
-export interface LegacyEngineOutputAliases {
-  fuelTemperatureK: number;
-  thermalMarginK: number;
-  stabilityScore: number;
-  stabilityStatus: 'nominal' | 'watch' | 'limit';
-}
-
-export type EngineOutputs = ReferenceControlledEngineOutputs & LegacyEngineOutputAliases;
-
-export function withLegacyEngineOutputAliases(
-  outputs: ReferenceControlledEngineOutputs,
-): EngineOutputs {
-  return {
-    ...outputs,
-    fuelTemperatureK: outputs.peakChannelWallTemperatureK,
-    thermalMarginK: outputs.channelWallCriterionMarginK,
-    stabilityScore: outputs.basisCompletenessPercent,
-    stabilityStatus: outputs.reviewPosture,
-  };
-}
+export type EngineOutputs = ReferenceControlledEngineOutputs;
 
 export interface EngineState {
   inputs: EngineInputs;

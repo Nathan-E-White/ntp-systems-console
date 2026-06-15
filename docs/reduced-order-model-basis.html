@@ -34,7 +34,6 @@
     <table><thead><tr><th>Profile</th><th>Inputs and target</th><th>Disposition</th></tr></thead><tbody>
       <tr><td><strong>Pewee-Inspired Benchmark</strong></td><td>500 MWth; 25,000 lbf / 111.2 kN; 2550 K propellant exit; 2750 K historical peak-fuel comparison; 875 s ideal vacuum Isp; derived flow 12.96 kg/s.</td><td><span class="tag cited">Cited</span> Historical comparison envelope. Channel geometry is separately identified as representative.</td></tr>
       <tr><td><strong>Thermal Margin Investigation</strong></td><td>535 MWth; 11.8 kg/s; 2500 K analyst-selected wall criterion; fixed 0.78 thermal coupling.</td><td><span class="tag user">User</span> Deliberate what-if. It does not claim historical Pewee behavior or fixture reruns.</td></tr>
-      <tr><td><strong>Legacy Demo Model</strong></td><td>Former constant-cp, fixed-offset, whole-path pressure-drop, and synthetic-score equations.</td><td><span class="tag legacy">Legacy</span> Regression comparison only; excluded from the default walkthrough.</td></tr>
     </tbody></table>
     <h3>Benchmark conversions</h3>
     <pre>25,000 lbf × 4.448221615 N/lbf = 111,205.54 N = 111.206 kN
@@ -76,7 +75,7 @@ m_dot = F / (Isp g0) = 111,205.54 / (875 × 9.80665) = 12.9598 kg/s</pre>
   <section id="flags">
     <p class="eyebrow">06 / Review Flags</p>
     <h2>No Synthetic Stability Score</h2>
-    <p>The compatibility field formerly named <code>stabilityScore</code> now carries model-basis completeness: 100% complete, 70% screening closures active, or 0% incomplete. The visible UI labels it accordingly. The review posture is:</p>
+    <p>Model-basis completeness is reported directly: 100% complete, 70% screening closures active, or 0% incomplete. The visible UI labels it accordingly. The review posture is:</p>
     <pre>limit   when channel wall criterion margin &lt; 0 K
 nominal only when no missing or screening basis remains
 watch   otherwise</pre>
