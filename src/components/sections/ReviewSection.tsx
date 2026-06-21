@@ -1,4 +1,5 @@
 import {buildIntegratedReview} from '../../demo/demoModel';
+import {buildStabilityInvestigationSummary} from '../../demo/stabilityInvestigationSummary';
 import {useEngineStore} from '../../state/EngineStore';
 import type {EngineInputs, EngineOutputs} from '../../types/EngineState';
 import {SectionShell} from '../layout/SectionShell';
@@ -7,9 +8,9 @@ import {useEngineeringDataWorkspace} from '../analysis';
 import {InvestigationThread, useGuidedInvestigation} from '../visualization';
 
 const MATERIAL_CONSTRAINTS = [
-    {name: 'Fuel matrix', basis: 'Graphite-composite placeholder', concern: 'Peak fuel temperature and hydrogen compatibility'},
-    {name: 'Core support', basis: 'Refractory structural placeholder', concern: 'Thermal stress, creep, and pressure-drop coupling'},
-    {name: 'Control absorber', basis: 'Boron-bearing placeholder', concern: 'Worth, temperature response, and shutdown margin'},
+    {name: 'Fuel matrix', basis: 'BISON scaffold + MCNP material M2', concern: 'Peak fuel temperature, burnup proxy, hydrogen exposure, and damage index'},
+    {name: 'Coating / liner', basis: 'BISON barrier-margin proxy', concern: 'Coating margin, hydrogen attack margin, and hot-wall profile summary'},
+    {name: 'Control absorber', basis: 'MCNP/ROCETS restart-memory proxy', concern: 'Worth, xenon penalty, poison hold-down, and shutdown margin'},
 ];
 
 export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs; outputs: EngineOutputs}>) {
@@ -20,6 +21,7 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
         (candidate) => candidate.id === investigation.state.selectedComponentId,
     ) ?? investigation.model.components[0];
     const review = buildIntegratedReview(selection, inputs, outputs, workspace.model, component);
+    const stabilitySummary = buildStabilityInvestigationSummary();
 
     return (
         <SectionShell eyebrow="design milestone communication" title="Integrated Engineering Review"
@@ -54,6 +56,28 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
                     <ol>{review.recommendedActions.map((item) => <li key={item}>{item}</li>)}</ol>
                 </div>
             </article>
+
+            <section className="panel review-stability-summary">
+                <p className="eyebrow">ROCETS stability support</p>
+                <h2>Compact Stability Disposition</h2>
+                <div className="review-stability-grid">
+                    <div>
+                        <span>Controlling interval</span>
+                        <strong>{Math.round(stabilitySummary.controllingInterval.timeSeconds)} s</strong>
+                        <small>{stabilitySummary.controllingInterval.alignedExtremaCount} adverse extrema align</small>
+                    </div>
+                    <div>
+                        <span>Advisory path</span>
+                        <strong>{stabilitySummary.advisoryState.statePath.join(' -> ')}</strong>
+                        <small>not a qualified margin</small>
+                    </div>
+                    <div>
+                        <span>Solver health</span>
+                        <strong>{stabilitySummary.solverHealth.totalStepCuts} cut</strong>
+                        <small>{stabilitySummary.solverHealth.residualPassCount}/{stabilitySummary.solverHealth.residualCount} residuals pass</small>
+                    </div>
+                </div>
+            </section>
 
             <section className="panel">
                 <p className="eyebrow">core materials / fuel performance</p>

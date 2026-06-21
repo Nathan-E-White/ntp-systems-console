@@ -1,0 +1,33 @@
+NTP-SYS-CONSOLE COUPLED MOOSE MASTER FIXTURE
+Case: ntp-coupled-moose-master-001
+Input: ../multi/moose_master.i
+Status: synthetic fixture complete
+
+Application tree
+  mcnp_power_app      -> ../multi/mcnp_wrapper.i
+  bison_fuel_app     -> ../multi/bison_sub.i
+  marmot_micro_app   -> launched by bison_sub.i
+
+Fixture posture
+  MCNP files are referenced as-is from src/fixtures/mcnp.
+  Macro mesh posture follows the placeholder mesh convention.
+  MARMOT micro-cell closure is represented by micro_marmot_mesh.e.
+  These records are not validation evidence or executable solver proof.
+
+Coupled time history
+time_s,power_density_W_m3,peak_fuel_temperature_K,effective_k_W_mK,void_fraction,keff_restart_memory,rocets_mdot_kg_s,ledinegg_margin,status
+0.0,0.000e+00,850.0,24.00,0.0150,1.000,0.00,1.00,initial
+25.0,1.350e+08,1398.4,23.88,0.0158,1.006,4.60,0.72,startup_ramp
+90.0,7.850e+08,2872.6,23.10,0.0195,1.012,8.00,0.78,rated_burn
+210.0,7.850e+08,2966.8,22.84,0.0212,1.006,8.00,0.71,shutdown_command
+520.0,3.400e+07,519.8,23.52,0.0184,0.990,0.00,0.84,restart_penalty
+560.0,2.700e+08,1476.0,23.21,0.0198,0.996,5.72,0.69,restart_ramp
+650.0,5.600e+08,2608.1,22.96,0.0219,1.002,6.45,0.66,restart_peak
+900.0,6.000e+07,612.7,23.60,0.0180,1.000,0.00,0.89,cooldown
+
+Final summary
+  peak_fuel_temperature_K = 2966.8
+  minimum_effective_k_W_mK = 22.84
+  maximum_void_fraction = 0.0219
+  minimum_ledinegg_margin_proxy = 0.66
+  run_disposition = converged_synthetic_fixture

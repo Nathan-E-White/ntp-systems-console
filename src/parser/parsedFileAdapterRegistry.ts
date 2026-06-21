@@ -1,5 +1,7 @@
 
 
+import { adaptBisonInputToViewModel } from "./bison.input.adapter";
+import { adaptBisonOutputToViewModel } from "./bison.output.adapter";
 import { adaptMcnpInputToViewModel } from "./mcnp.input.adapter";
 import { adaptMcnpOutputToViewModel } from "./mcnp.output.adapter";
 import { adaptMooseInputToViewModel } from "./moose.input.adapter";
@@ -38,6 +40,16 @@ interface AdapterRegistryEntry {
 const adapterKey = (family: ParserFamily, direction: ParserDirection): AdapterKey => `${family}:${direction}`;
 
 const adapterEntries: AdapterRegistryEntry[] = [
+  {
+    family: "bison",
+    direction: "input",
+    adapter: adaptBisonInputToViewModel,
+  },
+  {
+    family: "bison",
+    direction: "output",
+    adapter: adaptBisonOutputToViewModel,
+  },
   {
     family: "mcnp",
     direction: "input",

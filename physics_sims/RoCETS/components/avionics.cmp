@@ -1,0 +1,56 @@
+! ====================================================================
+! ROCETS-LIKE COMPONENT MODULE: ENGINE CONTROLLER / AVIONICS
+! FILE: components/avionics.cmp
+! ====================================================================
+
+DEFINE COMPONENT TYPE: FLIGHT_COMPUTER
+
+BEGIN_PORTS
+    INLET_SIGNAL Pt_Chamber_Raw      TYPE: SIGNAL_PORT
+    INLET_SIGNAL Ledinegg_Status_Raw TYPE: SIGNAL_PORT
+    OUTLET_CMD   Valve_Actuator      TYPE: SIGNAL_PORT
+    OUTLET_CMD   Restart_Enable      TYPE: SIGNAL_PORT
+END_PORTS
+
+BEGIN_VARIABLES
+    Clean_Pc = 2.00E+05
+    Stability_Watch = 0
+END_VARIABLES
+
+BEGIN_MATH_MODEL
+    BEGIN_SENSOR: Chamber_Pressure_Filter
+        INPUT_VARIABLE = Pt_Chamber_Raw
+        FILTER_TYPE    = LOW_PASS
+        CUTOFF_FREQ    = 20.0
+        OUTPUT_SIGNAL  = Clean_Pc
+    END_SENSOR
+
+    BEGIN_SENSOR: Stability_Status_Latch
+        INPUT_VARIABLE = Ledinegg_Status_Raw
+        FILTER_TYPE    = LATCH_ON_WARNING
+        RESET_TIME     = 25.0
+        OUTPUT_SIGNAL  = Stability_Watch
+    END_SENSOR
+
+    IF (Stability_Watch == 1) THEN
+        Valve_Actuator = 0.82
+    ELSEIF (Clean_Pc < 3.5E+06) THEN
+        Valve_Actuator = 1.00
+    ELSE
+        Valve_Actuator = 0.94
+    ENDIF
+
+    IF (TIME >= 520.0 AND TIME <= 650.0) THEN
+        Restart_Enable = 1.0
+    ELSE
+        Restart_Enable = 0.0
+    ENDIF
+END_MATH_MODEL
+
+BEGIN_OUTPUTS
+    TRACK Clean_Pc        LABEL="FILTERED CHAMBER PRESSURE" UNITS="PA"
+    TRACK Stability_Watch LABEL="STABILITY WATCH LATCH"     UNITS="FLAG"
+    TRACK Valve_Actuator  LABEL="VALVE COMMAND"             UNITS="FRAC"
+END_OUTPUTS
+
+END_COMPONENT_TYPE

@@ -27,26 +27,26 @@ function renderEvidenceSection() {
 }
 
 describe('ModelEvidenceSection', () => {
-    it('focuses the MOOSE card with rich evidence when the walkthrough starts', async () => {
+    it('focuses MCNP burnup evidence when the walkthrough starts', async () => {
         renderEvidenceSection();
 
         fireEvent.click(screen.getByRole('button', {name: 'Start tour'}));
 
-        expect(await screen.findByText('MOOSE Thermal Evidence')).toBeInTheDocument();
-        expect(screen.getByText('Thermomechanics evidence in inspection view')).toBeInTheDocument();
-        expect(screen.getAllByText('Postprocessor time history').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Final postprocessor values').length).toBeGreaterThan(0);
+        expect(await screen.findByText('MCNP Burnup Evidence')).toBeInTheDocument();
+        expect(screen.getByText('Criticality / burnup evidence in inspection view')).toBeInTheDocument();
+        expect(screen.getAllByText('MCNP-like burnup and restart memory').length).toBeGreaterThan(0);
+        expect(screen.getByText('Peak xenon worth')).toBeInTheDocument();
     });
 
-    it('moves the walkthrough into RoCETS tabbed evidence', async () => {
+    it('moves the walkthrough into BISON fuel-performance evidence', async () => {
         renderEvidenceSection();
 
         fireEvent.click(screen.getByRole('button', {name: 'Start tour'}));
         fireEvent.click(screen.getByRole('button', {name: 'Next'}));
 
-        expect(await screen.findByText('RoCETS System Evidence')).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'Feed / turbomachinery'})).toHaveAttribute('aria-pressed', 'true');
-        expect(screen.getAllByText('Feed and turbomachinery history').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Mission phases').length).toBeGreaterThan(0);
+        expect(await screen.findByText('BISON Fuel Performance Evidence')).toBeInTheDocument();
+        expect(screen.getByText('BISON fuel-performance evidence in inspection view')).toBeInTheDocument();
+        expect(screen.getAllByText('BISON postprocessor history').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Final fuel-performance review summary').length).toBeGreaterThan(0);
     });
 });

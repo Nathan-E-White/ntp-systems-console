@@ -32,11 +32,12 @@ describe('FixtureEvidenceWorkspace', () => {
     it('catalogs input and output fixtures without implying execution', () => {
         render(<FixtureEvidenceWorkspace model={buildFixtureEvidenceWorkspaceModel()}/>);
         expect(screen.getByRole('region', {name: 'Engineering fixture evidence'}))
-            .toHaveAttribute('data-fixture-count', '4');
+            .toHaveAttribute('data-fixture-count', '6');
 
         const fixtureIds = buildFixtureEvidenceWorkspaceModel().fixtures.map((fixture) => fixture.id);
         expect(fixtureIds).toContain('mcnp-criticality-input');
         expect(fixtureIds).toContain('mcnp-criticality-output');
+        expect(fixtureIds).toContain('bison-output');
     });
 
     it('allows fixture selection independent of external case workflow', () => {
@@ -70,6 +71,6 @@ describe('FixtureEvidenceWorkspace', () => {
         fireEvent.click(screen.getByRole('button', {name: 'mcnp-criticality-input'}));
         fireEvent.click(screen.getByRole('button', {name: 'mcnp-criticality-output'}));
         expect(JSON.parse(JSON.stringify(model))).toEqual(catalogBaseline);
-        expect(model.fixtures).toHaveLength(4);
+        expect(model.fixtures).toHaveLength(6);
     });
 });

@@ -1,0 +1,39 @@
+! ====================================================================
+! ROCETS-LIKE SUBSYSTEM MODULE: LH2 FEED SYSTEM
+! FILE: subsystems/feed_system.sub
+! ====================================================================
+
+DEFINE SUBSYSTEM TYPE: LH2_FEED_SYSTEM
+
+BEGIN_INTERFACE_PORTS
+    INLET_PORT  Tank_Interface   TYPE: FLUID_PORT
+    OUTLET_PORT Engine_Feed_Out  TYPE: FLUID_PORT
+    CONTROL_IN  Actuator_Signal  TYPE: SIGNAL_PORT
+    SIGNAL_OUT  Feed_Telemetry   TYPE: SIGNAL_PORT
+END_INTERFACE_PORTS
+
+BEGIN_INTERNAL_COMPONENTS
+    INCLUDE "../components/boost_pump.cmp" AS Internal_Boost_Pump
+    INCLUDE "../components/ortho_para_feed_line.cmp" AS Internal_Feed_Line
+END_INTERNAL_COMPONENTS
+
+BEGIN_INTERNAL_CONNECTIONS
+    LINK Tank_Interface TO Internal_Boost_Pump.Inlet
+    LINK Actuator_Signal TO Internal_Boost_Pump.Speed_Cmd
+    LINK Internal_Boost_Pump.Outlet TO Internal_Feed_Line.Inlet
+    LINK Internal_Feed_Line.Outlet TO Engine_Feed_Out
+END_INTERNAL_CONNECTIONS
+
+BEGIN_PARAMETER_OVERRIDES
+    Internal_Boost_Pump.Design_Mass_Flow = 8.0
+    Internal_Boost_Pump.Design_Delta_P   = 8.5E+05
+    Internal_Feed_Line.Length            = 2.10
+    Internal_Feed_Line.Has_Catalyst      = 0
+END_PARAMETER_OVERRIDES
+
+BEGIN_OUTPUTS
+    TRACK Internal_Boost_Pump.MassFlow LABEL="FEED MASS FLOW" UNITS="KG/S"
+    TRACK Internal_Feed_Line.Outlet.Para_Fraction LABEL="PARA FRACTION" UNITS="MASS_FR"
+END_OUTPUTS
+
+END_SUBSYSTEM_TYPE

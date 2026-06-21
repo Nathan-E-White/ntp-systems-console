@@ -6,6 +6,7 @@ export type SceneComponentId =
     | 'engine-overview'
     | 'reactor-transport'
     | 'reactor-criticality'
+    | 'fuel-performance'
     | 'thermal-margin'
     | 'feed-system'
     | 'main-turbopump'
@@ -41,9 +42,10 @@ export interface GuidedInvestigationModel {
 export function buildGuidedInvestigationModel(): GuidedInvestigationModel {
     return {
         components: [
-            descriptor('engine-overview', 'Integrated engine posture', 'Systems', ['engine-assembly'], null, 'reactor-transport', ['mcnp', 'moose', 'rocets'], ['mcnp-output', 'mcnp-criticality-output', 'moose-output', 'rocets-output'], ['thermalPowerMw', 'massFlowKgPerSec'], ['channelWallCriterionMarginK', 'thrustKn'], [0, 2.6, 0]),
+            descriptor('engine-overview', 'Integrated engine posture', 'Systems', ['engine-assembly'], null, 'reactor-transport', ['mcnp', 'bison', 'moose', 'rocets'], ['mcnp-output', 'mcnp-criticality-output', 'bison-output', 'moose-output', 'rocets-output'], ['thermalPowerMw', 'massFlowKgPerSec'], ['channelWallCriterionMarginK', 'thrustKn'], [0, 2.6, 0]),
             descriptor('reactor-transport', 'Reactor transport', 'Neutronics', ['reactor-assembly'], 'thermal-margin', 'reactor-transport', ['mcnp'], ['mcnp-output'], ['thermalPowerMw'], ['channelWallCriterionMarginK'], [-0.9, 0.45, 0.9]),
             descriptor('reactor-criticality', 'Criticality and restart memory', 'Reactor physics', ['reactor-assembly'], 'thermal-margin', 'reactor-criticality', ['mcnp'], ['mcnp-criticality-output'], ['controlDrumAngleDeg'], ['channelWallCriterionMarginK'], [0.85, 0.9, 0.8]),
+            descriptor('fuel-performance', 'Fuel performance', 'Fuel materials', ['reactor-assembly'], 'thermal-margin', 'bison-fuel-performance', ['bison', 'mcnp', 'moose'], ['bison-output', 'mcnp-criticality-output', 'moose-output'], ['thermalPowerMw', 'massFlowKgPerSec', 'fuelTemperatureLimitK'], ['peakChannelWallTemperatureK', 'channelWallCriterionMarginK'], [0.2, 0.55, 1.18]),
             descriptor('thermal-margin', 'Channel wall criterion margin', 'Thermal hydraulics', ['reactor-assembly', 'nozzle-assembly'], 'thermal-margin', 'thermal-margin', ['moose'], ['moose-output'], ['thermalPowerMw', 'massFlowKgPerSec', 'channelWallCriterionK'], ['peakChannelWallTemperatureK', 'channelWallCriterionMarginK'], [0.9, 0.05, 0.9]),
             descriptor('feed-system', 'Hydrogen feed path', 'Propulsion', ['feed-system-assembly', 'flow-path-overlay'], 'propulsion-stability', 'feed-system', ['rocets'], ['rocets-output'], ['massFlowKgPerSec'], ['pressureDropMpa'], [-2.15, 0.95, 0.65]),
             descriptor('main-turbopump', 'Main turbopump', 'Turbomachinery', ['feed-system-assembly', 'flow-path-overlay'], 'propulsion-stability', 'feed-system', ['rocets'], ['rocets-output'], ['massFlowKgPerSec'], ['pressureDropMpa'], [-1.65, 0.7, 0.75]),

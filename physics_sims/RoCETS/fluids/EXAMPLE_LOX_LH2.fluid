@@ -1,0 +1,73 @@
+! ====================================================================
+! ROCETS THERMODYNAMIC FLUID PROPERTY DATA DECK
+! FILE: fluids/LOX_LH2.fluid
+! PROP_ID: COCH_HOT_GAS (Combustion Products for Liquid Oxygen / Hydrogen)
+! ====================================================================
+
+DEFINE FLUID_DATA: LOX_LH2_COMBUSTION
+
+! --------------------------------------------------------------------
+! 1. CRITICAL CONVERGENCE CONSTRAINTS
+! --------------------------------------------------------------------
+BEGIN_BOUNDS
+    P_MIN = 14.7        ! Minimum valid lookup pressure (psia)
+    P_MAX = 5000.0      ! Maximum valid lookup pressure (psia)
+    MR_MIN = 3.0        ! Minimum oxidizer-to-fuel ratio (O/F)
+    MR_MAX = 8.0        ! Maximum oxidizer-to-fuel ratio (O/F)
+    GAS_CONSTANT = 76.59 ! Specific Gas Constant (ft-lbf/lbm-R)
+END_BOUNDS
+
+
+! --------------------------------------------------------------------
+! 2. GRID CONFIGURATION MATRIX
+! --------------------------------------------------------------------
+! The grid dimensions tell the FORTRAN array parser how many blocks
+! and rows it needs to map into memory space.
+
+BEGIN_TABLE_GRID
+    DIMENSION_1: MIXTURE_RATIO  POINTS = 3   VALUES = [4.0, 6.0, 8.0]
+    DIMENSION_2: PRESSURE       POINTS = 3   VALUES = [500.0, 1500.0, 3000.0]
+
+    OUTPUT_FIELDS = [C_STAR, GAS_GAMMA, T_IDEAL, MOLECULAR_WT]
+END_TABLE_GRID
+
+
+! ====================================================================
+! 3. TABULATED PROPERTY DATA BLOCK
+! ====================================================================
+! Nested loops: Outer loop is Mixture Ratio, Inner loop is Pressure.
+! Rows correspond directly to the values array in DIMENSION_2.
+
+BEGIN_DATA_BLOCK
+
+  ! ------------------------------------------------------------------
+  ! GRID NODE 1: MIXTURE_RATIO = 4.0 (Fuel-Rich / Cool Burning)
+  ! ------------------------------------------------------------------
+  BLOCK_MR = 4.0
+  ! P_CHAMBER   C_STAR    GAMMA     T_IDEAL    MOL_WT
+  ! (PSIA)      (FT/S)    (CP/CV)   (DEG_R)    (LBM/MOL)
+    500.0       7420.5    1.221     4850.2     11.20
+   1500.0       7485.1    1.224     4910.8     11.23
+   3000.0       7530.0    1.228     4965.4     11.25
+
+  ! ------------------------------------------------------------------
+  ! GRID NODE 2: MIXTURE_RATIO = 6.0 (SSME Nominal Cycle Core)
+  ! ------------------------------------------------------------------
+  BLOCK_MR = 6.0
+  ! P_CHAMBER   C_STAR    GAMMA     T_IDEAL    MOL_WT
+    500.0       7890.1    1.198     5980.0     13.40
+   1500.0       7950.4    1.202     6050.5     13.45
+   3000.0       8010.2    1.205     6120.1     13.48
+
+  ! ------------------------------------------------------------------
+  ! GRID NODE 3: MIXTURE_RATIO = 8.0 (Stoichiometric / Oxidizer Rich)
+  ! ------------------------------------------------------------------
+  BLOCK_MR = 8.0
+  ! P_CHAMBER   C_STAR    GAMMA     T_IDEAL    MOL_WT
+    500.0       7610.2    1.141     6420.9     15.90
+   1500.0       7695.8    1.145     6510.3     15.98
+   3000.0       7750.1    1.149     6590.2     16.04
+
+END_DATA_BLOCK
+
+END_FLUID_DATA

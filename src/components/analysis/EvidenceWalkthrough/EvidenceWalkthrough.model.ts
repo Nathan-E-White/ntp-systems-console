@@ -2,6 +2,8 @@ import type {SceneCutawayMode} from '../../visualization';
 import type {SceneComponentId} from '../../visualization/GuidedInvestigation/GuidedInvestigation.model';
 
 export type EvidenceWalkthroughStepId =
+    | 'mcnp-burnup-restart'
+    | 'bison-fuel-performance'
     | 'moose-thermal-response'
     | 'rocets-feed-turbomachinery'
     | 'rocets-nozzle-performance'
@@ -29,6 +31,32 @@ export function buildEvidenceWalkthroughModel(): EvidenceWalkthroughModel {
     return {
         steps: [
             step(
+                'mcnp-burnup-restart',
+                'MCNP burnup and restart memory',
+                'mcnp-criticality-output',
+                'reactor-criticality',
+                'mcnp-criticality-burnup',
+                'reactor-criticality',
+                'evidence',
+                'thermal-margin',
+                'reactor',
+                ['tallies', 'warnings', 'derived-quantities'],
+                'Start with the MCNP-like criticality and burnup fixture: k-effective trend, xenon worth, and decay heat are parser evidence only.',
+            ),
+            step(
+                'bison-fuel-performance',
+                'BISON fuel performance',
+                'bison-output',
+                'bison-fuel-performance',
+                'bison-fuel-performance-history',
+                'fuel-performance',
+                'thermal',
+                'thermal-margin',
+                'reactor',
+                ['postprocessor-history', 'final-review-summary', 'axial-temperature-profile', 'vector-profile-summary'],
+                'Inspect BISON-like fuel temperature, coating, hydrogen attack, burnup, damage, and restart-memory records for fuel-performance discussion.',
+            ),
+            step(
                 'moose-thermal-response',
                 'MOOSE thermal response',
                 'moose-output',
@@ -39,37 +67,11 @@ export function buildEvidenceWalkthroughModel(): EvidenceWalkthroughModel {
                 'thermal-margin',
                 'reactor',
                 ['postprocessor-history', 'final-postprocessor-values', 'coupling-history', 'residual-history', 'materials-history', 'warnings'],
-                'Inspect the MOOSE-like temperature history, postprocessor values, coupling proxies, and warnings behind the channel-wall criterion margin.',
-            ),
-            step(
-                'rocets-feed-turbomachinery',
-                'RoCETS feed and turbomachinery',
-                'rocets-output',
-                'feed-system',
-                'rocets-feed-history',
-                'main-turbopump',
-                'flow',
-                'propulsion-stability',
-                'flow-path',
-                ['feed-turbomachinery-history', 'mission-phases', 'solver-residuals', 'advisory-diagnostics', 'warnings'],
-                'Follow mass flow, pump pressure rise, shaft speed, turbine power, and advisory diagnostics through the RoCETS-like system history.',
-            ),
-            step(
-                'rocets-nozzle-performance',
-                'RoCETS nozzle performance',
-                'rocets-output',
-                'nozzle-performance',
-                'rocets-nozzle-history',
-                'nozzle-performance',
-                'flow',
-                'propulsion-stability',
-                'nozzle',
-                ['nozzle-performance-history', 'mission-phases', 'output-requests', 'warnings'],
-                'Review chamber pressure, nozzle mass flow, specific impulse, and thrust proxy without implying a fresh solver run.',
+                'Inspect MOOSE-like temperature history, postprocessor values, coupling proxies, and warnings as thermal context for fuel-performance review.',
             ),
             step(
                 'rocets-stability',
-                'RoCETS stability interval',
+                'ROCETS stability support',
                 'rocets-output',
                 'propulsion-stability',
                 'rocets-stability-history',
@@ -78,7 +80,7 @@ export function buildEvidenceWalkthroughModel(): EvidenceWalkthroughModel {
                 'propulsion-stability',
                 'flow-path',
                 ['transient-log', 'overview-snapshots', 'advisory-diagnostics', 'warnings'],
-                'Connect the stability event log and overview snapshots to the selected propulsion stability concern.',
+                'Use ROCETS-like stability and boundary-condition history as supporting context, not as the leading fuel-performance claim.',
             ),
         ],
     };

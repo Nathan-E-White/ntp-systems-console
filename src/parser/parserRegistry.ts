@@ -1,3 +1,5 @@
+import * as bisonInputParser from "./bison/bison.input.parser";
+import * as bisonOutputParser from "./bison/bison.output.parser";
 import * as mcnpInputParser from "./mcnp/mcnp.input.parser";
 import * as mcnpOutputParser from "./mcnp/mcnp.output.parser";
 import * as mooseInputParser from "./moose/moose.input.parser";
@@ -23,7 +25,7 @@ const unsupportedFileDiagnostic = (filename?: string): ParserDiagnostic => ({
         ? `No registered parser recognized ${filename}.`
         : "No registered parser recognized the supplied file text.",
     source: "parserRegistry",
-    hint: "Check the file extension or choose MCNP, MOOSE, or ROCETS input/output text.",
+    hint: "Check the file extension or choose MCNP, MOOSE, BISON, or ROCETS input/output text.",
 });
 
 const parserFailureDiagnostic = (displayName: string, error: string): ParserDiagnostic => ({
@@ -155,6 +157,52 @@ const mooseInputDescriptor = createParserDescriptor({
     },
 });
 
+const bisonInputDescriptor = createParserDescriptor({
+    family: "bison",
+    direction: "input",
+    displayName: "BISON input scaffold",
+    extensions: ["i", "inp"],
+    module: bisonInputParser,
+    candidateNames: ["parseBisonInput", "parseBISONInput", "parseInput", "parse"],
+    detect: (context) => {
+        const text = context.text.toLowerCase();
+        const filename = context.filename?.toLowerCase() ?? "";
+
+        return (
+            (filename.includes("bison") && hasExtension(context, ["i", "inp"])) ||
+            includesAny(text, [
+                /bison\/moose fuel-performance scaffold/,
+                /bison split discussed/,
+                /hydrogen_attack_margin_proxy/,
+                /burnup_proxy/,
+            ])
+        );
+    },
+});
+
+const bisonOutputDescriptor = createParserDescriptor({
+    family: "bison",
+    direction: "output",
+    displayName: "BISON output fixture",
+    extensions: ["out", "o", "txt"],
+    module: bisonOutputParser,
+    candidateNames: ["parseBisonOutput", "parseBISONOutput", "parseOutput", "parse"],
+    detect: (context) => {
+        const text = context.text.toLowerCase();
+        const filename = context.filename?.toLowerCase() ?? "";
+
+        return (
+            (filename.includes("bison") && hasExtension(context, ["out", "o", "txt"])) ||
+            includesAny(text, [
+                /bison-moose output fixture/,
+                /bison-like fuel performance scaffold/,
+                /postprocessor output: ntp\.bison_out\.csv/,
+                /final review summary/,
+            ])
+        );
+    },
+});
+
 const mooseOutputDescriptor = createParserDescriptor({
     family: "moose",
     direction: "output",
@@ -239,9 +287,11 @@ const rocetsOutputDescriptor = createParserDescriptor({
 });
 
 export const parserDescriptors: ParserDescriptor[] = [
+    bisonOutputDescriptor,
     mcnpOutputDescriptor,
     mooseOutputDescriptor,
     rocetsOutputDescriptor,
+    bisonInputDescriptor,
     mooseInputDescriptor,
     rocetsInputDescriptor,
     mcnpInputDescriptor,

@@ -1,0 +1,26 @@
+NTP MARMOT-STYLE MICRO-CELL OUTPUT FIXTURE
+Input: ../multi/marmot_sub.i
+Mesh: ../meshes/micro_marmot_mesh.e
+
+Mesh summary
+  manifest = text-mode Exodus-style micro-cell RVE
+  blocks = graphite_matrix fuel_kernel_proxy coating_barrier_proxy seeded_void_bubble_population
+  nominal_elements = 6400
+  periodic_sides = x_minus/x_plus y_minus/y_plus
+
+Closure history
+time_s,local_macro_temperature_K,local_fission_rate_proxy,computed_thermal_conductivity_W_mK,average_void_fraction,maximum_micro_damage,average_fission_gas_fraction
+0.0,850.0,0.000e+00,24.00,0.0150,0.0000,0.0000
+25.0,1398.4,1.350e+08,23.88,0.0158,0.0003,0.0002
+90.0,2872.6,7.850e+08,23.10,0.0195,0.0018,0.0013
+210.0,2966.8,7.850e+08,22.84,0.0212,0.0027,0.0021
+520.0,519.8,3.400e+07,23.52,0.0184,0.0023,0.0017
+560.0,1476.0,2.700e+08,23.21,0.0198,0.0025,0.0019
+650.0,2608.1,5.600e+08,22.96,0.0219,0.0031,0.0025
+900.0,612.7,6.000e+07,23.60,0.0180,0.0026,0.0020
+
+Final summary
+  minimum_computed_thermal_conductivity_W_mK = 22.84
+  maximum_average_void_fraction = 0.0219
+  maximum_micro_damage = 0.0031
+  closure_posture = synthetic_non_calibrated

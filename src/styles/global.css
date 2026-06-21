@@ -303,9 +303,14 @@ h2 {
 
 .analysis-grid {
     display: grid;
-    grid-template-columns: minmax(460px, 1.35fr) minmax(320px, .85fr);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, .85fr);
     gap: 18px;
     margin-bottom: 18px;
+}
+
+.analysis-grid > *,
+.comparison-grid > * {
+    min-width: 0;
 }
 
 .comparison-grid {
@@ -709,6 +714,8 @@ details summary {
     width: 100%;
     height: 640px;
     display: block;
+    position: relative;
+    z-index: 0;
 }
 
 .scene-command-bar {
@@ -735,6 +742,135 @@ details summary {
     min-height: 640px;
     overflow: hidden;
     background: #111820;
+}
+
+.scene-silhouette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    opacity: .74;
+}
+
+.scene-silhouette__assembly {
+    position: relative;
+    width: min(64%, 720px);
+    min-width: 360px;
+    height: min(52%, 360px);
+    min-height: 280px;
+    transform: translateY(-10%);
+    filter: drop-shadow(0 0 34px rgba(101, 185, 216, .18));
+}
+
+.scene-silhouette__core {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: 168px;
+    height: 260px;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(232, 199, 138, .48);
+    border-radius: 48% / 18%;
+    background:
+        radial-gradient(circle at 50% 46%, rgba(255, 213, 124, .72), rgba(231, 118, 56, .22) 38%, transparent 64%),
+        linear-gradient(90deg, rgba(48, 68, 79, .32), rgba(191, 122, 70, .34), rgba(48, 68, 79, .32));
+    box-shadow:
+        inset 0 0 34px rgba(255, 183, 91, .28),
+        0 0 52px rgba(214, 111, 54, .18);
+}
+
+.scene-silhouette__vessel,
+.scene-silhouette__burnup-ring {
+    position: absolute;
+    inset: 15px;
+    border: 1px solid rgba(159, 197, 216, .36);
+    border-radius: 48% / 18%;
+}
+
+.scene-silhouette__burnup-ring {
+    inset: 55px 22px;
+    border-color: rgba(255, 207, 108, .54);
+    box-shadow: 0 0 20px rgba(255, 207, 108, .18);
+}
+
+.scene-silhouette__fuel-stack {
+    position: absolute;
+    inset: 42px 46px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-content: center;
+    gap: 11px 13px;
+}
+
+.scene-silhouette__fuel-stack span {
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 225, 166, .5);
+    border-radius: 50%;
+    background: rgba(255, 173, 91, .58);
+    box-shadow: 0 0 16px rgba(255, 173, 91, .34);
+}
+
+.scene-silhouette__feed {
+    position: absolute;
+    top: 45%;
+    width: calc(50% - 110px);
+    height: 10px;
+    border: 1px solid rgba(101, 185, 216, .34);
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(101, 185, 216, .42), rgba(255, 183, 91, .28));
+}
+
+.scene-silhouette__feed--left {
+    right: calc(50% + 92px);
+}
+
+.scene-silhouette__feed--right {
+    left: calc(50% + 92px);
+    transform: scaleX(-1);
+}
+
+.scene-silhouette__nozzle {
+    position: absolute;
+    left: 50%;
+    top: calc(46% + 138px);
+    width: 138px;
+    height: 128px;
+    transform: translateX(-50%);
+    clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+    border: 1px solid rgba(159, 197, 216, .22);
+    background: linear-gradient(180deg, rgba(154, 170, 181, .42), rgba(83, 105, 121, .14));
+}
+
+.scene-silhouette__plume {
+    position: absolute;
+    left: 50%;
+    top: calc(46% + 238px);
+    width: 180px;
+    height: 86px;
+    transform: translateX(-50%);
+    clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+    background: radial-gradient(ellipse at 50% 0, rgba(255, 158, 89, .34), rgba(101, 185, 216, .08) 52%, transparent 72%);
+}
+
+.scene-silhouette[data-mode="thermal"] .scene-silhouette__fuel-stack span,
+.scene-silhouette[data-mode="review"] .scene-silhouette__fuel-stack span,
+.scene-silhouette[data-focus="fuel"] .scene-silhouette__fuel-stack span {
+    background: rgba(255, 202, 118, .76);
+    box-shadow: 0 0 22px rgba(255, 173, 91, .52);
+}
+
+.scene-silhouette[data-mode="flow"] .scene-silhouette__feed,
+.scene-silhouette[data-focus="flow"] .scene-silhouette__feed {
+    background: linear-gradient(90deg, transparent, rgba(101, 185, 216, .72), rgba(124, 218, 246, .42));
+    box-shadow: 0 0 24px rgba(101, 185, 216, .26);
+}
+
+.scene-silhouette[data-mode="evidence"] .scene-silhouette__burnup-ring,
+.scene-silhouette[data-focus="reactor"] .scene-silhouette__burnup-ring {
+    border-color: rgba(143, 205, 229, .68);
+    box-shadow: 0 0 26px rgba(101, 185, 216, .28);
 }
 
 .scene-webgl-fallback {
@@ -1302,11 +1438,22 @@ details summary {
 
 .evidence-review-table {
     margin-top: 14px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .evidence-review-table table {
     width: 100%;
     border-collapse: collapse;
+}
+
+.parsed-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.parsed-table-wrap table {
+    min-width: max-content;
 }
 
 .evidence-review-table th,
@@ -3368,6 +3515,14 @@ details summary {
     border-left: 3px solid #bb8cc6;
 }
 
+.rich-evidence-panel--mcnp {
+    border-left: 3px solid #d6ad62;
+}
+
+.rich-evidence-panel--bison {
+    border-left: 3px solid #e46f3c;
+}
+
 .rich-evidence-panel--rocets {
     border-left: 3px solid #65b9d8;
 }
@@ -3404,12 +3559,17 @@ details summary {
 }
 
 .evidence-dataset-panels {
-    grid-template-columns: minmax(320px, 1.2fr) minmax(260px, .8fr);
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
 }
 
 .evidence-dataset-panels .evidence-chart,
 .evidence-dataset-panels .evidence-review-table {
     min-width: 0;
+}
+
+.nuclear-evidence-panel .evidence-dataset-panels {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .evidence-structured-table-grid {
@@ -3687,6 +3847,119 @@ details summary {
     border-left: 3px solid #d6ad62;
     padding-left: 10px !important;
     background: rgba(214, 173, 98, .06);
+}
+
+.nuclear-posture-panel,
+.nuclear-context-panel,
+.nuclear-evidence-panel,
+.review-stability-summary {
+    margin-bottom: 18px;
+}
+
+.nuclear-posture-panel__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+}
+
+.nuclear-posture-panel__heading p,
+.nuclear-context-panel p,
+.nuclear-evidence-panel > p,
+.review-stability-summary small {
+    color: #aebdca;
+    line-height: 1.5;
+}
+
+.nuclear-posture-panel__badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.nuclear-posture-panel__badges span {
+    border: 1px solid rgba(228, 111, 60, .3);
+    border-radius: 999px;
+    background: rgba(228, 111, 60, .11);
+    color: #ffd0bd;
+    padding: 7px 10px;
+    font-size: .74rem;
+    font-weight: 800;
+}
+
+.nuclear-kpi-grid,
+.review-stability-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.nuclear-kpi,
+.review-stability-grid > div,
+.nuclear-source-grid > div {
+    min-width: 0;
+    border: 1px solid rgba(176, 190, 204, .14);
+    border-radius: 12px;
+    background: rgba(29, 40, 54, .46);
+    padding: 13px;
+}
+
+.nuclear-kpi span,
+.review-stability-grid span,
+.nuclear-source-grid span {
+    display: block;
+    color: #aebdca;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.nuclear-kpi strong,
+.review-stability-grid strong,
+.nuclear-source-grid strong {
+    display: block;
+    margin-top: 5px;
+    color: #f8fbfd;
+    font-size: 1.08rem;
+    overflow-wrap: anywhere;
+}
+
+.nuclear-kpi small,
+.review-stability-grid small {
+    display: block;
+    margin-top: 4px;
+}
+
+.nuclear-handoff-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+}
+
+.nuclear-handoff-list div {
+    border-top: 1px solid rgba(176, 190, 204, .14);
+    padding-top: 10px;
+}
+
+.nuclear-handoff-list dt {
+    color: #f6c27e;
+    font-weight: 800;
+}
+
+.nuclear-handoff-list dd {
+    margin: 4px 0 0;
+    color: #d5dee7;
+    line-height: 1.45;
+}
+
+.nuclear-source-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .calculation-input-highlight {
@@ -4560,6 +4833,15 @@ details summary {
     .channel-analysis__summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .nuclear-posture-panel__heading,
+    .nuclear-source-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nuclear-posture-panel__badges {
+        justify-content: flex-start;
+    }
 }
 
 @media (max-width: 720px) {
@@ -4577,6 +4859,8 @@ details summary {
 
     .review-decision-grid,
     .material-constraint-grid,
+    .nuclear-kpi-grid,
+    .review-stability-grid,
     .evidence-metrics,
     .evidence-summary-strip,
     .evidence-parsed-inventory,

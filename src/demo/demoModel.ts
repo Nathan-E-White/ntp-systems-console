@@ -5,6 +5,9 @@ import fixedSourceInput from '../fixtures/mcnp/ntp_mcnp.inp?raw';
 import fixedSourceOutput from '../fixtures/mcnp/ntp_mcnp.out?raw';
 import criticalityOutput from '../fixtures/mcnp/ntp_crit.out?raw';
 import criticalityInput from '../fixtures/mcnp/ntp_crit.inp?raw';
+import bisonInput from '../fixtures/bison/ntp.bison.i?raw';
+import bisonOutput from '../fixtures/bison/ntp.bison.o?raw';
+import bisonMetadata from '../fixtures/ntp.bison.metadata.json';
 import mooseInput from '../fixtures/moose/ntp_moose.inp?raw';
 import mooseOutput from '../fixtures/moose/ntp_moose.out?raw';
 import rocetsInput from '../fixtures/rocets/ntp_rocet.inp?raw';
@@ -16,6 +19,8 @@ import {buildChannelAnalysisResult} from '../physics/channelAnalysisModel';
 
 export type DemoCaseId = 'baselineStartup' | 'thermalMarginInvestigation';
 export type ReviewPosture = 'nominal' | 'watch' | 'limit';
+
+export const BISON_FUEL_PERFORMANCE_METADATA = bisonMetadata;
 
 export interface DemoCase {
     id: DemoCaseId;
@@ -79,7 +84,7 @@ export const DEMO_CASES: Record<DemoCaseId, DemoCase> = {
         label: 'Pewee-Inspired Benchmark',
         objective: 'Assess a reference-controlled Pewee-scale rated point and identify the evidence required for a defensible engine systems posture.',
         operatingPhase: 'steadyBurn',
-        evidenceFixtureIds: ['mcnp-output', 'moose-output', 'rocets-output'],
+        evidenceFixtureIds: ['mcnp-output', 'mcnp-criticality-output', 'bison-output', 'moose-output', 'rocets-output'],
         expectedPosture: 'watch',
     },
     thermalMarginInvestigation: {
@@ -87,7 +92,7 @@ export const DEMO_CASES: Record<DemoCaseId, DemoCase> = {
         label: 'Thermal Margin Investigation',
         objective: 'Investigate a high-power, reduced-flow condition and identify the controlling cross-discipline concern.',
         operatingPhase: 'steadyBurn',
-        evidenceFixtureIds: ['mcnp-output', 'moose-output', 'rocets-output'],
+        evidenceFixtureIds: ['mcnp-output', 'mcnp-criticality-output', 'bison-output', 'moose-output', 'rocets-output'],
         expectedPosture: 'limit',
     },
 };
@@ -170,6 +175,46 @@ const evidenceInputs = [
             {label: 'Initial k-effective', value: '1.01039 ± 0.00072 proxy'},
             {label: 'Burnup endpoint', value: '0.99284 k-effective proxy'},
             {label: 'Peak xenon worth', value: '-742 pcm proxy'},
+        ],
+    },
+    {
+        id: 'bison-input',
+        family: 'bison' as const,
+        direction: 'input' as const,
+        label: 'BISON fuel-performance input scaffold',
+        sourceFile: 'ntp.bison.i',
+        text: bisonInput,
+        pairGroupId: 'bison-fuel-performance',
+        pairedWith: ['bison-output'],
+        artifactRole: 'Fuel-performance input scaffold',
+        inventoryRecommendation: 'Use as the fuel-channel handoff target for MCNP burnup, MOOSE thermal fields, and ROCETS boundary histories.',
+        tableCandidates: ['variables', 'mission functions', 'source context'],
+        plotCandidates: ['core power profile', 'decay heat profile', 'mass flow profile'],
+        metrics: [
+            {label: 'Run mode', value: 'Transient BISON-like scaffold'},
+            {label: 'Mesh', value: 'Generated RZ unit-cell'},
+            {label: 'Primary variables', value: '6 fields'},
+            {label: 'Validation claim', value: 'None; check-input target'},
+        ],
+    },
+    {
+        id: 'bison-output',
+        family: 'bison' as const,
+        direction: 'output' as const,
+        label: 'BISON fuel-performance evidence',
+        sourceFile: 'ntp.bison.o',
+        text: bisonOutput,
+        pairGroupId: 'bison-fuel-performance',
+        pairedWith: ['bison-input'],
+        artifactRole: 'Fuel-performance output fixture',
+        inventoryRecommendation: 'Promote postprocessor history, final review summary, axial temperature profile, and hydrogen profile summaries.',
+        tableCandidates: ['postprocessor history', 'final review summary', 'axial temperature profile', 'vector profile summary'],
+        plotCandidates: ['fuel performance history', 'axial temperature profile', 'hydrogen inventory history'],
+        metrics: [
+            {label: 'Peak fuel temperature', value: '2,966.5 K proxy'},
+            {label: 'Peak restart temperature', value: '2,608.1 K proxy'},
+            {label: 'Coating margin', value: '0.68 proxy'},
+            {label: 'Final burnup proxy', value: '0.06728'},
         ],
     },
     {
@@ -298,6 +343,15 @@ export const EVIDENCE_PAIRING_INVENTORY: EvidencePairingInventory[] = [
         plotCandidates: ['tally fluctuations', 'reflector gamma heating'],
     },
     {
+        id: 'bison-fuel-performance',
+        label: 'BISON fuel performance',
+        inputIds: ['bison-input'],
+        outputIds: ['bison-output'],
+        summary: 'Trace fuel-channel input scaffolding into BISON-like temperature, hydrogen, burnup, damage, coating, and restart-memory records.',
+        tableCandidates: ['variables', 'mission functions', 'postprocessor history', 'final review summary', 'axial temperature profile'],
+        plotCandidates: ['fuel performance history', 'axial temperature profile', 'hydrogen inventory history'],
+    },
+    {
         id: 'rocets-system',
         label: 'ROCETS system network',
         inputIds: ['rocets-input'],
@@ -379,7 +433,7 @@ function buildRecommendedActions(
             'Evaluate pump, turbine, and channel pressure-drop sensitivities before changing the performance target.',
         ]
         : [
-            'Correlate the selected location with MCNP-like spatial evidence and MOOSE-like peak-temperature constraints.',
+            'Correlate the selected location with MCNP-like burnup, BISON-like fuel-performance, and MOOSE-like thermal constraints.',
             'Review control position, power peaking, hydrogen flow, and material-limit sensitivity at the selected condition.',
         ];
     if (outputs.channelWallCriterionMarginK < 0) {

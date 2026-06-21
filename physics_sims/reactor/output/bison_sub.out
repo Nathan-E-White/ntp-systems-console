@@ -1,0 +1,27 @@
+NTP BISON-STYLE FUEL SUBAPP OUTPUT FIXTURE
+Input: ../multi/bison_sub.i
+Parent: ../multi/moose_master.i
+
+Input summary
+  mesh = GeneratedMesh RZ representative fuel-channel ligament
+  variables = temp disp_r disp_z hydrogen_inventory burnup_proxy damage_index
+  imported = power_density keff_restart_memory_proxy
+  microclosure = MARMOT effective thermal conductivity and void fraction
+
+Solve log
+step,time_s,dt_s,nl,linear,power_norm,peakT_K,effective_k_W_mK,void_fraction,note
+0,0.0,1.0e-3,0,0,0.000,300.0,24.00,0.0150,initial
+147,29.1,2.5e-1,5,56,0.329,790.5,23.91,0.0159,thermal transient steepening
+391,90.1,2.5e-1,4,51,1.000,2872.6,23.10,0.0195,rated burn reached
+871,210.1,2.5e-1,4,47,1.000,2966.8,22.84,0.0212,shutdown approaching
+1530,520.0,5.0e-1,3,31,0.020,519.8,23.52,0.0184,pre-restart soak
+1601,555.3,2.5e-1,5,57,0.657,1476.0,23.21,0.0198,restart ramp
+1981,650.3,2.5e-1,4,48,0.820,2608.1,22.96,0.0219,restart peak
+2481,900.0,3.75e-1,3,30,0.050,612.7,23.60,0.0180,final
+
+Postprocessors
+  peak_fuel_temperature = 2.9668e+03
+  average_hydrogen_inventory = 9.6491e-08
+  maximum_damage_index = 6.5800e-06
+  marmot_effective_k = 2.3600e+01
+  final_restart_memory_index = 1.0000e+00

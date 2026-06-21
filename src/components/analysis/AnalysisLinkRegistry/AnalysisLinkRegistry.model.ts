@@ -23,12 +23,12 @@ export function buildAnalysisLinkRegistryModel(
         links: [
             {
                 id: 'thermal-margin',
-                fixtureFamilies: ['mcnp', 'moose'],
+                fixtureFamilies: ['mcnp', 'bison', 'moose'],
                 inputKeys: ['thermalPowerMw', 'massFlowKgPerSec', 'fuelTemperatureLimitK'],
                 outputKeys: ['peakChannelWallTemperatureK', 'channelWallCriterionMarginK'],
                 chartSeriesIds: ['reduced-order-transient'],
                 visualizationTargetIds: ['reactor-assembly', 'nozzle-assembly'],
-                interpretation: 'Connect power-shape context and thermomechanical limits to the reduced-order margin.',
+                interpretation: 'Connect power-shape, fuel-performance, and thermomechanical context to the reduced-order margin.',
             },
             {
                 id: 'propulsion-stability',

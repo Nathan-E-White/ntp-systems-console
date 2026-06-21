@@ -1,0 +1,38 @@
+! LOCATION: components/feed_line.cmp
+
+BEGIN_MATH_MODEL
+
+    ! 1. Pull current conditions from upstream port
+    P_in    = Inlet.Pressure
+    T_in    = Inlet.Temperature
+    Para_in = Inlet.Para_Fraction  ! e.g., 0.25 (Normal hydrogen entering)
+
+    ! 2. Query the 3D property deck using the current para fraction variable
+    CALL PROP_3D_LOOKUP("hydrogen_spin.fluid", Para_in, P_in, T_in, Dens, Enth, Cp)
+
+    ! 3. Ortho-to-Para Chemical Conversion Kinetics Calculations
+    ! Equilibrium concentration changes heavily based on temperature
+    Para_Equil = FUNCTION_OF_TEMP_EQUIL(T_in)
+
+    ! Kinetic rate equation (drastically accelerated if line has a catalyst coating)
+    IF (Has_Catalyst == 1) THEN
+        K_rate = 50.4  ! Fast catalytic conversion
+    ELSE
+        K_rate = 0.012 ! Slow, natural spontaneous conversion
+    ENDIF
+
+    ! Mass accumulation change over time step (Source/Sink derivative)
+    Para_Generated_Rate = K_rate * (Para_Equil - Para_in)
+    DERIV(Current_Para_Mass) = (Inlet.MassFlow * Para_in) - (Outlet.MassFlow * Outlet.Para_Fraction) + Para_Generated_Rate
+
+    ! 4. Energy Equation Correction for Exothermic Conversion Heat Release
+    ! The spin state conversion converts chemical bond energy to thermal heat
+    Q_conversion = Para_Generated_Rate * 302.0 ! Btu/lbm heat release
+    T_out_corrected = T_in + (Q_conversion / (Outlet.MassFlow * Cp))
+
+    ! 5. Export updated fluid parameters to downstream ports
+    Outlet.Para_Fraction = Current_Para_Mass / Total_Fluid_Mass_In_Line
+    Outlet.Temperature   = T_out_corrected
+    Outlet.Pressure      = P_in - Pressure_Drop_Formula(Dens)
+
+END_MATH_MODEL

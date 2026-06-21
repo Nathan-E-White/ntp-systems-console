@@ -1,4 +1,4 @@
-export type AppSectionId = 'operating-case' | 'model-evidence' | 'stability' | 'review';
+export type AppSectionId = 'operating-case' | 'nuclear-fuel-performance' | 'model-evidence' | 'review';
 
 export interface AppSectionDefinition {
     id: AppSectionId;
@@ -15,16 +15,16 @@ export const appSections: AppSectionDefinition[] = [
         description: 'Set the operating point and inspect the calculated response.',
     },
     {
+        id: 'nuclear-fuel-performance',
+        label: 'Nuclear Fuel Performance',
+        eyebrow: 'Fuel and burnup evidence',
+        description: 'Inspect BISON fuel-performance and MCNP burnup/restart evidence.',
+    },
+    {
         id: 'model-evidence',
         label: 'Model Evidence',
         eyebrow: 'Synthetic model handoff',
-        description: 'Inspect the MCNP-, MOOSE-, and ROCETS-like evidence set.',
-    },
-    {
-        id: 'stability',
-        label: 'Stability',
-        eyebrow: 'Systems investigation',
-        description: 'Compare prepared cases and review the controlling flags.',
+        description: 'Inspect the MCNP-, BISON-, MOOSE-, and ROCETS-like evidence set.',
     },
     {
         id: 'review',

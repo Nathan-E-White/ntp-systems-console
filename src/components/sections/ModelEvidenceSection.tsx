@@ -37,7 +37,7 @@ type DiagnosticSummary = {
 };
 
 const DIRECTION_FILTERS: ReadonlyArray<DirectionFilter> = ['all', 'input', 'output'];
-const FAMILY_FILTERS: ReadonlyArray<FamilyFilter> = ['all', 'mcnp', 'moose', 'rocets'];
+const FAMILY_FILTERS: ReadonlyArray<FamilyFilter> = ['all', 'mcnp', 'bison', 'moose', 'rocets'];
 const DEFAULT_EVIDENCE_SPLIT_PERCENT = 68;
 const MIN_EVIDENCE_SPLIT_PERCENT = 44;
 const MAX_EVIDENCE_SPLIT_PERCENT = 84;
@@ -84,6 +84,20 @@ const MOOSE_TABLE_IDS = [
     'warnings',
 ] as const;
 
+const BISON_TABLE_IDS = [
+    'postprocessor-history',
+    'final-review-summary',
+    'axial-temperature-profile',
+    'vector-profile-summary',
+    'transient-solve-log',
+] as const;
+
+const MCNP_CRITICALITY_TABLE_IDS = [
+    'tallies',
+    'derived-quantities',
+    'warnings',
+] as const;
+
 const STATUS_LABELS: Record<AnalysisEvidence['parserStatus'], string> = {
     error: 'Parser error',
     parsed: 'Parsed',
@@ -101,6 +115,7 @@ function familyCounts(): Record<FamilyFilter, number> {
     return {
         all: DEFAULT_ANALYSIS_EVIDENCE.length,
         mcnp: DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.family === 'mcnp').length,
+        bison: DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.family === 'bison').length,
         moose: DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.family === 'moose').length,
         rocets: DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.family === 'rocets').length,
     };
@@ -233,8 +248,8 @@ function EvidenceWalkthroughControls({reducedMotion}: Readonly<{reducedMotion: b
             <div className="evidence-walkthrough__heading">
                 <div>
                     <p className="eyebrow">guided evidence tour</p>
-                    <h3>{activeStep?.label ?? 'MOOSE and RoCETS walkthrough'}</h3>
-                    <p>{activeStep?.interpretation ?? 'Step through thermal response, feed/turbomachinery, nozzle performance, and stability evidence.'}</p>
+                    <h3>{activeStep?.label ?? 'Nuclear evidence walkthrough'}</h3>
+                    <p>{activeStep?.interpretation ?? 'Step through MCNP burnup, BISON fuel performance, MOOSE thermal coupling, and ROCETS support evidence.'}</p>
                 </div>
                 <span>{walkthrough.state.status === 'active' ? `Step ${(walkthrough.state.activeStepIndex ?? 0) + 1} of ${walkthrough.model.steps.length}` : `${walkthrough.model.steps.length} steps`}</span>
             </div>
@@ -350,7 +365,7 @@ function EvidenceCard({
     const parsedText = parsed ? serializeForViewer(parsed.rawParsed) : null;
 
     const linked =
-        (links.state.activeLinkId === 'thermal-margin' && (evidence.family === 'mcnp' || evidence.family === 'moose')) ||
+        (links.state.activeLinkId === 'thermal-margin' && (evidence.family === 'mcnp' || evidence.family === 'bison' || evidence.family === 'moose')) ||
         (links.state.activeLinkId === 'propulsion-stability' && evidence.family === 'rocets');
     const linkId = evidence.family === 'rocets' ? 'propulsion-stability' : 'thermal-margin';
 
@@ -563,13 +578,67 @@ function EvidenceCard({
 
 function RichEvidencePanel({evidence}: Readonly<{evidence: AnalysisEvidence}>) {
     if (evidence.direction !== 'output') return null;
+    if (evidence.id === 'mcnp-criticality-output') {
+        return <McnpBurnupEvidencePanel evidence={evidence}/>;
+    }
     if (evidence.family === 'moose') {
         return <MooseEvidencePanel evidence={evidence}/>;
+    }
+    if (evidence.family === 'bison') {
+        return <BisonEvidencePanel evidence={evidence}/>;
     }
     if (evidence.family === 'rocets') {
         return <RocetsEvidencePanel evidence={evidence}/>;
     }
     return null;
+}
+
+function McnpBurnupEvidencePanel({evidence}: Readonly<{evidence: AnalysisEvidence}>) {
+    const workspace = useEngineeringDataWorkspace();
+    const dataset = workspace.model.investigationEvidence.datasets.find((candidate) => candidate.id === 'mcnp-criticality-burnup');
+    const tables = findParsedTables(evidence, MCNP_CRITICALITY_TABLE_IDS);
+
+    return (
+        <section className="rich-evidence-panel rich-evidence-panel--mcnp" aria-label="MCNP burnup evidence card">
+            <div className="rich-evidence-panel__heading">
+                <div>
+                    <p className="eyebrow">burnup and restart memory</p>
+                    <h3>MCNP Burnup Evidence</h3>
+                </div>
+                <span>{tables.length} structured tables</span>
+            </div>
+            {dataset ? <EvidenceDatasetPanels dataset={dataset}/> : null}
+            <EvidenceStructuredTables
+                direction={evidence.direction}
+                family={evidence.family}
+                tables={tables}
+            />
+        </section>
+    );
+}
+
+function BisonEvidencePanel({evidence}: Readonly<{evidence: AnalysisEvidence}>) {
+    const workspace = useEngineeringDataWorkspace();
+    const dataset = workspace.model.investigationEvidence.datasets.find((candidate) => candidate.id === 'bison-fuel-performance-history');
+    const tables = findParsedTables(evidence, BISON_TABLE_IDS);
+
+    return (
+        <section className="rich-evidence-panel rich-evidence-panel--bison" aria-label="BISON fuel-performance evidence card">
+            <div className="rich-evidence-panel__heading">
+                <div>
+                    <p className="eyebrow">fuel performance</p>
+                    <h3>BISON Fuel Performance Evidence</h3>
+                </div>
+                <span>{tables.length} structured tables</span>
+            </div>
+            {dataset ? <EvidenceDatasetPanels dataset={dataset}/> : null}
+            <EvidenceStructuredTables
+                direction={evidence.direction}
+                family={evidence.family}
+                tables={tables}
+            />
+        </section>
+    );
 }
 
 function MooseEvidencePanel({evidence}: Readonly<{evidence: AnalysisEvidence}>) {

@@ -1,0 +1,58 @@
+! ====================================================================
+! ROCETS-LIKE NTP CONNECTION AND NETWORK TOPOLOGY MAP
+! FILE: connectors/assembly.con
+! ====================================================================
+
+DEFINE SYSTEM CONNECTIONS: NTP_BREADBOARD_RESTART_SIM
+
+BEGIN_FLUID_CONNECTIONS
+    LINK LH2_Tank.Outlet               TO Tank_Isolation_Valve.Inlet       FLUID=LH2
+    LINK Tank_Isolation_Valve.Outlet   TO Boost_Pump.Inlet                 FLUID=LH2
+    LINK Boost_Pump.Outlet             TO Ortho_Para_Feed_Line.Inlet       FLUID=LH2
+    LINK Ortho_Para_Feed_Line.Outlet   TO Nozzle_Regen_Jacket.Cold_Inlet   FLUID=LH2
+    LINK Nozzle_Regen_Jacket.Cold_Out  TO Reactor_Core.Core_Inlet          FLUID=LH2
+    LINK Reactor_Core.Core_Exit        TO Turbine_Tap.Inlet                FLUID=HOT_H2
+    LINK Turbine_Tap.Primary_Outlet    TO Thrust_Chamber.Hot_H2_Inlet      FLUID=HOT_H2
+    LINK Turbine_Tap.Secondary_Outlet  TO Drive_Turbine.Inlet              FLUID=HOT_H2
+    LINK Drive_Turbine.Outlet          TO Turbine_Exhaust_Mixer.Inlet_1    FLUID=HOT_H2
+    LINK Turbine_Exhaust_Mixer.Outlet  TO Thrust_Chamber.Hot_H2_Inlet      FLUID=HOT_H2
+    LINK Thrust_Chamber.Nozzle_Inlet   TO Bell_Nozzle.Inlet                FLUID=HOT_H2
+    LINK Bell_Nozzle.Outlet            TO Space_Ambient.Inlet              FLUID=HOT_H2
+END_FLUID_CONNECTIONS
+
+BEGIN_MECHANICAL_CONNECTIONS
+    LINK Drive_Turbine.Shaft TO Main_Turbopump.Shaft TYPE=ROTATIONAL
+    LINK Electric_Start_Motor.Shaft TO Boost_Pump.Shaft TYPE=ROTATIONAL
+END_MECHANICAL_CONNECTIONS
+
+BEGIN_THERMAL_CONNECTIONS
+    LINK Bell_Nozzle.Wall_Heat TO Nozzle_Regen_Jacket.Hot_Boundary
+    LINK Thrust_Chamber.Wall_Load TO Nozzle_Regen_Jacket.Hot_Boundary
+END_THERMAL_CONNECTIONS
+
+BEGIN_SIGNAL_CONNECTIONS
+    LINK Reactor_Core.Stability_Status TO Avionics.Ledinegg_Status_Raw
+    LINK Thrust_Chamber.Pressure TO Avionics.Pt_Chamber_Raw
+    LINK Avionics.Valve_Actuator TO Tank_Isolation_Valve.Command
+END_SIGNAL_CONNECTIONS
+
+BEGIN_NODE_CONSTRAINTS
+    NODE_BALANCE: feed_mass_closure
+        SUM_FLOW_IN  = LH2_Tank.Outlet.MassFlow
+        SUM_FLOW_OUT = Reactor_Core.Core_Inlet.MassFlow
+        RESIDUAL     = SUM_FLOW_IN - SUM_FLOW_OUT
+        TOLERANCE    = 5.0E-03
+    END_NODE
+
+    NODE_BALANCE: chamber_pressure_target
+        EQUATE Thrust_Chamber.Pressure = Bell_Nozzle.Inlet.Pressure
+        TOLERANCE = 1.0E-04
+    END_NODE
+
+    NODE_BALANCE: turbine_power_balance
+        EQUATE Drive_Turbine.Power = Main_Turbopump.Shaft_Power
+        TOLERANCE = 1.0E-03
+    END_NODE
+END_NODE_CONSTRAINTS
+
+END_SYSTEM_CONNECTIONS

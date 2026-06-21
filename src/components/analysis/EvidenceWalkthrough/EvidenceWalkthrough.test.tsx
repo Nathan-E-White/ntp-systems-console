@@ -17,7 +17,7 @@ import {EvidenceWalkthroughProvider, useEvidenceWalkthrough} from './EvidenceWal
 import {EvidenceWalkthroughBridge} from './EvidenceWalkthroughBridge';
 
 describe('EvidenceWalkthrough', () => {
-    it('steps through MOOSE and ROCETS evidence in the declared order', () => {
+    it('steps through nuclear evidence before ROCETS support evidence', () => {
         render(
             <EvidenceWalkthroughProvider>
                 <WalkthroughProbe/>
@@ -26,13 +26,13 @@ describe('EvidenceWalkthrough', () => {
 
         expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('idle:none:none:false');
         fireEvent.click(screen.getByRole('button', {name: 'Start reduced'}));
-        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:0:moose-thermal-response:true');
+        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:0:mcnp-burnup-restart:true');
         fireEvent.click(screen.getByRole('button', {name: 'Next'}));
-        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:1:rocets-feed-turbomachinery:true');
-        fireEvent.click(screen.getByRole('button', {name: 'Select nozzle'}));
-        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:2:rocets-nozzle-performance:false');
+        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:1:bison-fuel-performance:true');
+        fireEvent.click(screen.getByRole('button', {name: 'Select MOOSE'}));
+        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:2:moose-thermal-response:false');
         fireEvent.click(screen.getByRole('button', {name: 'Previous'}));
-        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:1:rocets-feed-turbomachinery:false');
+        expect(screen.getByLabelText('walkthrough state')).toHaveTextContent('active:1:bison-fuel-performance:false');
     });
 
     it('bridges an active step into scene selection, cutaway mode, and analysis link', () => {
@@ -66,7 +66,7 @@ function WalkthroughProbe() {
             <button onClick={() => walkthrough.start({reducedMotion: true})} type="button">Start reduced</button>
             <button onClick={walkthrough.next} type="button">Next</button>
             <button onClick={walkthrough.previous} type="button">Previous</button>
-            <button onClick={() => walkthrough.selectStep('rocets-nozzle-performance')} type="button">Select nozzle</button>
+            <button onClick={() => walkthrough.selectStep('moose-thermal-response')} type="button">Select MOOSE</button>
         </>
     );
 }

@@ -102,7 +102,7 @@ function humanizeDataLabel(value: string): string {
         .map((word) => {
             const lower = word.toLowerCase();
             if (['h2', 'lh2'].includes(lower)) return lower.toUpperCase();
-            if (['mcnp', 'moose', 'rocets', 'ntp', 'kcode'].includes(lower)) return lower.toUpperCase();
+            if (['mcnp', 'moose', 'bison', 'rocets', 'ntp', 'kcode'].includes(lower)) return lower.toUpperCase();
             if (lower === 'id') return 'ID';
             return lower;
         })

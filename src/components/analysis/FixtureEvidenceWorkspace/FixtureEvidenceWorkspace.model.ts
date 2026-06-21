@@ -38,6 +38,24 @@ export function buildFixtureEvidenceWorkspaceModel(
                 validationLabel: 'Not validated solver output',
             },
             {
+                id: 'bison-input',
+                family: 'bison',
+                direction: 'input',
+                filename: 'ntp.bison.i',
+                parserStatus: 'parsed',
+                provenance: 'Repository-bundled synthetic fixture',
+                validationLabel: 'Executable-lite scaffold only',
+            },
+            {
+                id: 'bison-output',
+                family: 'bison',
+                direction: 'output',
+                filename: 'ntp.bison.o',
+                parserStatus: 'parsed',
+                provenance: 'Repository-bundled synthetic fixture',
+                validationLabel: 'Not validated solver output',
+            },
+            {
                 id: 'moose-output',
                 family: 'moose',
                 direction: 'output',
@@ -56,7 +74,7 @@ export function buildFixtureEvidenceWorkspaceModel(
                 validationLabel: 'Not validated solver output',
             },
         ],
-        selectedFamilies: ['mcnp', 'moose', 'rocets'],
+        selectedFamilies: ['mcnp', 'bison', 'moose', 'rocets'],
         boundary: {
             scope: 'Catalogs parsed engineering fixtures and exposes immutable evidence selections.',
             owns: ['fixture identity', 'parser status', 'provenance', 'validation labels'],

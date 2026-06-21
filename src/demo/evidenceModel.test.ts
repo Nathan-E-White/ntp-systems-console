@@ -5,23 +5,26 @@ import {buildEvidenceWorkspace} from './evidenceModel';
 
 describe('curated evidence workspace', () => {
     it('includes the full input and output fixture corpus with pairing metadata', () => {
-        expect(DEFAULT_ANALYSIS_EVIDENCE).toHaveLength(8);
-        expect(DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.direction === 'input')).toHaveLength(4);
-        expect(DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.direction === 'output')).toHaveLength(4);
+        expect(DEFAULT_ANALYSIS_EVIDENCE).toHaveLength(10);
+        expect(DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.direction === 'input')).toHaveLength(5);
+        expect(DEFAULT_ANALYSIS_EVIDENCE.filter((evidence) => evidence.direction === 'output')).toHaveLength(5);
         expect(DEFAULT_ANALYSIS_EVIDENCE.map((evidence) => evidence.sourceFile)).toEqual([
             'ntp_mcnp.inp',
             'ntp_crit.inp',
             'ntp_mcnp.out',
             'ntp_crit.out',
+            'ntp.bison.i',
+            'ntp.bison.o',
             'ntp_rocet.inp',
             'ntp_moose.inp',
             'ntp_moose.out',
             'ntp_rocet.out',
         ]);
-        expect(EVIDENCE_PAIRING_INVENTORY).toHaveLength(4);
+        expect(EVIDENCE_PAIRING_INVENTORY).toHaveLength(5);
         expect(EVIDENCE_PAIRING_INVENTORY.map((pairing) => pairing.id)).toEqual([
             'mcnp-fixed-source',
             'mcnp-criticality',
+            'bison-fuel-performance',
             'rocets-system',
             'moose-thermal',
         ]);
@@ -48,6 +51,9 @@ describe('curated evidence workspace', () => {
         expect(workspace.datasets.map((dataset) => dataset.id)).toEqual([
             'mcnp-transport-axial',
             'mcnp-criticality-burnup',
+            'bison-fuel-performance-history',
+            'bison-axial-temperature-profile',
+            'bison-hydrogen-profile',
             'moose-thermal-history',
             'rocets-feed-history',
             'rocets-nozzle-history',
@@ -67,5 +73,28 @@ describe('curated evidence workspace', () => {
         expect(transport?.traces.map((trace) => trace.id)).toEqual(['flux']);
         expect(criticality?.traces.map((trace) => trace.id)).toEqual(['keff']);
         expect(criticality?.points.at(-1)?.values.keff).toBe(0.99284);
+    });
+
+    it('promotes BISON fuel-performance values as fixture-backed datasets', () => {
+        const workspace = buildEvidenceWorkspace(DEFAULT_ANALYSIS_EVIDENCE);
+        const fuel = workspace.datasets.find((dataset) => dataset.id === 'bison-fuel-performance-history');
+        const axial = workspace.datasets.find((dataset) => dataset.id === 'bison-axial-temperature-profile');
+        const hydrogen = workspace.datasets.find((dataset) => dataset.id === 'bison-hydrogen-profile');
+
+        expect(fuel?.sourceFile).toBe('ntp.bison.o');
+        expect(fuel?.traces.map((trace) => trace.id)).toEqual([
+            'peakFuel',
+            'averageFuel',
+            'coatingMargin',
+            'hydrogenAttack',
+        ]);
+        expect(fuel?.table.rows).toContainEqual({metric: 'Peak fuel temperature', value: 2966.5, unit: 'K'});
+        expect(fuel?.table.rows).toContainEqual({metric: 'Final damage index', value: 0.00000658, unit: 'proxy'});
+        expect(axial?.points.at(-1)?.values.temperature).toBe(398.9227);
+        expect(hydrogen?.points.map((point) => point.values.hydrogenInventory)).toEqual([
+            1.302118e-11,
+            9.649105e-8,
+            3.841006e-7,
+        ]);
     });
 });

@@ -1,0 +1,97 @@
+! ====================================================================
+! ROCETS VEHICLE-LEVEL SYSTEM MODEL EXECUTION SCRIPT
+! FILE: system_model.run
+! ====================================================================
+
+INITIALIZE_SIMULATION: MULTI_STAGE_ASCENT_SIM
+
+    SET PROJECT_NAME = "Two-Stage Launch Vehicle Integration Run"
+    SET DATA_UNITS   = ENGLISH_ENGINEERING
+
+    ! ----------------------------------------------------------------
+    ! 1. INGEST VEHICLE SUBSYSTEM TEMPLATES
+    ! ----------------------------------------------------------------
+    ! Import the massive, nested black-box assemblies from their folders
+    INCLUDE "./stages/stage_1_booster.sub"
+    INCLUDE "./stages/stage_2_sustainer.sub"
+    INCLUDE "./components/interstage.cmp"
+
+
+    ! ----------------------------------------------------------------
+    ! 2. INSTANTIATE SUB-SYSTEMS (Creating the Physical Stack)
+    ! ----------------------------------------------------------------
+    ! Allocate memory and assign distinct instance tags to the subsystems
+    BEGIN_SYSTEM_COMPONENTS
+        BUILD SUBSYSTEM: stage_1_booster   AS Core_Booster_Stage
+        BUILD SUBSYSTEM: stage_2_sustainer AS Upper_Vacuum_Stage
+        BUILD COMPONENT: interstage        AS Flight_Separation_Ring
+    END_SYSTEM_COMPONENTS
+
+
+    ! ----------------------------------------------------------------
+    ! 3. TOP-LEVEL STACK INTERCONNECTIONS
+    ! ----------------------------------------------------------------
+    ! Connect the stages through their high-level interface boundaries.
+    ! Note how we reach inside the interface ports using dot notation.
+    BEGIN_SYSTEM_CONNECTIONS
+
+        ! Structural and telemetry links between stages
+        LINK Core_Booster_Stage.Telem_Out   TO Flight_Separation_Ring.Command_In
+        LINK Flight_Separation_Ring.Avionics TO Upper_Vacuum_Stage.Guidance_In
+
+        ! Pneumatic/Fluid cross-feed disconnect lines if applicable
+        LINK Core_Booster_Stage.Ground_Purge TO Upper_Vacuum_Stage.Tank_Vent
+
+    END_SYSTEM_CONNECTIONS
+
+
+    ! ----------------------------------------------------------------
+    ! 4. MISSION EXECUTION TIMELINE (Transient Staging Sequence)
+    ! ----------------------------------------------------------------
+    BEGIN_EXECUTION_SEQUENCE
+
+        TIME = 0.0
+        OUTPUT_INTERVAL = 0.010  ! 10 millisecond telemetry snapshots
+
+        ! --- PHASE 1: LIFTOFF & BOOSTER ASCENT ---
+        ! Command the entire first stage to fire up. The internal math
+        ! models inside 'Core_Booster_Stage' solve all nested pump/chamber loops.
+        SCHEDULE Core_Booster_Stage.Throttle_Command = RAMP(0.0, 1.0, 2.0, 1.0)
+
+        TRANSIENT_RUN FROM TIME = 0.0 TO 120.00   ! Run until Booster MECO
+
+        ! --- PHASE 2: STAGING & INTERSTAGE SEPARATION ---
+        ! Command Booster Shutdown
+        SCHEDULE Core_Booster_Stage.Throttle_Command = 0.0
+
+        ! Fire separation pyros inside the interstage component
+        SCHEDULE Flight_Separation_Ring.Sep_Command = TRIGGER(120.50)
+
+        ! Disable solver tracking for Stage 1 to optimize memory matrix
+        DEACTIVATE_COMPONENTS: Core_Booster_Stage
+
+        ! --- PHASE 3: UPPER STAGE IGNITION ---
+        ! Step simulation forward slightly in vacuum coast before lighting Stage 2
+        TRANSIENT_RUN FROM TIME = 120.00 TO 122.00
+
+        ! Command Upper Vacuum Stage to ignite and throttle up
+        SCHEDULE Upper_Vacuum_Stage.Ignition_Signal = TRIGGER(122.10)
+        SCHEDULE Upper_Vacuum_Stage.Throttle_Cmd     = RAMP(122.10, 0.0, 124.00, 1.0)
+
+        TRANSIENT_RUN FROM TIME = 122.00 TO 300.00  ! Run to orbit insertion
+
+    END_EXECUTION_SEQUENCE
+
+
+    ! ----------------------------------------------------------------
+    ! 5. DATA EXPORT CONFIGURATION
+    ! ----------------------------------------------------------------
+    BEGIN_DATA_EXPORT
+        EXPORT_FILE = "./output/flight_profile.dat"
+        VARIABLES = [ TIME,
+                      Core_Booster_Stage.Total_Thrust,
+                      Upper_Vacuum_Stage.Chamber_Pressure,
+                      Flight_Separation_Ring.Separation_Distance ]
+    END_DATA_EXPORT
+
+END_SIMULATION

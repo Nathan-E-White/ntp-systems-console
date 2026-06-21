@@ -23,13 +23,13 @@ export function AppLayout({activeSectionId, children, onResetDemo, onSectionChan
                     <p className="eyebrow">Amentum R0157331 · portfolio workflow demonstration</p>
                     <h1>SNP Engine Systems Analysis Workbench</h1>
                     <p className="hero-copy">
-                        Operating-case analysis, model evidence, and engineering review for nuclear propulsion systems.
+                        Operating-case analysis, nuclear fuel-performance evidence, model handoff, and engineering review for SNP systems.
                     </p>
                 </div>
                 <div className="case-status-panel" aria-label="Current demo case">
                     <span>Current case</span>
                     <strong>{getCaseLabel(selectedPresetId)}</strong>
-                    <small>Screening model · static fixtures</small>
+                    <small>Screening model · static MCNP/BISON/MOOSE/ROCETS fixtures</small>
                     <button type="button" onClick={onResetDemo}>
                         <RotateCcw aria-hidden="true" size={15}/>
                         Reset Demo

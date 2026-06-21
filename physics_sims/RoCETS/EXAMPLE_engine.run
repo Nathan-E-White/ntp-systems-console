@@ -1,0 +1,103 @@
+! ====================================================================
+! ROCETS MASTER EXECUTION DECK
+! FILE: engine.run
+! ====================================================================
+
+! --------------------------------------------------------------------
+! 1. ENVIRONMENT INITIALIZATION & MODEL INGESTION
+! --------------------------------------------------------------------
+INITIALIZE_SIMULATION: SSME_STARTUP_TRANS
+
+    SET PROJECT_NAME = "Space Shuttle Main Engine Transient Model"
+    SET DATA_UNITS   = ENGLISH_ENGINEERING  ! (psia, lb/s, Rankine, inches)
+
+    ! Read component libraries, network routing, and fluid property grids
+    INCLUDE  "./components/combustion_chamber.cmp"
+    INCLUDE  "./components/valve.cmp"
+    INCLUDE  "./components/pump.cmp"
+    INCLUDE  "./connectors/assembly.con"
+    INCLUDE  "./connectors/flow_path.con"
+    LOAD_FLUID_DATA "./fluids/LOX_LH2.fluid"
+
+
+! --------------------------------------------------------------------
+! 2. SOLVER MATRICES & TOLERANCE THRESHOLDS
+! --------------------------------------------------------------------
+! Configures the internal Newton-Raphson or Runge-Kutta numerical solvers
+
+BEGIN_SOLVER_SETTINGS
+    MAX_ITERATIONS   = 150       ! Max iterations per timestep before failing
+    CONV_TOLERANCE   = 1.0E-05   ! Convergence error cutoff delta
+    INTEGRATOR_TYPE  = GEAR_GEB  ! Gear's backward differentiation for stiff equations
+    MIN_TIMESTEP     = 1.0E-06   ! Smallest adaptive step for rapid transients (seconds)
+    MAX_TIMESTEP     = 1.0E-03   ! Largest step for quasi-steady state (seconds)
+END_SOLVER_SETTINGS
+
+
+! --------------------------------------------------------------------
+! 3. BOUNDARY CONDITION INITIALIZATION (Steady-State Trim)
+! --------------------------------------------------------------------
+! Establish initial conditions prior to main ignition command (t = 0.0)
+
+BEGIN_INITIAL_CONDITIONS
+    ! Set storage tank baseline pressures
+    Fuel_Tank.Outlet.Pressure = 45.0
+    Ox_Tank.Outlet.Pressure   = 50.0
+
+    ! Keep injector valves closed at start
+    Main_Fuel_Valve.Percent_Open = 0.0
+    Main_Ox_Valve.Percent_Open   = 0.0
+
+    ! Seed initial system-wide guess values to prevent divide-by-zero errors
+    Combustion_Chamber.P_chamber = 14.7
+    Combustion_Chamber.T_chamber = 530.0
+END_INITIAL_CONDITIONS
+
+
+! --------------------------------------------------------------------
+! 4. TRANSIENT EXECUTION SEQUENCE (The Run Loop Layout)
+! --------------------------------------------------------------------
+! Controls schedules for valve actuation and boundaries over time
+
+BEGIN_EXECUTION_SEQUENCE
+
+    ! --- STEP A: Find steady-state baseline before opening valves ---
+    RUN_STEADY_STATE_TRIM
+
+    ! --- STEP B: Main Core Start Sequence Timeline ---
+    TIME = 0.0
+    OUTPUT_INTERVAL = 0.005  ! Write out telemetry every 5 milliseconds
+
+    ! 1. Actuate the Main Fuel Valve linearly to 100% open over 0.1 seconds
+    SCHEDULE Main_Fuel_Valve.Percent_Open = RAMP(0.0, 0.0,  0.1, 1.0)
+
+    ! 2. Delay the Main Oxidizer Valve opening slightly to avoid an explosion
+    SCHEDULE Main_Ox_Valve.Percent_Open   = RAMP(0.02, 0.0, 0.12, 1.0)
+
+    ! 3. Step the simulation engine forward through ignition transient
+    TRANSIENT_RUN FROM TIME = 0.0 TO 0.500
+
+    ! --- STEP C: Dynamic Throttle Transition ---
+    ! Simulate throttling back down to 65% rated power thrust profile
+    SCHEDULE Main_Fuel_Valve.Percent_Open = RAMP(0.50, 1.0, 0.65, 0.65)
+    SCHEDULE Main_Ox_Valve.Percent_Open   = RAMP(0.50, 1.0, 0.65, 0.65)
+
+    TRANSIENT_RUN FROM TIME = 0.500 TO 1.000
+
+END_EXECUTION_SEQUENCE
+
+
+! --------------------------------------------------------------------
+! 5. DATA CHANNELS TO EXPORT
+! --------------------------------------------------------------------
+BEGIN_DATA_EXPORT
+    ! Controls the .dat raw column output destination
+    EXPORT_FILE = "./output/startup_telemetry.dat"
+    VARIABLES   = [TIME, Combustion_Chamber.P_chamber, High_Pressure_Fuel_Pump.Shaft.RPM]
+
+    ! Controls the .plt legacy software plotting destination
+    PLOT_FILE   = "./output/performance_curves.plt"
+    PLOT_FORMAT = TECPLOT
+END_DATA_EXPORT
+
+END_SIMULATION

@@ -74,7 +74,7 @@ const cutawayModes: ReadonlyArray<{
     {id: 'layers', label: 'Layers', title: 'Layered reactor/nozzle cutaway', Icon: Layers},
     {id: 'flow', label: 'Flow', title: 'Hydrogen feed and nozzle flow path', Icon: Route},
     {id: 'thermal', label: 'Thermal', title: 'Thermal response and axial margin view', Icon: Thermometer},
-    {id: 'evidence', label: 'Evidence', title: 'MCNP, MOOSE, and ROCETS evidence links', Icon: Link},
+    {id: 'evidence', label: 'Evidence', title: 'MCNP, BISON, MOOSE, and ROCETS evidence links', Icon: Link},
 ];
 
 export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
@@ -491,6 +491,10 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                         selectedComponentId={investigationState.selectedComponentId}
                     />
                     </SceneCanvas>
+                    <SceneSilhouetteOverlay
+                        mode={effectiveMode}
+                        selectedComponentId={investigationState.selectedComponentId}
+                    />
 
                 {overlaysVisible && (
                     <SceneCalloutOverlay
@@ -532,6 +536,41 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     );
 }
 
+function SceneSilhouetteOverlay({
+    mode,
+    selectedComponentId,
+}: Readonly<{
+    mode: EngineVisualizationMode;
+    selectedComponentId: SceneComponentId;
+}>) {
+    const channels = Array.from({length: 11}, (_, index) => index);
+    const focus = selectedComponentId === 'fuel-performance'
+        ? 'fuel'
+        : selectedComponentId === 'reactor-criticality' || selectedComponentId === 'reactor-transport'
+            ? 'reactor'
+            : selectedComponentId === 'propulsion-stability' || selectedComponentId === 'feed-system'
+                ? 'flow'
+                : 'system';
+
+    return (
+        <div aria-hidden="true" className="scene-silhouette" data-focus={focus} data-mode={mode}>
+            <div className="scene-silhouette__assembly">
+                <div className="scene-silhouette__feed scene-silhouette__feed--left"/>
+                <div className="scene-silhouette__feed scene-silhouette__feed--right"/>
+                <div className="scene-silhouette__core">
+                    <div className="scene-silhouette__vessel"/>
+                    <div className="scene-silhouette__fuel-stack">
+                        {channels.map((channel) => <span key={channel}/>)}
+                    </div>
+                    <div className="scene-silhouette__burnup-ring"/>
+                </div>
+                <div className="scene-silhouette__nozzle"/>
+                <div className="scene-silhouette__plume"/>
+            </div>
+        </div>
+    );
+}
+
 function getVisibleCalloutIds(mode: EngineVisualizationMode): readonly string[] {
     switch (mode) {
         case 'thermal':
@@ -552,7 +591,8 @@ function getComponentViewPreset(componentId: SceneComponentId): SceneViewPresetI
         || componentId === 'power-conversion' || componentId === 'propulsion-stability') {
         return 'flow-path';
     }
-    if (componentId === 'reactor-transport' || componentId === 'reactor-criticality' || componentId === 'thermal-margin') {
+    if (componentId === 'reactor-transport' || componentId === 'reactor-criticality'
+        || componentId === 'fuel-performance' || componentId === 'thermal-margin') {
         return 'reactor';
     }
     return 'fit-engine';
@@ -569,7 +609,7 @@ function getAdaptiveCueFocus(
         if (caseId === 'thermalMarginInvestigation') return 'thermal-margin';
         return outputs.channelWallCriterionMarginK < 220 ? 'thermal-margin' : 'propulsion-stability';
     }
-    if (cueId === 'correlate-evidence') return 'reactor-transport';
+    if (cueId === 'correlate-evidence') return 'fuel-performance';
     return 'engine-overview';
 }
 

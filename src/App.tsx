@@ -4,9 +4,9 @@ import {AppLayout} from './AppLayout';
 import {type AppSectionId} from './AppSections';
 import {ActiveCaseProviders} from './components/analysis/ActiveCaseProviders';
 import {ModelEvidenceSection} from './components/sections/ModelEvidenceSection';
+import {NuclearFuelPerformanceSection} from './components/sections/NuclearFuelPerformanceSection';
 import {OperatingCaseSection} from './components/sections/OperatingCaseSection';
 import {ReviewSection} from './components/sections/ReviewSection';
-import {StabilitySection} from './components/sections/StabilitySection';
 import {buildActiveCaseWorkspace} from './demo/activeCaseWorkspace';
 import {useEngineInputs, useEngineOutputs, useEngineTransient} from './state/EngineSelectors';
 import {useEngineStore} from './state/EngineStore';
@@ -80,11 +80,9 @@ function Workbench({
             {activeSectionId === 'operating-case' && (
                 <OperatingCaseSection inputs={inputs} onOpenModelEvidence={openEvidence} outputs={outputs}/>
             )}
+            {activeSectionId === 'nuclear-fuel-performance' && <NuclearFuelPerformanceSection/>}
             {activeSectionId === 'model-evidence' && (
                 <ModelEvidenceSection onReturnToOperatingCase={() => setActiveSectionId('operating-case')}/>
-            )}
-            {activeSectionId === 'stability' && (
-                <StabilitySection inputs={inputs} outputs={outputs}/>
             )}
             {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>}
         </AppLayout>

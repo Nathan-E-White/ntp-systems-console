@@ -1,0 +1,50 @@
+NTP-SYS-CONSOLE / ROCETS-LIKE OUTPUT FIXTURE
+Case: NTP_RESTART_TRANSIENT
+Input deck: ../engine.run
+Run date: 2026-06-21
+Status: synthetic fixture complete
+
+SECTION 1: INGESTION
+  components/boost_pump.cmp ................. SUCCESS
+  components/ortho_para_feed_line.cmp ....... SUCCESS
+  components/reactor_core.cmp ............... SUCCESS
+  components/thrust_chamber.cmp ............. SUCCESS
+  components/avionics.cmp ................... SUCCESS
+  connectors/assembly.con ................... SUCCESS
+  connectors/flow_path.con .................. SUCCESS
+  fluids/ntp_hydrogen.fluid ................. SUCCESS
+  fluids/hydrogen_spin.fluid ................ SUCCESS
+
+SECTION 2: NETWORK SUMMARY
+  fluid nodes tracked              : 14
+  mechanical shaft nodes tracked   : 2
+  signal/control channels tracked  : 5
+  solver residuals tracked         : 3
+  mission phases                   : startup_ramp rated_burn shutdown_soak restart_ramp cooldown
+
+SECTION 3: STEADY TRIM
+iteration,max_residual,node,status
+1,3.12E+00,feed_mass_closure,cutback
+2,7.80E-02,turbine_power_balance,improving
+3,4.60E-04,chamber_pressure_target,improving
+4,6.70E-07,feed_mass_closure,converged
+
+SECTION 4: TRANSIENT SNAPSHOTS
+time_s,phase,tank_P_Pa,core_power_W,decay_heat_W,mdot_kg_s,shaft_rpm,chamber_P_Pa,thrust_N,xenon,ledinegg_margin,ledinegg_status
+0.0,startup_ramp,1.350E+06,0.000E+00,0.000E+00,0.000,450.0,2.000E+05,0.000E+00,0.000,1.000,nominal
+25.0,startup_ramp,1.310E+06,6.000E+07,1.100E+06,4.600,3120.0,2.440E+06,3.180E+04,0.020,0.720,nominal
+90.0,rated_burn,1.240E+06,3.500E+08,1.800E+07,8.000,5200.0,5.000E+06,2.120E+05,0.120,0.780,nominal
+210.0,shutdown_soak,1.100E+06,3.500E+08,1.800E+07,8.000,5200.0,5.000E+06,2.120E+05,0.450,0.710,nominal
+320.0,shutdown_soak,1.075E+06,2.500E+07,1.000E+07,1.500,900.0,6.500E+05,6.000E+03,0.740,0.760,recovering
+520.0,restart_ramp,1.050E+06,1.500E+07,4.000E+06,0.000,450.0,2.000E+05,0.000E+00,0.880,0.840,reset
+560.0,restart_ramp,1.025E+06,1.220E+08,6.800E+06,5.720,3610.0,2.720E+06,3.850E+04,0.690,0.690,watch
+650.0,cooldown,9.700E+05,2.500E+08,1.200E+07,6.450,4800.0,4.200E+06,1.960E+05,0.580,0.660,watch
+900.0,cooldown,9.200E+05,5.000E+07,2.500E+06,0.000,450.0,2.150E+05,0.000E+00,0.350,0.890,nominal
+
+SECTION 5: WARNINGS AND NOTES
+  WARN 0104 at 560.0 s: restart ramp enters Ledinegg watch posture.
+  NOTE 0201: iodine/xenon values are reduced-order restart-memory proxies.
+  NOTE 0202: MOOSE/BISON/MARMOT handoff is represented by fixture files under physics_sims/reactor.
+  NOTE 0203: MCNP-like source files are consumed as existing fixtures, not regenerated here.
+
+Final status: normal synthetic completion

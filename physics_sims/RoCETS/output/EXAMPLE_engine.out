@@ -1,0 +1,109 @@
+1                                                                     RUN DATE: 06/21/2026
+ NASA LEWIS RESEARCH CENTER -- ROCETS ROCKET ENGINE TRANSIENT SIMULATION  RUN TIME: 16:19:32
+ SYSTEM VERSION: 4.2.1-PROD                                           PAGE:       1
+ ==========================================================================================
+                          M A S T E R   O U T P U T   L I S T I N G
+ ==========================================================================================
+
+ PROJECT NAME : Two-Stage Launch Vehicle Integration Run
+ EXECUTION ID : SSME_STARTUP_TRANS / MULTI_STAGE_ASCENT_SIM
+ ENGINE DECK  : engine.run
+
+ ------------------------------------------------------------------------------------------
+ SECTION 1: INGESTION AND ARCHITECTURE TREE COMPILATION
+ ------------------------------------------------------------------------------------------
+ PROCESSING INCLUDE: ./components/combustion_chamber.cmp ........ SUCCESS
+ PROCESSING INCLUDE: ./components/valve.cmp ...................... SUCCESS
+ PROCESSING INCLUDE: ./components/pump.cmp ....................... SUCCESS
+ PROCESSING INCLUDE: ./connectors/assembly.con ................... SUCCESS
+ PROCESSING INCLUDE: ./connectors/flow_path.con .................. SUCCESS
+ LOADING FLUID DAT : ./fluids/hydrogen_spin.fluid ................ SUCCESS
+   --> 3-DIMENSIONAL RE-MAP COMPLETED FOR ISOMER DECK: HYDROGEN_SPIN_ISOMERS
+   --> GRID BOUNDS VALIDATED: P[14.7 - 3000.0] T[20.0 - 600.0] PARA[0.0 - 1.0]
+
+ BUILDING SUBSYSTEM SYSTEM INTERFACE:
+   ALLOCATED COMPONENT: Core_Booster_Stage (TYPE: stage_1_booster)
+     --> INSTANTIATED INTERNAL: Internal_Boost_Pump
+     --> INSTANTIATED INTERNAL: Internal_ByPass_Valve
+     --> INSTANTIATED INTERNAL: Internal_Feed_Line [KINETICS LOADED: Has_Catalyst=0]
+   ALLOCATED COMPONENT: Upper_Vacuum_Stage (TYPE: stage_2_sustainer)
+   ALLOCATED COMPONENT: Flight_Separation_Ring (TYPE: interstage)
+
+ SYSTEM TOPOLOGY VERIFICATION:
+   TOTAL FLUID NODES TRACKED      : 14
+   TOTAL MECHANICAL NODES TRACKED : 4
+   TOTAL THERMAL NODES TRACKED    : 2
+   TOTAL INDEPENDENT VARIABLES    : 8
+   TOTAL SOLVER CONSTRAINT EQUATION: 8
+   SYSTEM NETWORK COMPILATION SUCCESSFUL. NO UNCONNECTED PORTS DETECTED.
+
+ ------------------------------------------------------------------------------------------
+ SECTION 2: SOLVER CONFIGURATION INITIALIZATION
+ ------------------------------------------------------------------------------------------
+ MATHEMATICAL INTEGRATOR SELECT: GEAR_GEB (GEAR BACKWARD DIFFERENTIATION)
+ ABSOLUTE CONVERGENCE CRITERION : 1.0000E-05
+ MATRIX SOLVER PROFILE          : SPARSE NEWTON-RAPHSON DAMPED
+ VARIABLE STEP-SIZE PARAMETERS  : MIN_DT = 1.00E-06 SEC | MAX_DT = 1.00E-03 SEC
+
+ ------------------------------------------------------------------------------------------
+ SECTION 3: STEADY-STATE BALANCING PRE-RUN (TIME = 0.0000 SEC)
+ ------------------------------------------------------------------------------------------
+ CALLING PROCEDURE: RUN_STEADY_STATE_TRIM
+
+   ITERATION     MAX RESIDUAL CORRECTION      NODE LOCATION             RESIDUAL VALUE
+   ---------     -----------------------      -------------             --------------
+       1              3.4512E+01              MCC_Injector_Node          4.5120E+01
+       2              1.1042E+01              Fuel_Pump_To_Valve_Node   -1.4231E+01
+       3              8.9412E-02              MCC_Injector_Node          1.1245E-01
+       4              4.1205E-04              Fuel_Pump_To_Valve_Node    5.0214E-04
+       5              3.1102E-06              MCC_Injector_Node          2.4110E-06
+
+ *** CONVERGENCE ACHIEVED IN 5 ITERATIONS ***
+
+ BASELINE SYSTEM TRIM ESTABLISHED:
+   Core_Booster_Stage.Combustion_Chamber.P_chamber  = 14.7000 PSIA
+   Core_Booster_Stage.Combustion_Chamber.T_chamber  = 530.000 DEG R
+   Core_Booster_Stage.Internal_Feed_Line.Para_Fraction = 0.9980 (LAUNCHPAD TANK CONDITION)
+
+ 1
+ NASA LEWIS RESEARCH CENTER -- ROCETS ROCKET ENGINE TRANSIENT SIMULATION  RUN DATE: 06/21/2026
+ SYSTEM VERSION: 4.2.1-PROD                                           PAGE:       2
+ ==========================================================================================
+                          T R A N S I E N T   T E L E M E T R Y   L I S T I N G
+ ==========================================================================================
+
+  TIME     STEP_DT   ITER   P_CHAMBER   CORE_TEMP  O/F_RATIO  PARA_FRAC    PUMP_SPEED  CONV_STAT
+  (SEC)     (SEC)    (CNT)    (PSIA)     (DEG_R)     (Y/X)     (MASS_FR)     (RPM)       (FLAG)
+ --------  --------  ----  -----------  ---------  ---------  ----------  -----------  ---------
+   0.0000  0.001000     0      14.7000    530.000     0.0000    0.998000       0.0000  SUCCESS
+   0.0050  0.001000     3      22.4105    612.451     0.0512    0.997992     240.5120  SUCCESS
+   0.0100  0.000521     4      54.1250   1420.104     1.1241    0.997845     890.1145  SUCCESS
+   0.0150  0.000105     6     189.4120   3105.892     3.5120    0.996104    4512.6501  SUCCESS
+   0.0200  0.000045     7     412.5123   4890.115     5.1021    0.989451   12450.1120  SUCCESS
+   0.0250  0.000012     8     745.9104   5645.230     5.8951    0.975102   24890.3114  SUCCESS
+
+ ******************************************************************************************
+ WARNING WR0421: MASS DENSITY MATRIX FLUTTER DETECTED AT TIME = 0.02641 SEC
+                 CRITICAL STATE EXCURSION NEAR BOILING POINT DETECTED.
+                 LOCAL HEATING GRADIENT VIA ORTHO-PARA EXPULSION RATE EXCEEDS 15.0 BTU/S
+                 SOLVER CUTTING TIME-STEP STEP DOWN TO 2.450E-06 SEC.
+ ******************************************************************************************
+
+   0.0300  0.000002    12     985.4120   5910.420     6.0120    0.941250   29140.5412  SUCCESS
+   0.0350  0.000085     5    1150.1245   5985.112     6.0021    0.938512   34120.9125  SUCCESS
+   0.0400  0.000500     3    1200.4512   6000.410     6.0002    0.938401   35010.4120  SUCCESS
+   0.0450  0.001000     2    1200.0041   6000.005     6.0000    0.938400   35000.1102  SUCCESS
+   0.0500  0.001000     2    1200.0000   6000.000     6.0000    0.938400   35000.0000  SUCCESS
+
+ --------  --------  ----  -----------  ---------  ---------  ----------  -----------  ---------
+
+ ------------------------------------------------------------------------------------------
+ SECTION 4: RUN CONCLUSION SUMMARY
+ ------------------------------------------------------------------------------------------
+ TRANSIENT INTERVAL MET AT TIME = 0.05000 SEC.
+ OUTPUT TELEMETRY WRITTEN TO   : ./output/startup_telemetry.dat
+ TOTAL WALL CPU EXECUTION TIME : 0.0412 SECONDS
+ TOTAL SOLVER TIMESTEPS TAKEN  : 245 STEPS
+ TOTAL INTEGRATION MATRIX ERRORS: 0
+ SIMULATION ENDS NORMALLY.
+ ==========================================================================================

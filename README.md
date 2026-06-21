@@ -1,20 +1,21 @@
 # SNP Engine Systems Analysis Workbench
 
 A public portfolio demonstration inspired by Amentum Space Nuclear Propulsion Engine Systems
-Analyst role `R0157331`. It shows nuclear-modeling judgment, model-integration workflow,
+Analyst role `R0157331`. It shows nuclear fuel-performance judgment, model-integration workflow,
 operational-case reasoning, evidence correlation, and design-review communication.
 
 This application is not a reactor design, safety analysis, validated multiphysics model, or
-production MCNP, MOOSE, or ROCETS execution environment.
+production MCNP, BISON, MOOSE, or ROCETS execution environment.
 
 ## Demo Story
 
 1. Open **Operating Case** and establish the `Pewee-Inspired Benchmark`, published source basis, and claim boundary.
 2. Play the presenter-paced tour: benchmark basis, hydrogen enthalpy rise, limiting channel station, immutable fixture correlation, and review flags.
 3. Use **Channel Results and Evidence Correlation** to select an axial station and inspect bulk/wall temperature, pressure, Reynolds, Nusselt, Mach, and friction results.
-4. Select a KPI and use **Calculation Basis** to show its equation, numerical substitution, upstream inputs, source locator, and limitations.
-5. Select `Thermal Margin Investigation` to expose the negative channel-wall criterion margin without implying historical Pewee behavior.
-6. Open **Model Evidence** to inspect four output artifacts across three synthetic solver families, then close in **Stability** and **Review** with explicit flags and follow-up actions.
+4. Open **Nuclear Fuel Performance** and discuss the BISON fuel-channel scaffold, MCNP burnup/restart-memory kit, and cross-code handoff map.
+5. Select a KPI and use **Calculation Basis** to show its equation, numerical substitution, upstream inputs, source locator, and limitations.
+6. Select `Thermal Margin Investigation` to expose the negative channel-wall criterion margin without implying historical Pewee behavior.
+7. Open **Model Evidence** to inspect five output artifacts across four synthetic solver families, then close in **Review** with fuel-performance constraints, compact stability support, explicit flags, and follow-up actions.
 
 The interactive Three.js engine is visual context. The main evidence is traceability between an
 operating point, synthetic model outputs, cross-disciplinary interpretation, and a review decision.
@@ -25,7 +26,7 @@ interpretation can be discussed before advancing.
 
 - React, TypeScript, Vite, Zustand
 - Reference-controlled hydrogen enthalpy, representative channel, and nozzle calculations
-- Synthetic MCNP-like, MOOSE-like, and ROCETS-like parser registry and adapters
+- Synthetic MCNP-like, BISON-like, MOOSE-like, and ROCETS-like parser registry and adapters
 - Typed `DemoCase`, `AnalysisEvidence`, and `IntegratedReview` models
 - Lazy-loaded React Three Fiber engine schematic
 
@@ -76,7 +77,7 @@ standard nozzle relations, source locators, user overrides, and legacy-coefficie
 
 ## Explicit Claim Boundary
 
-The project demonstrates workflow familiarity with MCNP-, MOOSE-, and ROCETS-like data, not
+The project demonstrates workflow familiarity with MCNP-, BISON-, MOOSE-, and ROCETS-like data, not
 production proficiency or validated computational model results. It makes no claims concerning
 HPC scaling, parallel solver development, FORTRAN, computational validation, radiation safety,
-qualified materials, or flight engine performance.
+qualified fuel performance, qualified materials, or flight engine performance.

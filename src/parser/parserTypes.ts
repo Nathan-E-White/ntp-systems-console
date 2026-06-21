@@ -1,6 +1,6 @@
 
 
-export type ParserFamily = "mcnp" | "moose" | "rocets";
+export type ParserFamily = "mcnp" | "moose" | "rocets" | "bison";
 
 export type ParserDirection = "input" | "output";
 

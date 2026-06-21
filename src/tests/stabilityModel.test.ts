@@ -42,13 +42,15 @@ describe('prepared demo cases', () => {
     });
 
     it('parses all bundled model-evidence fixtures at startup', () => {
-        expect(DEFAULT_ANALYSIS_EVIDENCE).toHaveLength(8);
+        expect(DEFAULT_ANALYSIS_EVIDENCE).toHaveLength(10);
         expect(DEFAULT_ANALYSIS_EVIDENCE.every((item) => item.parserStatus === 'parsed')).toBe(true);
         expect(DEFAULT_ANALYSIS_EVIDENCE.map((item) => item.family)).toEqual([
             'mcnp',
             'mcnp',
             'mcnp',
             'mcnp',
+            'bison',
+            'bison',
             'rocets',
             'moose',
             'moose',

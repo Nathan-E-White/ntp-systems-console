@@ -1,0 +1,69 @@
+! ====================================================================
+! ROCETS-LIKE COMPONENT MODULE: NTP REACTOR CORE SURROGATE
+! FILE: components/reactor_core.cmp
+! ====================================================================
+
+DEFINE COMPONENT TYPE: NTP_REACTOR_CORE
+
+BEGIN_PORTS
+    INLET_PORT  Core_Inlet       TYPE: FLUID_PORT
+    OUTLET_PORT Core_Exit        TYPE: FLUID_PORT
+    SIGNAL_IN   Power_Command    TYPE: SIGNAL_PORT
+    SIGNAL_IN   Drum_Command     TYPE: SIGNAL_PORT
+    SIGNAL_OUT  Stability_Status TYPE: SIGNAL_PORT
+END_PORTS
+
+BEGIN_CONSTANTS
+    Nominal_Power       = 3.50E+08
+    Core_Thermal_Mass   = 1.80E+05
+    Fuel_Temperature_Limit = 2850.0
+    Core_DP_Design      = 4.8E+05
+END_CONSTANTS
+
+BEGIN_VARIABLES
+    Power               = 0.0
+    Decay_Heat          = 0.0
+    Iodine_Inventory    = 0.0
+    Xenon_Inventory     = 0.0
+    Control_Drum_Angle  = 0.0
+    Aux_Poison_Insertion = 0.0
+    Core_Exit_Temperature = 650.0
+    Ledinegg_Margin     = 1.0
+END_VARIABLES
+
+BEGIN_MATH_MODEL
+    Power = Power_Command * Nominal_Power
+    Control_Drum_Angle = Drum_Command
+
+    Decay_Heat = DECAY_HEAT_PROXY(Power, TIME)
+    Iodine_Inventory = IODINE_PROXY(Power, TIME)
+    Xenon_Inventory = XENON_RESTART_PROXY(Iodine_Inventory, TIME)
+
+    Mdot = MAX(Core_Inlet.MassFlow, 1.0E-06)
+    Cp = PROP_LOOKUP("ntp_hydrogen.fluid", "CP", Core_Inlet.Pressure, Core_Inlet.Temperature)
+    Core_Exit_Temperature = Core_Inlet.Temperature + (Power + Decay_Heat) / (Mdot * Cp)
+
+    Pressure_Drop = Core_DP_Design * (Mdot / 8.0)^2
+    Ledinegg_Margin = LEDINEGG_MARGIN_PROXY(Mdot, Power, Core_Exit_Temperature)
+
+    Core_Exit.MassFlow = Core_Inlet.MassFlow
+    Core_Exit.Pressure = Core_Inlet.Pressure - Pressure_Drop
+    Core_Exit.Temperature = Core_Exit_Temperature
+    Core_Exit.Para_Fraction = Core_Inlet.Para_Fraction
+
+    IF (Ledinegg_Margin < 0.70) THEN
+        Stability_Status = 1
+    ELSE
+        Stability_Status = 0
+    ENDIF
+END_MATH_MODEL
+
+BEGIN_OUTPUTS
+    TRACK Power                 LABEL="REACTOR POWER"       UNITS="W"
+    TRACK Decay_Heat            LABEL="DECAY HEAT"          UNITS="W"
+    TRACK Xenon_Inventory       LABEL="XENON MEMORY"        UNITS="ARB"
+    TRACK Core_Exit_Temperature LABEL="CORE EXIT TEMP"      UNITS="K"
+    TRACK Ledinegg_Margin       LABEL="LEDINEGG MARGIN"     UNITS="RATIO"
+END_OUTPUTS
+
+END_COMPONENT_TYPE

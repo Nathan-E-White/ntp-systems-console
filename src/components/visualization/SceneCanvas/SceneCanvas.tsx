@@ -88,7 +88,7 @@ function CameraRig({
     paused: boolean;
     onComplete?: (pose: SceneCameraPose) => void;
 }>) {
-    const controls = useThree((state) => state.controls);
+    const getThree = useThree((state) => state.get);
     const camera = useThree((state) => state.camera);
     const targetVector = useMemo(() => new Vector3(...target), [target]);
     const positionVector = useMemo(() => new Vector3(...position), [position]);
@@ -104,16 +104,19 @@ function CameraRig({
         transition.current.active = true;
         transition.current.initialized = false;
         transition.current.elapsed = 0;
-    }, [transitionKey]);
+        camera.lookAt(targetVector);
+    }, [camera, targetVector, transitionKey]);
 
     useFrame((_, delta) => {
         if (paused) return;
         if (!transition.current.active) return;
-        if (!controls || !('target' in controls)) return;
-        const orbitControls = controls as unknown as {target: Vector3; update: () => void};
+        const controls = getThree().controls;
+        const orbitControls = controls && 'target' in controls
+            ? controls as unknown as {target: Vector3; update: () => void}
+            : null;
         if (!transition.current.initialized) {
             transition.current.startPosition.copy(camera.position);
-            transition.current.startTarget.copy(orbitControls.target);
+            transition.current.startTarget.copy(orbitControls?.target ?? targetVector);
             transition.current.initialized = true;
         }
         transition.current.elapsed += immediate ? 1 : delta;
@@ -121,13 +124,17 @@ function CameraRig({
         const linearProgress = duration === 0 ? 1 : Math.min(transition.current.elapsed / duration, 1);
         const progress = linearProgress * linearProgress * (3 - 2 * linearProgress);
         camera.position.lerpVectors(transition.current.startPosition, positionVector, progress);
-        orbitControls.target.lerpVectors(transition.current.startTarget, targetVector, progress);
-        orbitControls.update();
+        if (orbitControls) {
+            orbitControls.target.lerpVectors(transition.current.startTarget, targetVector, progress);
+            orbitControls.update();
+        } else {
+            camera.lookAt(targetVector);
+        }
         if (linearProgress >= 1) {
             transition.current.active = false;
             onComplete?.({
                 position: camera.position.toArray() as unknown as Vector3Tuple,
-                target: orbitControls.target.toArray() as unknown as Vector3Tuple,
+                target: orbitControls?.target.toArray() as unknown as Vector3Tuple ?? target,
             });
         }
     });
@@ -232,7 +239,12 @@ export function SceneCanvasView({
                 aria-label="3D scene canvas"
                 camera={{position: [...model.cameraPosition], fov: model.fieldOfViewDegrees}}
                 dpr={[1, 1.75]}
-                gl={{antialias: true, alpha: false, powerPreference: 'high-performance'}}
+                gl={{
+                    antialias: true,
+                    alpha: false,
+                    powerPreference: 'high-performance',
+                    preserveDrawingBuffer: true,
+                }}
                 onCreated={({gl}) => gl.setClearColor(model.background)}
                 onPointerMissed={onPointerMissed}
                 role="img"

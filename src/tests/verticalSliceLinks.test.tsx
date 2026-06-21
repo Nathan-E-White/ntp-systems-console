@@ -21,7 +21,7 @@ const workspace = buildActiveCaseWorkspace({
 });
 
 describe('vertical-slice concern linking', () => {
-    it('links thermal-margin selection to MCNP and MOOSE evidence', () => {
+    it('links thermal-margin selection to MCNP, BISON, and MOOSE evidence', () => {
         render(
             <ActiveCaseProviders model={workspace}>
                 <KpiCards outputs={outputs}/>
@@ -32,6 +32,8 @@ describe('vertical-slice concern linking', () => {
         fireEvent.click(screen.getByRole('button', {name: /Wall criterion margin/i}));
 
         expect(screen.getByRole('heading', {name: 'Neutronics / transport evidence'}).closest('article'))
+            .toHaveClass('linked-evidence');
+        expect(screen.getByRole('heading', {name: 'BISON fuel-performance evidence'}).closest('article'))
             .toHaveClass('linked-evidence');
         expect(screen.getByRole('heading', {name: 'Thermomechanics evidence'}).closest('article'))
             .toHaveClass('linked-evidence');
@@ -75,18 +77,18 @@ describe('vertical-slice concern linking', () => {
             </ActiveCaseProviders>,
         );
 
-        expect(screen.getAllByRole('button', {name: /ALL \(8\)/i})).toHaveLength(2);
+        expect(screen.getAllByRole('button', {name: /ALL \(10\)/i})).toHaveLength(2);
         expect(screen.getByRole('button', {name: /INPUT/i})).toBeInTheDocument();
         expect(screen.getByRole('button', {name: /OUTPUT/i})).toBeInTheDocument();
 
         fireEvent.click(screen.getByRole('button', {name: /INPUT/i}));
-        expect(document.querySelectorAll('.evidence-card')).toHaveLength(4);
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(5);
         expect(screen.getByRole('heading', {name: 'Fixed-source input deck'})).toBeVisible();
         expect(screen.getByRole('heading', {name: 'Criticality input deck'})).toBeVisible();
         expect(screen.queryByRole('heading', {name: 'Neutronics / transport evidence'})).not.toBeInTheDocument();
 
         fireEvent.click(screen.getByRole('button', {name: /OUTPUT/i}));
-        expect(document.querySelectorAll('.evidence-card')).toHaveLength(4);
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(5);
         expect(screen.getByRole('heading', {name: 'Neutronics / transport evidence'})).toBeVisible();
         expect(screen.queryByRole('heading', {name: 'Criticality input deck'})).not.toBeInTheDocument();
     });
@@ -100,7 +102,13 @@ describe('vertical-slice concern linking', () => {
 
         expect(screen.getByRole('heading', {name: 'Paired Fixture Inventory'})).toBeVisible();
         expect(screen.getAllByText(/MCNP fixed-source transport/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/BISON fuel performance/i).length).toBeGreaterThan(0);
         expect(screen.getAllByText(/ROCETS system network/i).length).toBeGreaterThan(0);
+
+        fireEvent.click(screen.getByRole('button', {name: /BISON \(2\)/i}));
+        expect(document.querySelectorAll('.evidence-card')).toHaveLength(2);
+        expect(screen.getByRole('heading', {name: 'BISON fuel-performance input scaffold'})).toBeVisible();
+        expect(screen.getByRole('heading', {name: 'BISON fuel-performance evidence'})).toBeVisible();
 
         fireEvent.click(screen.getByRole('button', {name: /MOOSE \(2\)/i}));
         expect(document.querySelectorAll('.evidence-card')).toHaveLength(2);

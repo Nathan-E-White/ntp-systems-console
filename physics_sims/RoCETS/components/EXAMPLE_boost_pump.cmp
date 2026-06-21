@@ -1,0 +1,91 @@
+! ====================================================================
+! ROCETS COMPONENT MODULE: BOOST PUMP
+! FILE: boost_pump.cmp
+! ====================================================================
+
+DEFINE COMPONENT TYPE: COMBUSTION_CHAMBER
+
+! --------------------------------------------------------------------
+! 1. PORT DEFINITIONS (Fluid Inlets and Gas Outlets)
+! --------------------------------------------------------------------
+BEGIN_PORTS
+    INLET_PORT  Fuel_Inlet      TYPE: FLUID_PORT
+    INLET_PORT  Ox_Inlet        TYPE: FLUID_PORT
+    OUTLET_PORT Gas_Exhaust     TYPE: FLUID_PORT
+    THERMAL_OUT Wall_Cooling    TYPE: HEAT_PORT
+END_PORTS
+
+! --------------------------------------------------------------------
+! 2. DESIGN CONSTANTS & HARDWARE GEOMETRY (Fixed inputs)
+! --------------------------------------------------------------------
+BEGIN_CONSTANTS
+    A_throat    = 14.52         ! Throat Area (sq inches)
+    A_chamber   = 45.10         ! Chamber Cross-Sectional Area (sq inches)
+    L_star      = 22.0          ! Characteristic length (inches)
+    V_chamber   = 319.4         ! Total chamber volume (cubic inches)
+    C_star_eff  = 0.985         ! Combustion efficiency multiplier
+END_CONSTANTS
+
+! --------------------------------------------------------------------
+! 3. INDEPENDENT STATE VARIABLES (Solver-driven initial guesses)
+! --------------------------------------------------------------------
+BEGIN_VARIABLES
+    P_chamber   = 1200.0        ! Chamber pressure (psia) [solver guess]
+    T_chamber   = 6000.0        ! Combustion temperature (Rankine)
+    Mix_Ratio   = 6.0           ! O/F Oxidizer to Fuel ratio
+END_VARIABLES
+
+! --------------------------------------------------------------------
+! 4. MATHEMATICAL TRANSIENT MODEL (The physics engine)
+! --------------------------------------------------------------------
+BEGIN_MATH_MODEL
+
+    ! A. Gather mass flows from inlet fluid ports
+    W_fuel = Fuel_Inlet.MassFlow
+    W_ox   = Ox_Inlet.MassFlow
+    W_total_in = W_fuel + W_ox
+
+    ! B. Calculate transient dynamic mixture ratio
+    IF (W_fuel > 0.0) THEN
+        Mix_Ratio = W_ox / W_fuel
+    ELSE
+        Mix_Ratio = 0.0
+    ENDIF
+
+    ! C. Interpolate combustion properties from CEA/ODE database tables
+    CALL PROP_LOOKUP("LOX_LH2.fluid", Mix_Ratio, P_chamber, C_star_ideal, Gamma, T_ideal)
+
+    C_star_actual = C_star_ideal * C_star_eff
+    T_chamber     = T_ideal * C_star_eff
+
+    ! D. Calculate Ideal Nozzle Throat Choked Mass Flow
+    ! Formula: W_out = (P_ch * A_throat * g) / C_star
+    W_exhaust_ideal = (P_chamber * A_throat * 32.174) / C_star_actual
+
+    ! E. Transient State Derivatives (Conservation of Mass in Volume)
+    ! d(Mass)/dt = Mass_In - Mass_Out
+    Rho_gas = P_chamber / (Gas_Constant * T_chamber)
+    M_gas_total = Rho_gas * V_chamber
+
+    DERIV(M_gas_total) = W_total_in - W_exhaust_ideal
+
+    ! F. Assign state variables to output ports for connectors
+    Gas_Exhaust.MassFlow    = W_exhaust_ideal
+    Gas_Exhaust.Pressure    = P_chamber
+    Gas_Exhaust.Temperature = T_chamber
+
+    ! G. Heat transfer output to cooling jacket
+    Wall_Cooling.Q_flux = 25.4 * (T_chamber - Wall_Cooling.T_wall)
+
+END_MATH_MODEL
+
+! --------------------------------------------------------------------
+! 5. DATA CHANNELS FOR TELEMETRY TELEMETRY
+! --------------------------------------------------------------------
+BEGIN_OUTPUTS
+    TRACK P_chamber    LABEL="CHAMBER PRESSURE"     UNITS="PSIA"
+    TRACK T_chamber    LABEL="CORE TEMPERATURE"     UNITS="DEG_R"
+    TRACK Mix_Ratio    LABEL="LOCAL MIXTURE RATIO"  UNITS="Y/X"
+END_OUTPUTS
+
+END_COMPONENT_TYPE

@@ -1,3 +1,4 @@
+import type {BisonOutputParseResult} from '../parser/bison/bison.output.parser';
 import type {McnpOutputParseResult} from '../parser/mcnp/mcnp.output.parser';
 import type {MooseOutputParseResult, MooseOutputScalarValue} from '../parser/moose/moose.output.parser';
 import type {ParsedRocetsOutput} from '../parser/rocets/rocets.output.parser';
@@ -61,11 +62,15 @@ const colors = ['#d6ad62', '#65b9d8', '#bb8cc6', '#79bf8d'];
 export function buildEvidenceWorkspace(evidence: readonly AnalysisEvidence[]): EvidenceWorkspace {
     const mcnp = evidence.find((item) => item.id === 'mcnp-output');
     const criticality = evidence.find((item) => item.id === 'mcnp-criticality-output');
+    const bison = evidence.find((item) => item.id === 'bison-output');
     const moose = evidence.find((item) => item.id === 'moose-output');
     const rocets = evidence.find((item) => item.id === 'rocets-output');
     const datasets = [
         mcnp && buildTransportDataset(mcnp),
         criticality && buildCriticalityDataset(criticality),
+        bison && buildBisonFuelDataset(bison),
+        bison && buildBisonAxialTemperatureDataset(bison),
+        bison && buildBisonHydrogenProfileDataset(bison),
         moose && buildThermalDataset(moose),
         rocets && buildFeedDataset(rocets),
         rocets && buildNozzleDataset(rocets),
@@ -77,12 +82,98 @@ export function buildEvidenceWorkspace(evidence: readonly AnalysisEvidence[]): E
         views: [
             view('reactor-transport', 'Reactor transport evidence', 'Compare axial regions and relative errors.', 'mcnp-transport-axial', ['channelWallCriterionMarginK']),
             view('reactor-criticality', 'Criticality and restart evidence', 'Track synthetic burnup trend and xenon/restart memory.', 'mcnp-criticality-burnup', ['channelWallCriterionMarginK']),
+            view('bison-fuel-performance', 'Fuel-performance evidence', 'Track BISON-like fuel temperature, coating, hydrogen, burnup, and damage proxies.', 'bison-fuel-performance-history', ['channelWallCriterionMarginK', 'peakChannelWallTemperatureK']),
+            view('bison-axial-temperature', 'Fuel axial temperature profile', 'Inspect final axial temperature profile from the BISON-like vector postprocessor.', 'bison-axial-temperature-profile', ['peakChannelWallTemperatureK']),
+            view('bison-hydrogen-profile', 'Hot-wall hydrogen inventory', 'Inspect final hot-wall hydrogen inventory profile summary and exposure trend.', 'bison-hydrogen-profile', ['channelWallCriterionMarginK']),
             view('thermal-margin', 'Thermal response evidence', 'Compare static MOOSE-like temperature history to channel-wall criterion margin.', 'moose-thermal-history', ['peakChannelWallTemperatureK', 'channelWallCriterionMarginK']),
             view('feed-system', 'Feed and turbomachinery evidence', 'Inspect mass flow, pump pressure rise, shaft speed, and turbine power through ROCETS-like history.', 'rocets-feed-history', ['pressureDropMpa', 'basisCompletenessPercent']),
             view('nozzle-performance', 'Nozzle performance evidence', 'Inspect chamber pressure, mass flow, Isp, and thrust as fixture evidence.', 'rocets-nozzle-history', ['thrustKn', 'pressureDropMpa']),
             view('propulsion-stability', 'Transient stability evidence', 'Review stability events apart from current pressure-drop and basis-completeness results.', 'rocets-stability-history', ['basisCompletenessPercent', 'pressureDropMpa']),
         ],
     };
+}
+
+function buildBisonFuelDataset(evidence: AnalysisEvidence): EvidenceDataset {
+    const parsed = evidence.artifact.parsed?.rawParsed as BisonOutputParseResult;
+    const final = parsed.finalReview;
+
+    return dataset(evidence, 'bison-fuel-performance-history', 'BISON-like fuel performance history', 'Mission time', 's', [
+        trace('peakFuel', 'Peak fuel', 'K', '#e46f3c'),
+        trace('averageFuel', 'Average fuel', 'K', '#d6ad62'),
+        trace('coatingMargin', 'Coating margin', '', '#79bf8d'),
+        trace('hydrogenAttack', 'Hydrogen attack margin', '', '#65b9d8'),
+    ], parsed.postprocessorHistory.map((row) => ({
+        x: row.time,
+        values: {
+            peakFuel: row.peakFuelTemperature,
+            averageFuel: row.averageFuelTemperature,
+            coatingMargin: row.meanCoatingBarrierMargin,
+            hydrogenAttack: row.meanHydrogenAttackMargin,
+        },
+    })), {
+        columns: [
+            {id: 'metric', label: 'Review metric'},
+            {id: 'value', label: 'Fixture value'},
+            {id: 'unit', label: 'Unit'},
+        ],
+        rows: [
+            bisonFinalRow('Peak fuel temperature', final.peakFuelTemperatureK, 'K'),
+            bisonFinalRow('Peak restart temperature', final.peakRestartTemperatureK, 'K'),
+            bisonFinalRow('Minimum coating margin', final.minimumCoatingMargin, 'ratio'),
+            bisonFinalRow('Minimum hydrogen attack margin', final.minimumHydrogenAttackMargin, 'ratio'),
+            bisonFinalRow('Final burnup proxy', final.finalBurnupProxy, 'proxy'),
+            bisonFinalRow('Final damage index', final.finalDamageIndexProxy, 'proxy'),
+        ],
+    });
+}
+
+function buildBisonAxialTemperatureDataset(evidence: AnalysisEvidence): EvidenceDataset {
+    const parsed = evidence.artifact.parsed?.rawParsed as BisonOutputParseResult;
+
+    return dataset(evidence, 'bison-axial-temperature-profile', 'BISON-like final axial temperature profile', 'Axial position', 'm', [
+        trace('temperature', 'Fuel temperature', 'K', '#e46f3c'),
+    ], parsed.axialTemperatureProfile.map((point) => ({
+        x: point.y,
+        label: point.id.toString(),
+        values: {temperature: point.temperature},
+    })), {
+        columns: [
+            {id: 'sample', label: 'Sample'},
+            {id: 'axialPosition', label: 'Axial position', unit: 'm'},
+            {id: 'temperature', label: 'Temperature', unit: 'K'},
+        ],
+        rows: parsed.axialTemperatureProfile.map((point) => ({
+            sample: point.id,
+            axialPosition: point.y,
+            temperature: point.temperature,
+        })),
+    });
+}
+
+function buildBisonHydrogenProfileDataset(evidence: AnalysisEvidence): EvidenceDataset {
+    const parsed = evidence.artifact.parsed?.rawParsed as BisonOutputParseResult;
+    const hydrogenProfile = parsed.vectorProfiles.find((profile) => profile.name === 'hot_wall_hydrogen_profile');
+
+    return dataset(evidence, 'bison-hydrogen-profile', 'BISON-like hot-wall hydrogen profile summary', 'Profile statistic', '', [
+        trace('hydrogenInventory', 'Hydrogen inventory', 'a.u.', '#65b9d8'),
+    ], [
+        {x: 1, label: 'Min', values: {hydrogenInventory: hydrogenProfile?.finalMin ?? null}},
+        {x: 2, label: 'Mean', values: {hydrogenInventory: hydrogenProfile?.finalMean ?? null}},
+        {x: 3, label: 'Max', values: {hydrogenInventory: hydrogenProfile?.finalMax ?? null}},
+    ], {
+        columns: [
+            {id: 'time', label: 'Time', unit: 's'},
+            {id: 'hydrogenInventory', label: 'Average hydrogen inventory'},
+            {id: 'burnupProxy', label: 'Burnup proxy'},
+            {id: 'damageIndex', label: 'Damage index'},
+        ],
+        rows: parsed.postprocessorHistory.map((row) => ({
+            time: row.time,
+            hydrogenInventory: row.averageHydrogenInventory,
+            burnupProxy: row.averageBurnupProxy,
+            damageIndex: row.maximumDamageIndex,
+        })),
+    });
 }
 
 function buildTransportDataset(evidence: AnalysisEvidence): EvidenceDataset {
@@ -277,6 +368,10 @@ function trace(id: string, label: string, unit: string, color: string): Evidence
 
 function finalRow(metric: string, value: MooseOutputScalarValue | undefined, unit: string) {
     return {metric, value: scalar(value), unit};
+}
+
+function bisonFinalRow(metric: string, value: number | undefined, unit: string) {
+    return {metric, value: value ?? null, unit};
 }
 
 function scalar(value: MooseOutputScalarValue | undefined): number | null {
