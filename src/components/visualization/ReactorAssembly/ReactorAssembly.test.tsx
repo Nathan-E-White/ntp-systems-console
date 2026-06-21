@@ -23,6 +23,7 @@ const presentation: ScenePresentationState = {
     focusIntensity: 1,
     cameraPosition: [4.2, 2.2, 5.8],
     activeViewPresetId: 'reactor',
+    cutawayMode: 'thermal',
     explodedViewProgress: 0,
     cameraTransitionOwner: 'user',
     overlaysVisible: false,
@@ -34,10 +35,17 @@ describe('ReactorAssembly', () => {
         render(<ReactorAssembly model={buildReactorAssemblyModel()} presentation={presentation}/>);
         const assembly = screen.getByRole('group', {name: 'Representative reactor assembly'});
         expect(assembly).toHaveAttribute('data-region-layout', '3x6');
+        expect(assembly).toHaveAttribute('data-cutaway-mode', 'thermal');
         expect(assembly).toHaveAttribute('data-highlighted', 'true');
         expect(assembly).toHaveAttribute('data-control-angle', '78');
         expect(assembly).toHaveAttribute('data-section-layer-count', '4');
         expect(assembly).toHaveAttribute('data-fuel-channel-count', '13');
         expect(assembly).toHaveAttribute('data-selected-axial-region', '1');
+    });
+
+    it('exposes evidence markers in evidence cutaway mode', () => {
+        render(<ReactorAssembly model={buildReactorAssemblyModel()} presentation={{...presentation, cutawayMode: 'evidence'}}/>);
+        expect(screen.getByRole('group', {name: 'Representative reactor assembly'}))
+            .toHaveAttribute('data-evidence-marker-count', '3');
     });
 });

@@ -5,7 +5,7 @@ import {ParameterPanel} from '../ParameterPanel';
 import {SectionGrid} from '../layout/SectionGrid';
 import {SectionShell} from '../layout/SectionShell';
 import type {EngineInputs, EngineOutputs} from '../../types/EngineState';
-import {EvidenceInspector, type SceneComponentId} from '../visualization';
+import {EvidenceInspector, InvestigationThread, type SceneComponentId} from '../visualization';
 import {CalculationBasisInspector} from '../CalculationBasisInspector';
 import {ModelBasisPanel} from '../ModelBasisPanel';
 import {ChannelAnalysisPanel} from '../ChannelAnalysisPanel';
@@ -29,13 +29,18 @@ export function OperatingCaseSection({
                       titleId="operating-case-title"
                       description="Set the operating point and identify the controlling condition.">
             <SectionGrid variant="console">
-                <ParameterPanel inputs={inputs}/>
-                <section className="panel engine-panel">
-                    <Suspense fallback={<div className="scene-loading">Loading interactive engine schematic…</div>}>
-                        <EngineScene inputs={inputs} outputs={outputs}/>
-                    </Suspense>
-                </section>
-                <KpiCards outputs={outputs}/>
+                <div className="operating-workspace">
+                    <section className="panel engine-panel">
+                        <Suspense fallback={<div className="scene-loading">Loading interactive engine schematic…</div>}>
+                            <EngineScene inputs={inputs} outputs={outputs}/>
+                        </Suspense>
+                    </section>
+                    <aside className="operating-side-rail" aria-label="Operating case summary">
+                        <KpiCards outputs={outputs}/>
+                        <InvestigationThread/>
+                        <ParameterPanel inputs={inputs}/>
+                    </aside>
+                </div>
             </SectionGrid>
             <ModelBasisPanel inputs={inputs}/>
             <ChannelAnalysisPanel inputs={inputs}/>

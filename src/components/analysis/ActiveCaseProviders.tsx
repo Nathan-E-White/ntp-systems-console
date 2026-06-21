@@ -4,10 +4,12 @@ import {
     AnalysisLinkRegistryProvider,
     ChartWorkspaceProvider,
     EngineeringDataWorkspaceProvider,
+    EvidenceWalkthroughProvider,
     FixtureEvidenceWorkspaceProvider,
     OutputWorkspaceProvider,
     ParameterWorkspaceProvider,
 } from './index';
+import {EvidenceWalkthroughBridge} from './EvidenceWalkthrough/EvidenceWalkthroughBridge';
 import type {EngineeringDataWorkspaceModel} from './EngineeringDataWorkspace/EngineeringDataWorkspace.model';
 import {
     buildTheatreDemoDirectorModel,
@@ -36,10 +38,13 @@ export function ActiveCaseProviders({model, children}: Readonly<ActiveCaseProvid
                             <AnalysisLinkRegistryProvider model={model.links}>
                                 <GuidedInvestigationProvider>
                                     <ScenePresentationProvider model={buildScenePresentationWorkspaceModel()}>
-                                        <TheatreDemoDirectorProvider model={buildTheatreDemoDirectorModel()}>
-                                            <TheatreDemoDirectorView/>
-                                            {children}
-                                        </TheatreDemoDirectorProvider>
+                                        <EvidenceWalkthroughProvider>
+                                            <TheatreDemoDirectorProvider model={buildTheatreDemoDirectorModel()}>
+                                                <TheatreDemoDirectorView/>
+                                                <EvidenceWalkthroughBridge/>
+                                                {children}
+                                            </TheatreDemoDirectorProvider>
+                                        </EvidenceWalkthroughProvider>
                                     </ScenePresentationProvider>
                                 </GuidedInvestigationProvider>
                             </AnalysisLinkRegistryProvider>

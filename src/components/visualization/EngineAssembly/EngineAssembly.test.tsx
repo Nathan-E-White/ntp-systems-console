@@ -21,11 +21,13 @@ describe('EngineAssembly', () => {
         render(
             <EngineAssembly
                 model={buildEngineAssemblyModel()}
-                presentation={{...presentation, explodedViewProgress: 1}}
+                presentation={{...presentation, cutawayMode: 'layers', explodedViewProgress: 1}}
             />,
         );
         expect(screen.getByRole('group', {name: 'Representative engine assembly'}))
             .toHaveAttribute('data-exploded-progress', '1');
+        expect(screen.getByRole('group', {name: 'Representative engine assembly'}))
+            .toHaveAttribute('data-cutaway-mode', 'layers');
     });
 });
 
@@ -46,6 +48,7 @@ const presentation: ScenePresentationState = {
     focusIntensity: 0,
     cameraPosition: [8.4, 4.4, 11.8],
     activeViewPresetId: 'fit-engine',
+    cutawayMode: 'assembled',
     explodedViewProgress: 0,
     cameraTransitionOwner: 'user',
     overlaysVisible: false,

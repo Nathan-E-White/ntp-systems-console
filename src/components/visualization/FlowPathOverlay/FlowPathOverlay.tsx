@@ -116,15 +116,17 @@ export function FlowPathOverlayView({
         () => new Map(model.nodes.map((node) => [node.id, node.position])),
         [model.nodes],
     );
-    const highlighted = presentation?.highlightedTargetIds.includes('flow-path-overlay') ?? false;
+    const cutawayMode = presentation?.cutawayMode ?? 'assembled';
+    const highlighted = presentation?.highlightedTargetIds.includes('flow-path-overlay') || cutawayMode === 'flow' || cutawayMode === 'evidence';
     const orderedPoints = model.nodes.map((node) => node.position);
-    const animate = state.animated && !(presentation?.reducedMotion ?? false);
+    const animate = (state.animated || cutawayMode === 'flow') && !(presentation?.reducedMotion ?? false);
 
     if (import.meta.env.MODE === 'test') {
         return (
             <div
                 aria-label="Propellant flow-path overlay"
                 data-animated={animate}
+                data-cutaway-mode={cutawayMode}
                 data-highlighted={highlighted}
                 data-scope="flow-path-overlay"
                 data-segment-count={model.segments.length}
@@ -149,8 +151,8 @@ export function FlowPathOverlayView({
                     <Line
                         color={flowColors[segment.temperatureClass]}
                         key={segment.id}
-                        lineWidth={highlighted ? 4 : 2.2}
-                        opacity={highlighted ? 1 : 0.7}
+                        lineWidth={highlighted ? 4.6 : 2.2}
+                        opacity={highlighted ? 1 : 0.58}
                         points={[start, end]}
                         transparent
                     />

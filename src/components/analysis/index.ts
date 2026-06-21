@@ -4,6 +4,8 @@ export * from './ChartWorkspace/ChartWorkspace';
 export * from './ChartWorkspace/ChartWorkspace.model';
 export * from './EngineeringDataWorkspace/EngineeringDataWorkspace';
 export * from './EngineeringDataWorkspace/EngineeringDataWorkspace.model';
+export * from './EvidenceWalkthrough/EvidenceWalkthrough';
+export * from './EvidenceWalkthrough/EvidenceWalkthrough.model';
 export * from './FixtureEvidenceWorkspace/FixtureEvidenceWorkspace';
 export * from './FixtureEvidenceWorkspace/FixtureEvidenceWorkspace.model';
 export * from './OutputWorkspace/OutputWorkspace';

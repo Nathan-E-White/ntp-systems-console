@@ -3,6 +3,7 @@ export * from './EngineAssembly/EngineAssembly.model';
 export * from './EngineVisualization/EngineVisualization';
 export * from './EngineVisualization/EngineVisualization.model';
 export * from './EvidenceInspector/EvidenceInspector';
+export * from './EvidenceInspector/EvidenceDatasetPanels';
 export * from './FeedSystemAssembly/FeedSystemAssembly';
 export * from './FeedSystemAssembly/FeedSystemAssembly.model';
 export * from './FlowPathOverlay/FlowPathOverlay';

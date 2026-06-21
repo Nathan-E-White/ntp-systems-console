@@ -1,0 +1,296 @@
+
+
+NTP-SYS-CONSOLE / BISON-MOOSE OUTPUT FIXTURE
+Synthetic console + postprocessor output for ntp.bison.i
+Generated for parser, viewer, and review-panel development only.
+
+================================================================================
+BISON / MOOSE APPLICATION STARTUP
+================================================================================
+
+Framework:              MOOSE-based application fixture
+Application:            BISON-like fuel performance scaffold
+Executable:             bison-opt
+Input file:             ntp.bison.i
+Working directory:      ./fuel_performance/bison/inputs
+Command line:           bison-opt -i ntp.bison.i
+Run mode:               transient
+Coordinate system:      RZ
+Mesh source:            GeneratedMesh
+Mesh type:              2-D structured QUAD4 surrogate
+Validation status:      NOT VALIDATED - synthetic executable-lite fixture
+
+--------------------------------------------------------------------------------
+INPUT SUMMARY
+--------------------------------------------------------------------------------
+
+Problem
+  type:                  FEProblem
+  coord_type:            RZ
+
+Mesh
+  type:                  GeneratedMesh
+  dimension:             2
+  elem_type:             QUAD4
+  x/r range:             0.000000e+00 to 6.000000e-03 m
+  y/z range:             0.000000e+00 to 1.800000e+00 m
+  nx, ny:                48, 144
+  elements:              6912
+  nodes:                 7105
+  side sets:             left, right, bottom, top
+
+Primary variables
+  temp                   LAGRANGE FIRST   initial = 3.000000e+02
+  disp_r                 LAGRANGE FIRST   initial = 0.000000e+00
+  disp_z                 LAGRANGE FIRST   initial = 0.000000e+00
+  hydrogen_inventory     LAGRANGE FIRST   initial = 0.000000e+00
+  burnup_proxy           LAGRANGE FIRST   initial = 0.000000e+00
+  damage_index           LAGRANGE FIRST   initial = 0.000000e+00
+
+Auxiliary variables
+  normalized_core_power
+  decay_heat_fraction
+  iodine_inventory_proxy
+  xenon_inventory_proxy
+  control_drum_angle_proxy
+  aux_poison_insertion_proxy
+  rocets_mass_flow_proxy
+  turbine_tap_fraction_proxy
+  reflector_gamma_heat_fraction
+  ledinegg_margin_proxy
+  ledinegg_status_proxy
+  thermal_margin_proxy
+  grid_pressure_drop_proxy
+  gimbal_bleed_proxy
+  coating_barrier_margin_proxy
+  hydrogen_attack_margin_proxy
+  keff_restart_memory_proxy
+
+Kernels
+  temp_time                       HeatConductionTimeDerivative
+  temp_conduction                 HeatConduction
+  volumetric_fuel_heating         BodyForce
+  hydrogen_time                   TimeDerivative
+  hydrogen_diffusion              MatDiffusion
+  burnup_time                     TimeDerivative
+  burnup_source                   BodyForce
+  damage_time                     TimeDerivative
+  damage_source                   BodyForce
+
+Materials
+  fuel_thermal                    HeatConductionMaterial
+  fuel_density                    GenericConstantMaterial
+  fuel_elasticity                 ComputeIsotropicElasticityTensor
+  fuel_thermal_expansion          ComputeThermalExpansionEigenstrain
+  fuel_stress                     ComputeFiniteStrainElasticStress
+
+Boundary conditions
+  centerline_symmetry             DirichletBC       disp_r, left
+  lower_axial_anchor              DirichletBC       disp_z, bottom
+  hot_channel_convection          ConvectiveFlux    temp, right
+  inlet_reference_temperature     FunctionDirichlet temp, bottom
+  hydrogen_wall_inventory         FunctionDirichlet hydrogen_inventory, right
+
+Executioner
+  type:                  Transient
+  solve_type:            NEWTON
+  start_time:            0.000000e+00 s
+  end_time:              9.000000e+02 s
+  initial dt:            1.000000e-03 s
+  dtmin / dtmax:         1.000000e-07 / 5.000000e-01 s
+  nonlinear tolerance:   rel 1.000000e-06, abs 1.000000e-08
+  linear tolerance:      1.000000e-05
+  time stepper:          IterationAdaptiveDT
+  preconditioning:       SMP full=true
+
+Outputs
+  Exodus:                ntp.bison_out.e
+  CSV:                   ntp.bison_out.csv
+  Vector CSV:            ntp.bison_out_axial_temperature_profile_*.csv
+                          ntp.bison_out_hot_wall_hydrogen_profile_*.csv
+  Performance graph:     enabled
+
+--------------------------------------------------------------------------------
+SYNTHETIC EXECUTION NOTES
+--------------------------------------------------------------------------------
+
+This output is a credible fixture for parser and visualization development.
+It is not the result of a real BISON run and should not be used as evidence of
+code correctness, validation, reactor performance, or fuel qualification.
+
+Expected first real-run edits against a specific BISON/MOOSE version may include:
+  - replacing ConvectiveFluxFunction with the installed-version equivalent,
+  - confirming TensorMechanics action syntax,
+  - replacing surrogate material models with BISON-supported material objects,
+  - replacing GeneratedMesh with a QA-reviewed Exodus mesh,
+  - separating app-only AuxVariables from validated fuel-performance quantities.
+
+================================================================================
+TRANSIENT SOLVE LOG
+================================================================================
+
+Legend
+  step        accepted time step index
+  time        physical time [s]
+  dt          accepted time step size [s]
+  nl          nonlinear iterations
+  lin         accumulated linear iterations
+  |R|         final nonlinear residual norm
+  power       normalized core power proxy
+  peakT       peak fuel temperature postprocessor [K]
+  led         minimum Ledinegg margin proxy
+  note        mission phase / adaptive-step observation
+
+--------------------------------------------------------------------------------
+ step        time          dt      nl     lin          |R|       power      peakT       led   note
+--------------------------------------------------------------------------------
+    0   0.0000e+00  1.00e-03       -       -            -    0.0000     300.0    1.000   initial
+    1   1.0000e-03  1.00e-03       3      18   2.41e-09    0.0000     300.0    1.000   startup initialized
+    2   2.2500e-03  1.25e-03       3      18   2.33e-09    0.0000     300.0    1.000   adaptive growth
+    8   1.8650e-02  3.81e-03       3      20   4.22e-09    0.0001     300.0    1.000   cold hydrogen boundary active
+   20   2.4851e-01  3.55e-02       4      29   6.15e-09    0.0017     300.4    0.998   early startup ramp
+   45   3.6077e+00  2.50e-01       5      43   7.70e-08    0.0241     314.2    0.976   ramping power
+   79   1.2108e+01  2.50e-01       5      51   8.34e-08    0.0803     386.7    0.919   power schedule knot
+  147   2.9108e+01  2.50e-01       5      56   9.01e-08    0.3286     790.5    0.847   thermal transient steepening
+  211   4.5108e+01  2.50e-01       6      72   1.22e-07    0.5533    1398.4    0.779   startup-to-rise transition
+  301   6.7608e+01  2.50e-01       5      66   8.77e-08    0.8033    2248.3    0.757   hot channel convection limiting
+  391   9.0108e+01  2.50e-01       4      51   4.11e-08    1.0000    2872.6    0.740   rated burn reached
+  511   1.2011e+02  2.50e-01       4      48   3.91e-08    1.0000    2944.8    0.745   rated burn hold
+  631   1.5011e+02  2.50e-01       4      46   3.52e-08    1.0000    2961.3    0.750   quasi-steady high power
+  751   1.8011e+02  2.50e-01       4      46   3.48e-08    1.0000    2965.9    0.754   rated burn hold
+  871   2.1011e+02  2.50e-01       4      47   3.66e-08    0.9996    2966.8    0.760   shutdown schedule approaching
+  930   2.2484e+02  1.25e-01       6      82   7.08e-08    0.0854    2108.5    0.948   adaptive cutback near shutdown
+  941   2.2552e+02  6.25e-02       5      64   6.12e-08    0.0796    1980.1    0.950   decay heat dominant
+ 1050   2.8000e+02  5.00e-01       4      46   5.05e-08    0.0560    1136.2    0.956   shutdown soak
+ 1250   3.8000e+02  5.00e-01       3      33   2.44e-08    0.0371     779.4    0.969   cooldown by convection
+ 1530   5.2000e+02  5.00e-01       3      31   2.18e-08    0.0200     519.8    0.980   pre-restart soak
+ 1601   5.5525e+02  2.50e-01       5      57   6.02e-08    0.6565    1476.0    0.813   restart ramp
+ 1661   5.7025e+02  2.50e-01       5      59   6.75e-08    0.6800    1892.3    0.810   gimbal bleed nonzero
+ 1781   6.0025e+02  2.50e-01       4      50   4.70e-08    0.7276    2254.5    0.804   restart heating
+ 1981   6.5025e+02  2.50e-01       4      48   4.02e-08    0.8196    2608.1    0.790   restart peak schedule
+ 2181   7.5025e+02  5.00e-01       3      34   2.77e-08    0.5110    1692.5    0.878   cooldown
+ 2481   9.0000e+02  3.75e-01       3      30   1.98e-08    0.0500     612.7    1.000   final
+--------------------------------------------------------------------------------
+
+Solve completed successfully.
+Accepted time steps:                 2481
+Rejected time steps:                    19
+Minimum accepted dt:             1.000000e-03 s
+Maximum accepted dt:             5.000000e-01 s
+Total nonlinear iterations:            9846
+Total linear iterations:             112438
+Average nonlinear iterations:       3.9686
+Average linear iterations / step:   45.3196
+Final nonlinear residual:          1.98e-08
+
+================================================================================
+POSTPROCESSOR OUTPUT: ntp.bison_out.csv
+================================================================================
+
+time,peak_fuel_temperature,average_fuel_temperature,average_hydrogen_inventory,average_burnup_proxy,maximum_damage_index,minimum_ledinegg_margin,mean_thermal_margin,mean_grid_pressure_drop,mean_gimbal_bleed,mean_coating_barrier_margin,mean_hydrogen_attack_margin,restart_memory_index
+0.000000e+00,3.000000e+02,3.000000e+02,0.000000e+00,0.000000e+00,0.000000e+00,1.000000e+00,1.000000e+00,0.000000e+00,0.000000e+00,1.000000e+00,1.000000e+00,1.000000e+00
+1.200000e+01,3.859413e+02,3.287505e+02,1.615842e-12,1.040000e-04,1.905000e-08,9.200000e-01,9.680000e-01,5.600000e+05,0.000000e+00,9.680000e-01,9.733333e-01,1.001600e+00
+4.500000e+01,1.394672e+03,8.248311e+02,9.312071e-10,3.298000e-03,7.161000e-07,7.800000e-01,8.800000e-01,2.100000e+06,0.000000e+00,8.800000e-01,9.000000e-01,1.006000e+00
+9.000000e+01,2.870934e+03,1.743671e+03,5.784420e-08,1.948000e-02,2.480000e-06,7.400000e-01,7.600000e-01,7.000000e+06,0.000000e+00,7.000000e-01,7.400000e-01,1.012000e+00
+1.500000e+02,2.960804e+03,1.913280e+03,1.161745e-07,3.148000e-02,3.180000e-06,7.500000e-01,7.500000e-01,7.000000e+06,6.000000e-03,6.900000e-01,7.300000e-01,1.009000e+00
+2.100000e+02,2.966539e+03,1.934512e+03,1.725873e-07,4.348000e-02,3.840000e-06,7.600000e-01,7.400000e-01,7.000000e+06,0.000000e+00,6.800000e-01,7.200000e-01,1.006000e+00
+2.250000e+02,1.985113e+03,1.328601e+03,1.743622e-07,4.360000e-02,3.861000e-06,9.500000e-01,9.100000e-01,5.500000e+05,0.000000e+00,8.600000e-01,8.800000e-01,1.004700e+00
+3.000000e+02,1.021914e+03,7.456020e+02,1.653904e-07,4.458000e-02,3.891000e-06,9.610000e-01,9.150000e-01,4.600000e+05,0.000000e+00,8.770000e-01,8.980000e-01,9.960000e-01
+5.200000e+02,5.198034e+02,4.331887e+02,1.119320e-07,4.634000e-02,3.920000e-06,9.800000e-01,9.300000e-01,2.000000e+05,0.000000e+00,9.200000e-01,9.400000e-01,9.900000e-01
+5.450000e+02,1.219284e+03,7.624391e+02,1.247181e-07,4.676000e-02,4.114000e-06,8.100000e-01,8.350000e-01,5.400000e+06,6.500000e-03,7.600000e-01,8.000000e-01,9.923000e-01
+5.900000e+02,2.078156e+03,1.278335e+03,1.848109e-07,5.282000e-02,5.201000e-06,8.050000e-01,8.250000e-01,5.940000e+06,4.000000e-03,7.480000e-01,7.920000e-01,9.971000e-01
+6.500000e+02,2.608115e+03,1.619806e+03,2.520836e-07,6.128000e-02,6.320000e-06,7.900000e-01,8.000000e-01,6.400000e+06,0.000000e+00,7.200000e-01,7.800000e-01,1.002000e+00
+7.500000e+02,1.694477e+03,1.061004e+03,2.083416e-07,6.524000e-02,6.509000e-06,8.530000e-01,8.600000e-01,3.880000e+06,0.000000e+00,8.060000e-01,8.430000e-01,1.001000e+00
+9.000000e+02,6.126889e+02,4.842447e+02,9.649105e-08,6.728000e-02,6.580000e-06,1.000000e+00,9.800000e-01,1.000000e+05,0.000000e+00,9.800000e-01,9.900000e-01,1.000000e+00
+
+================================================================================
+VECTOR POSTPROCESSOR SUMMARY
+================================================================================
+
+axial_temperature_profile
+  sampler:                LineValueSampler
+  variable:               temp
+  start_point:            (3.000000e-03, 0.000000e+00, 0.000000e+00)
+  end_point:              (3.000000e-03, 1.800000e+00, 0.000000e+00)
+  points:                 80
+  final file:             ntp.bison_out_axial_temperature_profile_2481.csv
+  final min:              3.879408e+02 K
+  final mean:             4.843020e+02 K
+  final max:              6.126889e+02 K
+
+hot_wall_hydrogen_profile
+  sampler:                LineValueSampler
+  variable:               hydrogen_inventory
+  start_point:            (6.000000e-03, 0.000000e+00, 0.000000e+00)
+  end_point:              (6.000000e-03, 1.800000e+00, 0.000000e+00)
+  points:                 80
+  final file:             ntp.bison_out_hot_wall_hydrogen_profile_2481.csv
+  final min:              1.302118e-11
+  final mean:             9.649105e-08
+  final max:              3.841006e-07
+
+================================================================================
+SELECTED FINAL AXIAL TEMPERATURE PROFILE
+================================================================================
+
+# file: ntp.bison_out_axial_temperature_profile_2481.csv
+# columns: id,x,y,z,temp
+0,3.000000e-03,0.000000e+00,0.000000e+00,3.879408e+02
+5,3.000000e-03,1.139241e-01,0.000000e+00,4.044116e+02
+10,3.000000e-03,2.278481e-01,0.000000e+00,4.237292e+02
+15,3.000000e-03,3.417722e-01,0.000000e+00,4.459805e+02
+20,3.000000e-03,4.556962e-01,0.000000e+00,4.711618e+02
+25,3.000000e-03,5.696203e-01,0.000000e+00,4.990714e+02
+30,3.000000e-03,6.835443e-01,0.000000e+00,5.294982e+02
+35,3.000000e-03,7.974684e-01,0.000000e+00,5.620067e+02
+40,3.000000e-03,9.113924e-01,0.000000e+00,5.956282e+02
+45,3.000000e-03,1.025316e+00,0.000000e+00,6.126889e+02
+50,3.000000e-03,1.139241e+00,0.000000e+00,6.063317e+02
+55,3.000000e-03,1.253165e+00,0.000000e+00,5.813447e+02
+60,3.000000e-03,1.367089e+00,0.000000e+00,5.448651e+02
+65,3.000000e-03,1.481013e+00,0.000000e+00,5.035515e+02
+70,3.000000e-03,1.594937e+00,0.000000e+00,4.628245e+02
+75,3.000000e-03,1.708861e+00,0.000000e+00,4.239118e+02
+79,3.000000e-03,1.800000e+00,0.000000e+00,3.989227e+02
+
+================================================================================
+OUTPUT FILES WRITTEN
+================================================================================
+
+  ntp.bison_out.e
+  ntp.bison_out.csv
+  ntp.bison_out_xda
+  ntp.bison_out_axial_temperature_profile_*.csv
+  ntp.bison_out_hot_wall_hydrogen_profile_*.csv
+  ntp.bison_perf_graph.dot
+
+================================================================================
+FINAL REVIEW SUMMARY
+================================================================================
+
+Case ID:                         ntp-bison-fuel-performance-001
+Input deck:                      ntp.bison.i
+Metadata pairing:                ntp.bison.metadata.json
+Mission profile:                 0-900 s startup / rated burn / shutdown soak / restart / cooldown
+Peak fuel temperature:           2.9665e+03 K at approximately 210 s
+Peak restart temperature:        2.6081e+03 K at approximately 650 s
+Final fuel temperature:          6.1269e+02 K peak, 4.8424e+02 K average
+Minimum Ledinegg margin proxy:   7.4000e-01
+Minimum thermal margin proxy:    7.4000e-01
+Minimum coating margin proxy:    6.8000e-01
+Minimum hydrogen attack margin:  7.2000e-01
+Final burnup proxy:              6.7280e-02
+Final damage index proxy:        6.5800e-06
+Final restart memory index:      1.0000e+00
+
+Interpretation:
+  The synthetic run exhibits the intended qualitative behavior: rapid startup
+  heating, a rated-burn thermal plateau, decay-heat dominated shutdown soak,
+  a lower-power restart transient with nonzero gimbal bleed proxy, and final
+  cooldown.  Fuel-performance, coating, hydrogen attack, Ledinegg, and restart
+  memory quantities are scaffold variables intended for parser and review
+  panels.  They are not validated material or reactor-safety predictions.
+
+================================================================================
+END OF NTP.BISON.O SYNTHETIC OUTPUT
+================================================================================

@@ -99,8 +99,8 @@ describe('vertical-slice concern linking', () => {
         );
 
         expect(screen.getByRole('heading', {name: 'Paired Fixture Inventory'})).toBeVisible();
-        expect(screen.getByText(/MCNP fixed-source transport/i)).toBeVisible();
-        expect(screen.getByText(/ROCETS system network/i)).toBeVisible();
+        expect(screen.getAllByText(/MCNP fixed-source transport/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/ROCETS system network/i).length).toBeGreaterThan(0);
 
         fireEvent.click(screen.getByRole('button', {name: /MOOSE \(2\)/i}));
         expect(document.querySelectorAll('.evidence-card')).toHaveLength(2);

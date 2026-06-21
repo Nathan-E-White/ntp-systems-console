@@ -60,12 +60,16 @@ export function NozzleAssemblyView({
     const throatRadius = model.throatRadiusM * 1.7;
     const exitRadius = model.exitRadiusM * 1.7;
     const exploded = presentation?.explodedViewProgress ?? 0;
-    const jacketOffset = exploded * 0.18;
+    const cutawayMode = presentation?.cutawayMode ?? 'assembled';
+    const flowReveal = cutawayMode === 'flow' || cutawayMode === 'evidence' ? 1 : 0;
+    const layerReveal = cutawayMode === 'layers' ? 1 : 0;
+    const jacketOffset = exploded * 0.18 + flowReveal * 0.08 + layerReveal * 0.1;
 
     if (import.meta.env.MODE === 'test') {
         return (
             <div
                 aria-label="Representative nozzle assembly"
+                data-cutaway-mode={cutawayMode}
                 data-expansion-radius={model.exitRadiusM}
                 data-highlighted={highlighted}
                 data-scope="nozzle-assembly"
@@ -144,8 +148,8 @@ export function NozzleAssemblyView({
                         <meshStandardMaterial
                             color="#58b5d5"
                             emissive="#1b8cb8"
-                            emissiveIntensity={highlighted ? 0.52 : 0.18}
-                            opacity={0.2}
+                            emissiveIntensity={highlighted || flowReveal ? 0.52 : 0.18}
+                            opacity={flowReveal || layerReveal ? 0.34 : 0.2}
                             roughness={0.25}
                             transparent
                         />

@@ -31,6 +31,7 @@ describe('FlowPathOverlay', () => {
             focusIntensity: 1,
             cameraPosition: [5.2, 2.4, 7],
             activeViewPresetId: 'flow-path',
+            cutawayMode: 'flow',
             explodedViewProgress: 0,
             cameraTransitionOwner: 'user',
             overlaysVisible: false,
@@ -45,6 +46,7 @@ describe('FlowPathOverlay', () => {
         );
         const overlay = screen.getByRole('img', {name: 'Propellant flow-path overlay'});
         expect(overlay).toHaveAttribute('data-highlighted', 'true');
+        expect(overlay).toHaveAttribute('data-cutaway-mode', 'flow');
         expect(overlay).toHaveAttribute('data-animated', 'false');
     });
 });

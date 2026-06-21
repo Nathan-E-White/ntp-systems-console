@@ -66,6 +66,7 @@ const defaultPresentation: ScenePresentationState = {
     focusIntensity: 0,
     cameraPosition: [6, 3.5, 8],
     activeViewPresetId: 'reactor',
+    cutawayMode: 'assembled',
     explodedViewProgress: 0,
     cameraTransitionOwner: 'user',
     overlaysVisible: false,
@@ -92,15 +93,20 @@ export function ReactorAssemblyView({
     const glow = 0.25 + presentation.thermalPower * 1.7 + (highlighted ? 0.65 : 0);
     const marginConcern = 1 - presentation.thermalMargin;
     const exploded = presentation.explodedViewProgress;
-    const reflectorRadius = coreRadius * (1.28 + exploded * 0.1);
-    const vesselRadius = coreRadius * (1.63 + exploded * 0.22);
-    const drumRadius = coreRadius * (1.43 + exploded * 0.16);
+    const cutawayMode = presentation.cutawayMode;
+    const layerReveal = cutawayMode === 'layers' || cutawayMode === 'evidence' ? 1 : 0;
+    const thermalReveal = cutawayMode === 'thermal' ? 1 : 0;
+    const reflectorRadius = coreRadius * (1.28 + exploded * 0.1 + layerReveal * 0.06);
+    const vesselRadius = coreRadius * (1.63 + exploded * 0.22 + layerReveal * 0.1);
+    const drumRadius = coreRadius * (1.43 + exploded * 0.16 + layerReveal * 0.06);
 
     if (import.meta.env.MODE === 'test') {
         return (
             <div
                 aria-label="Representative reactor assembly"
                 data-control-angle={presentation.controlDrumAngleDegrees}
+                data-cutaway-mode={cutawayMode}
+                data-evidence-marker-count={cutawayMode === 'evidence' ? 3 : 0}
                 data-highlighted={highlighted}
                 data-highlighted-region={state.highlightedRegionId ?? 'none'}
                 data-selected-axial-region={presentation.selectedAxialRegionIndex ?? 'none'}
@@ -132,9 +138,9 @@ export function ReactorAssemblyView({
                     >
                         <cylinderGeometry args={[coreRadius, coreRadius, regionLength * 0.94, 48, 1, false, cutStart, cutLength]}/>
                         <meshStandardMaterial
-                            color={selectedRegion ? '#e18a4c' : middleRegion ? '#b45b32' : '#7f4834'}
+                            color={selectedRegion || thermalReveal ? '#e18a4c' : middleRegion ? '#b45b32' : '#7f4834'}
                             emissive={selectedRegion ? '#ffd07c' : middleRegion ? '#ff6d22' : '#d44b1b'}
-                            emissiveIntensity={glow * (selectedRegion ? 1.55 : middleRegion ? 1.15 : 0.82)}
+                            emissiveIntensity={glow * (selectedRegion ? 1.75 : thermalReveal ? 1.25 : middleRegion ? 1.15 : 0.82)}
                             metalness={0.12}
                             roughness={0.62}
                         />
@@ -147,9 +153,9 @@ export function ReactorAssemblyView({
                 <mesh key={`fuel-channel-${index}`} position={[x, 0, z]}>
                     <cylinderGeometry args={[0.035, 0.035, displayLength * 0.92, 12]}/>
                     <meshStandardMaterial
-                        color="#d7b37e"
-                        emissive="#dd672d"
-                        emissiveIntensity={glow * 0.34}
+                            color="#d7b37e"
+                            emissive="#dd672d"
+                            emissiveIntensity={glow * (0.34 + layerReveal * 0.18 + thermalReveal * 0.12)}
                         metalness={0.25}
                         roughness={0.48}
                     />
@@ -167,22 +173,22 @@ export function ReactorAssemblyView({
                 </mesh>
             ))}
 
-            <mesh onClick={(event) => {
+            <mesh position={[layerReveal * 0.12, 0, layerReveal * 0.08]} onClick={(event) => {
                 event.stopPropagation();
                 onSelectComponent?.('reactor-criticality');
             }}>
                 <cylinderGeometry args={[reflectorRadius, reflectorRadius, displayLength * 1.07, 64, 1, true, cutStart, cutLength]}/>
-                <meshStandardMaterial color="#7f8279" metalness={0.35} opacity={0.48} roughness={0.55} transparent/>
+                <meshStandardMaterial color="#7f8279" metalness={0.35} opacity={layerReveal ? 0.32 : 0.48} roughness={0.55} transparent/>
                 <Edges color="#8b8172" threshold={26}/>
             </mesh>
-            <mesh>
+            <mesh position={[layerReveal * 0.22, 0, layerReveal * 0.14]}>
                 <cylinderGeometry args={[vesselRadius, vesselRadius, displayLength * 1.18, 64, 1, true, cutStart, cutLength]}/>
                 <meshStandardMaterial
                     color={highlighted ? '#95bbca' : '#59636b'}
                     emissive="#4b8398"
-                    emissiveIntensity={highlighted ? 0.48 : 0.08}
+                    emissiveIntensity={highlighted || cutawayMode === 'evidence' ? 0.48 : 0.08}
                     metalness={0.72}
-                    opacity={0.28}
+                    opacity={layerReveal ? 0.18 : 0.28}
                     roughness={0.28}
                     transparent
                 />
@@ -213,7 +219,7 @@ export function ReactorAssemblyView({
                 return (
                     <group
                         key={`control-drum-${index}`}
-                        position={[Math.cos(azimuth) * radius, 0, Math.sin(azimuth) * radius]}
+                    position={[Math.cos(azimuth) * radius + layerReveal * 0.08 * Math.cos(azimuth), 0, Math.sin(azimuth) * radius + layerReveal * 0.08 * Math.sin(azimuth)]}
                         rotation={[0, -azimuth, 0]}
                     >
                         <mesh>
@@ -248,6 +254,17 @@ export function ReactorAssemblyView({
                 />
                 <Edges color="#718794" threshold={28}/>
             </mesh>
+
+            {cutawayMode === 'evidence' && [
+                {id: 'mcnp', y: -regionLength, color: '#d6ad62'},
+                {id: 'moose', y: 0, color: '#bb8cc6'},
+                {id: 'rocets', y: regionLength, color: '#65b9d8'},
+            ].map((marker) => (
+                <mesh key={`evidence-marker-${marker.id}`} position={[0, marker.y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                    <torusGeometry args={[coreRadius * 1.08, 0.02, 8, 64, cutLength]}/>
+                    <meshBasicMaterial color={marker.color}/>
+                </mesh>
+            ))}
         </group>
     );
 }

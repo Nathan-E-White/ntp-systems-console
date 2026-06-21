@@ -1,5 +1,6 @@
 export type VisualizationStatus = 'stub' | 'loading' | 'ready' | 'error';
 export type VisualizationMode = 'systems' | 'thermal' | 'flow' | 'review';
+export type SceneCutawayMode = 'assembled' | 'layers' | 'flow' | 'thermal' | 'evidence';
 export type Vector3Tuple = readonly [x: number, y: number, z: number];
 
 export interface ScenePresentationState {
@@ -19,6 +20,7 @@ export interface ScenePresentationState {
     readonly focusIntensity: number;
     readonly cameraPosition: Vector3Tuple;
     readonly activeViewPresetId: string;
+    readonly cutawayMode: SceneCutawayMode;
     readonly explodedViewProgress: number;
     readonly cameraTransitionOwner: 'user' | 'theatre';
     readonly overlaysVisible: boolean;

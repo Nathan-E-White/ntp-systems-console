@@ -1,5 +1,5 @@
 import {buildSceneViewPresetModel, type SceneViewPresetId} from '../SceneViewPresets/SceneViewPresets.model';
-import type {Vector3Tuple, VisualizationBoundary} from '../visualizationTypes';
+import type {SceneCutawayMode, Vector3Tuple, VisualizationBoundary} from '../visualizationTypes';
 
 export interface SceneCameraPose {
     readonly position: Vector3Tuple;
@@ -14,6 +14,7 @@ export interface SceneCameraTransition {
 
 export interface ScenePresentationWorkspaceState {
     readonly activePresetId: SceneViewPresetId;
+    readonly cutawayMode: SceneCutawayMode;
     readonly explodedViewProgress: number;
     readonly detailsVisible: boolean;
     readonly cameraPose: SceneCameraPose;
@@ -23,6 +24,7 @@ export interface ScenePresentationWorkspaceState {
 
 export interface ScenePresentationSnapshot {
     readonly activePresetId: SceneViewPresetId;
+    readonly cutawayMode: SceneCutawayMode;
     readonly explodedViewProgress: number;
     readonly detailsVisible: boolean;
     readonly cameraPose: SceneCameraPose;
@@ -44,6 +46,7 @@ export function buildScenePresentationWorkspaceModel(): ScenePresentationWorkspa
     return {
         initialState: {
             activePresetId: defaultPreset.id,
+            cutawayMode: 'assembled',
             explodedViewProgress: 0,
             detailsVisible: false,
             cameraPose,
@@ -52,7 +55,7 @@ export function buildScenePresentationWorkspaceModel(): ScenePresentationWorkspa
         },
         boundary: {
             scope: 'Owns persistent cutaway presentation and captured camera state across app sections.',
-            owns: ['view preset', 'camera pose', 'exploded progress', 'detail visibility'],
+            owns: ['view preset', 'camera pose', 'cutaway mode', 'exploded progress', 'detail visibility'],
             excludes: ['engineering inputs', 'calculated outputs', 'fixture evidence', 'investigation selection'],
         },
     };

@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import {buildSceneViewPresetModel, type SceneViewPresetId} from '../SceneViewPresets/SceneViewPresets.model';
+import type {SceneCutawayMode} from '../visualizationTypes';
 import type {
     SceneCameraPose,
     ScenePresentationSnapshot,
@@ -20,11 +21,12 @@ export interface ScenePresentationContextValue {
     readonly model: ScenePresentationWorkspaceModel;
     readonly state: ScenePresentationWorkspaceState;
     readonly selectPreset: (presetId: SceneViewPresetId) => void;
+    readonly selectCutawayMode: (mode: SceneCutawayMode) => void;
     readonly setExploded: (exploded: boolean) => void;
     readonly setDetailsVisible: (visible: boolean) => void;
     readonly captureManualPose: (pose: SceneCameraPose) => void;
     readonly completeTransition: (pose: SceneCameraPose) => void;
-    readonly requestTheatrePose: (pose: SceneCameraPose, explodedViewProgress: number) => void;
+    readonly requestTheatrePose: (pose: SceneCameraPose, explodedViewProgress: number, cutawayMode?: SceneCutawayMode) => void;
     readonly saveTourSnapshot: () => void;
     readonly restoreTourSnapshot: () => void;
     readonly resetPresentation: () => void;
@@ -32,6 +34,22 @@ export interface ScenePresentationContextValue {
 
 const ScenePresentationContext = createContext<ScenePresentationContextValue | undefined>(undefined);
 const presetModel = buildSceneViewPresetModel();
+
+function explodedProgressForCutawayMode(mode: SceneCutawayMode): number {
+    switch (mode) {
+        case 'layers':
+            return 1;
+        case 'thermal':
+            return 0.58;
+        case 'evidence':
+            return 0.38;
+        case 'flow':
+            return 0.18;
+        case 'assembled':
+        default:
+            return 0;
+    }
+}
 
 export function ScenePresentationProvider({
     model,
@@ -65,8 +83,19 @@ export function ScenePresentationProvider({
             {activePresetId: presetId},
         );
     }, [requestPose]);
+    const selectCutawayMode = useCallback((cutawayMode: SceneCutawayMode) => {
+        setState((current) => ({
+            ...current,
+            cutawayMode,
+            explodedViewProgress: explodedProgressForCutawayMode(cutawayMode),
+        }));
+    }, []);
     const setExploded = useCallback((exploded: boolean) => {
-        setState((current) => ({...current, explodedViewProgress: exploded ? 1 : 0}));
+        setState((current) => ({
+            ...current,
+            cutawayMode: exploded ? 'layers' : 'assembled',
+            explodedViewProgress: exploded ? 1 : 0,
+        }));
     }, []);
     const setDetailsVisible = useCallback((detailsVisible: boolean) => {
         setState((current) => ({...current, detailsVisible}));
@@ -79,14 +108,19 @@ export function ScenePresentationProvider({
     const completeTransition = useCallback((cameraPose: SceneCameraPose) => {
         setState((current) => ({...current, cameraPose}));
     }, []);
-    const requestTheatrePose = useCallback((pose: SceneCameraPose, explodedViewProgress: number) => {
-        requestPose(pose, 'theatre', {explodedViewProgress});
+    const requestTheatrePose = useCallback((
+        pose: SceneCameraPose,
+        explodedViewProgress: number,
+        cutawayMode: SceneCutawayMode = explodedViewProgress > 0 ? 'layers' : 'assembled',
+    ) => {
+        requestPose(pose, 'theatre', {cutawayMode, explodedViewProgress});
     }, [requestPose]);
     const saveTourSnapshot = useCallback(() => {
         setState((current) => {
             if (!savedSnapshot.current) {
                 savedSnapshot.current = {
                     activePresetId: current.activePresetId,
+                    cutawayMode: current.cutawayMode,
                     explodedViewProgress: current.explodedViewProgress,
                     detailsVisible: current.detailsVisible,
                     cameraPose: current.cameraPose,
@@ -101,6 +135,7 @@ export function ScenePresentationProvider({
         savedSnapshot.current = null;
         requestPose(snapshot.cameraPose, 'user', {
             activePresetId: snapshot.activePresetId,
+            cutawayMode: snapshot.cutawayMode,
             explodedViewProgress: snapshot.explodedViewProgress,
             detailsVisible: snapshot.detailsVisible,
         });
@@ -119,6 +154,7 @@ export function ScenePresentationProvider({
         model,
         state,
         selectPreset,
+        selectCutawayMode,
         setExploded,
         setDetailsVisible,
         captureManualPose,
@@ -136,6 +172,7 @@ export function ScenePresentationProvider({
         restoreTourSnapshot,
         saveTourSnapshot,
         selectPreset,
+        selectCutawayMode,
         setDetailsVisible,
         setExploded,
         state,

@@ -202,7 +202,7 @@ const evidenceInputs = [
         pairGroupId: 'moose-thermal',
         pairedWith: ['moose-output'],
         artifactRole: 'Thermal-structures input',
-        inventoryRecommendation: 'Include for traceability; parser promotion is needed before it becomes rich table evidence.',
+        inventoryRecommendation: 'Use as companion traceability for cross-links and imported proxy records.',
         tableCandidates: ['cross-links', 'root blocks'],
         plotCandidates: [],
         metrics: [
@@ -311,9 +311,9 @@ export const EVIDENCE_PAIRING_INVENTORY: EvidencePairingInventory[] = [
         label: 'MOOSE thermomechanics',
         inputIds: ['moose-input'],
         outputIds: ['moose-output'],
-        summary: 'Track thermal input links into MOOSE output summaries; parser promotion is still needed for richer tables.',
-        tableCandidates: ['cross-links', 'warnings', 'transient solve log', 'final postprocessor values', 'performance'],
-        plotCandidates: ['transient solve log', 'postprocessor history', 'coupling history'],
+        summary: 'Track thermal input links into promoted MOOSE output histories, postprocessor values, coupling records, and warnings.',
+        tableCandidates: ['cross-links', 'warnings', 'transient solve log', 'postprocessor history', 'final postprocessor values', 'coupling history', 'performance'],
+        plotCandidates: ['postprocessor history', 'coupling history', 'residual history', 'materials history'],
     },
 ];
 

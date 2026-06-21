@@ -85,11 +85,14 @@ export function EngineAssemblyView({
 }: Readonly<Omit<EngineAssemblyProps, 'model' | 'initiallyExploded'>>) {
     const {model, state} = useEngineAssembly();
     const explodedProgress = presentation?.explodedViewProgress ?? (state.exploded ? 1 : 0);
+    const cutawayMode = presentation?.cutawayMode ?? (explodedProgress > 0 ? 'layers' : 'assembled');
+    const flowReveal = cutawayMode === 'flow' || cutawayMode === 'evidence' ? 1 : 0;
 
     if (import.meta.env.MODE === 'test') {
         return (
             <div
                 aria-label="Representative engine assembly"
+                data-cutaway-mode={cutawayMode}
                 data-exploded={state.exploded}
                 data-exploded-progress={explodedProgress}
                 data-part-count={model.childAssemblyIds.length}
@@ -112,14 +115,14 @@ export function EngineAssemblyView({
             rotation={[0.05, presentation?.yawRadians ?? 0, 0]}
             scale={model.scale}
         >
-            <group position={[-0.3 * explodedProgress, 0.12 * explodedProgress, 0]}>
+            <group position={[-0.3 * explodedProgress - 0.16 * flowReveal, 0.12 * explodedProgress + 0.06 * flowReveal, 0]}>
                 <FeedSystemAssembly model={feedModel} onSelectComponent={onSelectComponent} presentation={presentation}/>
             </group>
             <ReactorAssembly model={reactorModel} onSelectComponent={onSelectComponent} presentation={presentation}/>
-            <group position={[0.3 * explodedProgress, 0.08 * explodedProgress, 0]}>
+            <group position={[0.3 * explodedProgress + 0.12 * flowReveal, 0.08 * explodedProgress, 0]}>
                 <PowerConversionAssembly model={powerConversionModel} onSelectComponent={onSelectComponent} presentation={presentation}/>
             </group>
-            <group position={[0, -0.25 * explodedProgress, 0]}>
+            <group position={[0, -0.25 * explodedProgress - 0.12 * flowReveal, 0]}>
                 <NozzleAssembly model={nozzleModel} onSelectComponent={onSelectComponent} presentation={presentation}/>
             </group>
             <FlowPathOverlay

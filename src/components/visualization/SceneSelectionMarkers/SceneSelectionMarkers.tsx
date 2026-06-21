@@ -4,10 +4,12 @@ import type {SceneComponentDescriptor, SceneComponentId} from '../GuidedInvestig
 
 export function SceneSelectionMarkers({
     components,
+    evidenceMode = false,
     selectedComponentId,
     onSelectComponent,
 }: Readonly<{
     components: readonly SceneComponentDescriptor[];
+    evidenceMode?: boolean;
     selectedComponentId: SceneComponentId;
     onSelectComponent: (componentId: SceneComponentId) => void;
 }>) {
@@ -20,6 +22,7 @@ export function SceneSelectionMarkers({
                         className={component.id === selectedComponentId
                             ? 'scene-anchor-marker scene-anchor-marker--selected'
                             : 'scene-anchor-marker scene-anchor-marker--muted'}
+                        data-evidence-mode={evidenceMode}
                         onClick={(event) => {
                             event.stopPropagation();
                             onSelectComponent(component.id);
@@ -28,6 +31,7 @@ export function SceneSelectionMarkers({
                         type="button"
                     >
                         <span aria-hidden="true"/>
+                        {evidenceMode ? <b>{component.fixtureFamilies.join('+').toUpperCase()}</b> : null}
                     </button>
                 </Html>
             ))}

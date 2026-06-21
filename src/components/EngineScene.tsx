@@ -1,6 +1,23 @@
 import {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+    Box,
+    ChevronLeft,
+    ChevronRight,
+    Eye,
+    EyeOff,
+    Layers,
+    Link,
+    Pause,
+    Play,
+    RotateCcw,
+    Route,
+    Square,
+    Thermometer,
+    type LucideIcon,
+} from 'lucide-react';
 
 import {
+    useEvidenceWalkthrough,
     useAnalysisLinkRegistry,
     useEngineeringDataWorkspace,
 } from './analysis';
@@ -19,6 +36,7 @@ import {
     type SceneComponentId,
     type SceneSelectionState,
     type ScenePresentationState,
+    type SceneCutawayMode,
     type SceneViewPresetId,
     type TheatrePlaybackStatus,
     useGuidedInvestigation,
@@ -46,6 +64,18 @@ const sceneCanvasModel = buildSceneCanvasModel();
 const engineAssemblyModel = buildEngineAssemblyModel();
 const calloutModel = buildSceneCalloutOverlayModel();
 const viewPresetModel = buildSceneViewPresetModel();
+const cutawayModes: ReadonlyArray<{
+    readonly id: SceneCutawayMode;
+    readonly label: string;
+    readonly title: string;
+    readonly Icon: LucideIcon;
+}> = [
+    {id: 'assembled', label: 'Assembly', title: 'Assembled engine view', Icon: Box},
+    {id: 'layers', label: 'Layers', title: 'Layered reactor/nozzle cutaway', Icon: Layers},
+    {id: 'flow', label: 'Flow', title: 'Hydrogen feed and nozzle flow path', Icon: Route},
+    {id: 'thermal', label: 'Thermal', title: 'Thermal response and axial margin view', Icon: Thermometer},
+    {id: 'evidence', label: 'Evidence', title: 'MCNP, MOOSE, and ROCETS evidence links', Icon: Link},
+];
 
 export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const visualizationMode = useEngineStore((state) => state.visualizationMode);
@@ -54,6 +84,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const setSelectedChannelStationIndex = useEngineStore((state) => state.setSelectedChannelStationIndex);
     const links = useAnalysisLinkRegistry();
     const workspace = useEngineeringDataWorkspace();
+    const walkthrough = useEvidenceWalkthrough();
     const director = useTheatreDemoDirector();
     const investigation = useGuidedInvestigation();
     const sceneWorkspace = useScenePresentation();
@@ -68,6 +99,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const {
         activePresetId: activeViewPresetId,
         cameraOwner,
+        cutawayMode,
         detailsVisible: overlaysVisible,
         explodedViewProgress,
         transition,
@@ -78,9 +110,9 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         requestTheatrePose,
         restoreTourSnapshot,
         saveTourSnapshot,
+        selectCutawayMode,
         selectPreset,
         setDetailsVisible,
-        setExploded,
     } = sceneWorkspace;
     const caseIdRef = useRef(workspace.model.caseId);
     const outputsRef = useRef(outputs);
@@ -143,12 +175,14 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         focusIntensity: investigationState.owner === 'theatre' ? 1 : 0.72,
         cameraPosition,
         activeViewPresetId,
+        cutawayMode,
         explodedViewProgress,
         cameraTransitionOwner: cameraOwner,
         overlaysVisible,
         selectedAxialRegionIndex,
     }), [
         activeViewPresetId,
+        cutawayMode,
         cameraPosition,
         cameraOwner,
         director.state.activeCueId,
@@ -209,6 +243,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         requestTheatrePose(
             {position: activeCue.cameraPosition, target: activeCue.cameraTarget},
             activeCue.explodedViewProgress,
+            getCutawayModeForCue(activeCue.id),
         );
         if (reducedMotion) {
             director.setCueProgress(1);
@@ -280,7 +315,10 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     };
     const resetView = () => {
         selectPreset(viewPresetModel.defaultPresetId);
-        setExploded(false);
+        selectCutawayMode('assembled');
+    };
+    const startEvidenceWalkthrough = () => {
+        walkthrough.start({reducedMotion});
     };
 
     return (
@@ -306,58 +344,102 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                         </select>
                     </label>
                     <div className="scene-view-toolbar" aria-label="Cutaway view controls">
-                        {viewPresetModel.presets.map((preset) => (
+                        <div className="scene-view-toolbar__group" aria-label="Camera presets">
+                            {viewPresetModel.presets.map((preset) => (
                             <button
                                 aria-pressed={activeViewPresetId === preset.id}
                                 disabled={isTourActive(director.state.playbackStatus)}
                                 key={preset.id}
                                 onClick={() => chooseViewPreset(preset.id)}
+                                title={preset.label}
                                 type="button"
                             >
                                 {preset.label}
                             </button>
-                        ))}
+                            ))}
+                        </div>
+                        <div className="scene-view-toolbar__group scene-view-toolbar__group--cutaway" aria-label="Cutaway modes">
+                            {cutawayModes.map(({id, label, title, Icon}) => (
+                                <button
+                                    aria-label={title}
+                                    aria-pressed={cutawayMode === id}
+                                    className="scene-icon-button"
+                                    disabled={isTourActive(director.state.playbackStatus)}
+                                    key={id}
+                                    onClick={() => selectCutawayMode(id)}
+                                    title={title}
+                                    type="button"
+                                >
+                                    <Icon aria-hidden="true" size={16}/>
+                                    <span>{label}</span>
+                                </button>
+                            ))}
+                        </div>
                         <button
-                            aria-pressed={explodedViewProgress > 0}
+                            aria-label="Reset 3D view"
+                            className="scene-icon-button scene-icon-button--secondary"
                             disabled={isTourActive(director.state.playbackStatus)}
-                            onClick={() => setExploded(explodedViewProgress === 0)}
+                            onClick={resetView}
+                            title="Reset 3D view"
                             type="button"
                         >
-                            Exploded
-                        </button>
-                        <button disabled={isTourActive(director.state.playbackStatus)} onClick={resetView} type="button">
-                            Reset View
+                            <RotateCcw aria-hidden="true" size={16}/>
+                            <span>Reset</span>
                         </button>
                         <button
+                            aria-label={overlaysVisible ? 'Hide scene details' : 'Show scene details'}
                             aria-pressed={overlaysVisible}
+                            className="scene-icon-button scene-icon-button--secondary"
                             onClick={() => setDetailsVisible(!overlaysVisible)}
+                            title={overlaysVisible ? 'Hide scene details' : 'Show scene details'}
                             type="button"
                         >
-                            {overlaysVisible ? 'Hide Details' : 'Show Details'}
+                            {overlaysVisible ? <EyeOff aria-hidden="true" size={16}/> : <Eye aria-hidden="true" size={16}/>}
+                            <span>{overlaysVisible ? 'Hide' : 'Details'}</span>
                         </button>
                     </div>
                     <div className="theatre-controls" aria-label="Guided visualization controls">
                         {!isTourActive(director.state.playbackStatus) && (
                             <button className="theatre-smoke-button" onClick={startTour} type="button">
+                                <Play aria-hidden="true" size={15}/>
                                 {director.state.playbackStatus === 'complete' ? 'Replay' : 'Play guided visualization'}
                             </button>
                         )}
+                        {!isTourActive(director.state.playbackStatus) && (
+                            <button className="theatre-secondary-button" onClick={startEvidenceWalkthrough} type="button">
+                                <Link aria-hidden="true" size={15}/>
+                                Evidence tour
+                            </button>
+                        )}
                         {director.state.playbackStatus === 'animating' && (
-                            <button className="theatre-secondary-button" onClick={pausePlayback} type="button">Pause</button>
+                            <button className="theatre-secondary-button" onClick={pausePlayback} type="button">
+                                <Pause aria-hidden="true" size={15}/>
+                                Pause
+                            </button>
                         )}
                         {director.state.playbackStatus === 'paused' && (
-                            <button className="theatre-secondary-button" onClick={resumePlayback} type="button">Resume</button>
+                            <button className="theatre-secondary-button" onClick={resumePlayback} type="button">
+                                <Play aria-hidden="true" size={15}/>
+                                Resume
+                            </button>
                         )}
                         {director.state.playbackStatus === 'waiting' && (director.state.activeCueIndex ?? 0) > 0 && (
-                            <button className="theatre-secondary-button" onClick={director.previousCue} type="button">Back</button>
+                            <button className="theatre-secondary-button" onClick={director.previousCue} type="button">
+                                <ChevronLeft aria-hidden="true" size={15}/>
+                                Back
+                            </button>
                         )}
                         {director.state.playbackStatus === 'waiting' && (
                             <button className="theatre-smoke-button" onClick={director.advanceCue} type="button">
+                                <ChevronRight aria-hidden="true" size={15}/>
                                 {(director.state.activeCueIndex ?? 0) === director.model.cues.length - 1 ? 'Finish' : 'Next'}
                             </button>
                         )}
                         {isTourActive(director.state.playbackStatus) && (
-                            <button className="theatre-secondary-button" onClick={stopPlayback} type="button">Stop</button>
+                            <button className="theatre-secondary-button" onClick={stopPlayback} type="button">
+                                <Square aria-hidden="true" size={14}/>
+                                Stop
+                            </button>
                         )}
                     </div>
                 </header>
@@ -367,6 +449,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                     data-camera-owner={cameraOwner}
                     data-camera-position={sceneWorkspace.state.cameraPose.position.join(',')}
                     data-camera-target={sceneWorkspace.state.cameraPose.target.join(',')}
+                    data-cutaway-mode={cutawayMode}
                     data-presentation-preset={activeViewPresetId}
                 >
                     {activeCue && isTourActive(director.state.playbackStatus) && (
@@ -403,6 +486,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                     />
                     <SceneSelectionMarkers
                         components={investigationModel.components}
+                        evidenceMode={cutawayMode === 'evidence'}
                         onSelectComponent={selectComponent}
                         selectedComponentId={investigationState.selectedComponentId}
                     />
@@ -487,6 +571,13 @@ function getAdaptiveCueFocus(
     }
     if (cueId === 'correlate-evidence') return 'reactor-transport';
     return 'engine-overview';
+}
+
+function getCutawayModeForCue(cueId: string): SceneCutawayMode {
+    if (cueId === 'follow-flow') return 'flow';
+    if (cueId === 'inspect-channel' || cueId === 'inspect-core') return 'thermal';
+    if (cueId === 'correlate-evidence') return 'evidence';
+    return 'assembled';
 }
 
 function getCueInterpretation(
