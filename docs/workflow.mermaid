@@ -1,0 +1,110 @@
+%% Integrated NTP analysis workflow orchestration
+%% Shows how work is planned, launched on the cluster, checked, archived,
+%% and surfaced to the review console.
+
+flowchart TB
+  %% -------------------------------------------------------------------
+  %% Governance and planning layer
+  %% -------------------------------------------------------------------
+  subgraph GOV[Governance and analysis control]
+    REQ["Requirements\nanalysis objectives\nacceptance criteria"]
+    VV["V&V matrix\nverification cases\nvalidation claims"]
+    CFG["Configuration control\napproved code versions\nmaterials and nuclear data"]
+    RISK["Risk register\nassumptions\nlimitations"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% Case definition and workflow planning
+  %% -------------------------------------------------------------------
+  subgraph PLAN[Campaign definition]
+    CASE["Case manifest\nmission profile\nmodel fidelity tier"]
+    MAPS["Coupling maps\nmesh projections\ntime alignment"]
+    UQ["UQ plan\nparameter samples\nsensitivity cases"]
+    WF["Workflow engine\nSnakemake / Parsl / Python driver"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% HPC execution layer
+  %% -------------------------------------------------------------------
+  subgraph HPC[Cluster execution]
+    SLURM["Slurm submission\njob arrays\nresource requests"]
+    REF["Reference calculations\nMCNP / OpenMC"]
+    HF["High-fidelity challenge cases\nCardinal / NekRS"]
+    RP["MOOSE-native neutronics\nGriffin"]
+    TH["Thermal hydraulics\nROCETS successor / MOOSE THM / Pronghorn"]
+    MAT["Mesoscale materials\nMARMOT RVE studies"]
+    FUEL["Fuel performance\nBISON"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% Automated checks and postprocessing
+  %% -------------------------------------------------------------------
+  subgraph CHECKS[Automated checks and reduction]
+    UNIT["Unit checks\nfield dimensions\nmetadata schema"]
+    CONS["Conservation checks\npower, energy, mass flow"]
+    REG["Regression checks\ngold files\ncase tolerances"]
+    REDUCE["Data reduction\nmaterial closures\nthermal-hydraulic closures"]
+    POST["Python postprocessing\nplots, tables, margins"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% Evidence and communication layer
+  %% -------------------------------------------------------------------
+  subgraph OUT[Evidence products]
+    ARCHIVE["Campaign archive\ninputs, outputs, logs\nprovenance records"]
+    REPORT["Technical memo\nreview package\nV&V status"]
+    APP["React review console\nprovenance, margins\nuncertainty, diagnostics"]
+  end
+
+  REQ --> VV
+  VV --> CFG
+  CFG --> CASE
+  RISK --> CASE
+
+  CASE --> MAPS
+  CASE --> UQ
+  MAPS --> WF
+  UQ --> WF
+  CFG --> WF
+
+  WF --> SLURM
+  SLURM --> REF
+  SLURM --> HF
+  SLURM --> RP
+  SLURM --> TH
+  SLURM --> MAT
+  SLURM --> FUEL
+
+  REF --> UNIT
+  HF --> UNIT
+  RP --> UNIT
+  TH --> UNIT
+  MAT --> UNIT
+  FUEL --> UNIT
+
+  UNIT --> CONS
+  CONS --> REG
+  REG --> REDUCE
+  REDUCE --> POST
+
+  POST --> ARCHIVE
+  POST --> REPORT
+  POST --> APP
+  ARCHIVE --> APP
+  ARCHIVE --> REPORT
+
+  REPORT -.review feedback.-> RISK
+  APP -.engineering questions.-> CASE
+  REG -.failed tolerance.-> WF
+
+  classDef governance fill:#eef4ff,stroke:#315a8c,stroke-width:1px,color:#102033;
+  classDef planning fill:#f5f7fb,stroke:#64748b,stroke-width:1px,color:#111827;
+  classDef compute fill:#fff7ed,stroke:#b45309,stroke-width:1px,color:#2f1600;
+  classDef checks fill:#ecfdf5,stroke:#047857,stroke-width:1px,color:#042f2e;
+  classDef output fill:#fdf2f8,stroke:#be185d,stroke-width:1px,color:#3b0820;
+
+  class REQ,VV,CFG,RISK governance;
+  class CASE,MAPS,UQ,WF planning;
+  class SLURM,REF,HF,RP,TH,MAT,FUEL compute;
+  class UNIT,CONS,REG,REDUCE,POST checks;
+  class ARCHIVE,REPORT,APP output;

@@ -1,0 +1,1833 @@
+{
+  "schema_version": 1,
+  "source_file": "ntp_rocet.inp",
+  "document": {
+    "format": "ROCETS-like NTP system input",
+    "app_target": "ntp-sys-console visual workbench / parser baseline",
+    "purpose": "Non-operational text sample for importing a nuclear thermal propulsion system into the app's schematic/network graphics.",
+    "fixture_posture": [
+      "Representative component names, tags, and instrumentation points.",
+      "Parser-oriented syntax with blocks, references, schedules, maps, inline comments, solver constraints, mission phases, and graphics metadata.",
+      "This is not a validated ROCETS deck and not an executable engine design. Numeric values are synthetic parser fixtures."
+    ]
+  },
+  "case": "baseline-ntp-rocets-002",
+  "title": "NTP breadboard: LH2 feed, reactor kinetics, turbine loop, nozzle",
+  "units": "SI",
+  "system_metadata": {
+    "program": "ntp_sys_console",
+    "vehicle_context": "upper_stage_demo",
+    "fixture_family": "rocets_like",
+    "fidelity": "parser_visualization_enhanced",
+    "safety_posture": "non_operational_synthetic_fixture",
+    "source_posture": "inspired_by_public_ntr_system_model_patterns"
+  },
+  "time_control": {
+    "mode": "transient",
+    "start_time": 0.0,
+    "stop_time": 900.0,
+    "initial_dt": 0.001,
+    "max_dt": 0.25,
+    "min_dt": 1e-06
+  },
+  "solver_control": {
+    "nonlinear_solver": "newton",
+    "linear_solver": "sparse_direct",
+    "relative_tolerance": 1e-06,
+    "absolute_tolerance": 1e-08,
+    "max_nonlinear_iters": 35,
+    "max_time_cuts": 12,
+    "steady_init": true,
+    "mass_balance_check": "strict",
+    "energy_balance_check": "report",
+    "reactivity_check": "bounded_fixture_only"
+  },
+  "fluids": [
+    {
+      "name": "lh2",
+      "species": "H2",
+      "phase_model": "cryogenic_real_fluid",
+      "property_table": "props/h2_cryo_to_superheated.tbl",
+      "properties": [
+        "viscosity",
+        "conductivity",
+        "cp"
+      ]
+    },
+    {
+      "name": "hot_h2",
+      "species": "H2",
+      "phase_model": "high_temperature_equilibrium",
+      "property_table": "props/h2_hot_core_exit.tbl",
+      "properties": [
+        "viscosity",
+        "conductivity",
+        "cp"
+      ]
+    }
+  ],
+  "mission_profile": {
+    "name": "deep_space_restart_demo",
+    "description": "startup, rated hold, shutdown soak, restart, cooldown",
+    "phases": [
+      {
+        "name": "startup_ramp",
+        "start": 0.0,
+        "stop": 90.0,
+        "mode": "startup"
+      },
+      {
+        "name": "rated_burn",
+        "start": 90.0,
+        "stop": 210.0,
+        "mode": "steady_power_hold"
+      },
+      {
+        "name": "shutdown_soak",
+        "start": 210.0,
+        "stop": 520.0,
+        "mode": "decay_heat_and_tank_heat_leak"
+      },
+      {
+        "name": "restart_ramp",
+        "start": 520.0,
+        "stop": 650.0,
+        "mode": "conservative_restart_demonstration"
+      },
+      {
+        "name": "cooldown",
+        "start": 650.0,
+        "stop": 900.0,
+        "mode": "post_burn_cooldown"
+      }
+    ]
+  },
+  "model_inventory": {
+    "counts": {
+      "fluids": 2,
+      "mission_phases": 5,
+      "nodes": 20,
+      "boundaries": 2,
+      "components": 37,
+      "solver_variables": 3,
+      "solver_residuals": 7,
+      "sensors": 6,
+      "connections": 40,
+      "maps": 7,
+      "schedules": 56,
+      "initial_conditions": 8,
+      "outputs": 31
+    },
+    "nodes": [
+      {
+        "name": "n_lh2_tank_outlet",
+        "tag": "feed",
+        "graphics": {
+          "x": 80,
+          "y": 310,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_boost_pump_inlet",
+        "tag": "feed",
+        "graphics": {
+          "x": 185,
+          "y": 310,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_turbopump_inlet",
+        "tag": "feed",
+        "graphics": {
+          "x": 305,
+          "y": 310,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_turbopump_discharge",
+        "tag": "feed",
+        "graphics": {
+          "x": 445,
+          "y": 310,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_regen_inlet",
+        "tag": "regen",
+        "graphics": {
+          "x": 575,
+          "y": 330,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_regen_exit",
+        "tag": "regen",
+        "graphics": {
+          "x": 675,
+          "y": 250,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_spin_converter_exit",
+        "tag": "regen",
+        "graphics": {
+          "x": 735,
+          "y": 250,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_core_inlet_plenum",
+        "tag": "core",
+        "graphics": {
+          "x": 790,
+          "y": 230,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_core_midplane",
+        "tag": "core",
+        "graphics": {
+          "x": 895,
+          "y": 230,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_core_exit_plenum",
+        "tag": "core",
+        "graphics": {
+          "x": 1000,
+          "y": 230,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_turbine_inlet",
+        "tag": "turbine",
+        "graphics": {
+          "x": 1000,
+          "y": 365,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_turbine_exit",
+        "tag": "turbine",
+        "graphics": {
+          "x": 810,
+          "y": 430,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_chamber",
+        "tag": "nozzle",
+        "graphics": {
+          "x": 1120,
+          "y": 230,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_nozzle_exit",
+        "tag": "nozzle",
+        "graphics": {
+          "x": 1270,
+          "y": 230,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_ambient",
+        "tag": "sink",
+        "graphics": {
+          "x": 1400,
+          "y": 230,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_tvc_bleed_inlet",
+        "tag": "tvc",
+        "graphics": {
+          "x": 785,
+          "y": 505,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_tvc_bleed_return",
+        "tag": "tvc",
+        "graphics": {
+          "x": 1035,
+          "y": 505,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_tvc_hyd_pressure",
+        "tag": "tvc",
+        "graphics": {
+          "x": 1135,
+          "y": 455,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_tvc_hyd_return",
+        "tag": "tvc",
+        "graphics": {
+          "x": 1135,
+          "y": 520,
+          "icon": "node-port"
+        }
+      },
+      {
+        "name": "n_nozzle_gimbal_mount",
+        "tag": "tvc",
+        "graphics": {
+          "x": 1195,
+          "y": 330,
+          "icon": "node-port"
+        }
+      }
+    ],
+    "boundaries": [
+      {
+        "name": "lh2_supply_tank",
+        "type": "cryogenic_stagnation_reservoir",
+        "fluid": "lh2",
+        "port": {
+          "outlet": "n_lh2_tank_outlet"
+        },
+        "graphics": {
+          "x": 30,
+          "y": 260,
+          "w": 90,
+          "h": 115,
+          "icon": "lh2-tank",
+          "color": "feed-blue"
+        }
+      },
+      {
+        "name": "space_ambient",
+        "type": "pressure_sink",
+        "fluid": "hot_h2",
+        "port": {
+          "inlet": "n_ambient"
+        },
+        "graphics": {
+          "x": 1430,
+          "y": 205,
+          "w": 60,
+          "h": 60,
+          "icon": "space-sink",
+          "color": "neutral"
+        }
+      }
+    ],
+    "components": [
+      {
+        "name": "tank_isolation_valve",
+        "type": "valve",
+        "tag": "feed"
+      },
+      {
+        "name": "boost_pump",
+        "type": "pump",
+        "tag": "feed"
+      },
+      {
+        "name": "electric_start_motor",
+        "type": "motor",
+        "tag": "startup"
+      },
+      {
+        "name": "main_turbopump",
+        "type": "pump",
+        "tag": "feed"
+      },
+      {
+        "name": "discharge_manifold",
+        "type": "line",
+        "tag": "feed"
+      },
+      {
+        "name": "nozzle_regen_jacket",
+        "type": "heat_exchanger",
+        "tag": "regen"
+      },
+      {
+        "name": "ortho_para_converter",
+        "type": "fluid_conditioner",
+        "tag": "regen"
+      },
+      {
+        "name": "core_inlet_line",
+        "type": "line",
+        "tag": "core"
+      },
+      {
+        "name": "internal_shield",
+        "type": "radiation_shield",
+        "tag": "neutronics"
+      },
+      {
+        "name": "reactor_neutronics",
+        "type": "point_kinetics",
+        "tag": "neutronics"
+      },
+      {
+        "name": "fission_product_poisoning",
+        "type": "iodine_xenon_proxy",
+        "tag": "neutronics"
+      },
+      {
+        "name": "decay_heat_model",
+        "type": "decay_heat_proxy",
+        "tag": "neutronics"
+      },
+      {
+        "name": "reactor_reflector",
+        "type": "reflector",
+        "tag": "neutronics"
+      },
+      {
+        "name": "reflector_gamma_heating",
+        "type": "gamma_heat_proxy",
+        "tag": "neutronics"
+      },
+      {
+        "name": "control_drum_bank",
+        "type": "control_drums",
+        "tag": "neutronics"
+      },
+      {
+        "name": "auxiliary_poison_bank",
+        "type": "poison_override",
+        "tag": "neutronics"
+      },
+      {
+        "name": "reactor_core",
+        "type": "multi_channel_core",
+        "tag": "core"
+      },
+      {
+        "name": "core_channel_bundle",
+        "type": "multi_channel_abstraction",
+        "tag": "core",
+        "parent": "reactor_core"
+      },
+      {
+        "name": "core_inner_channel",
+        "type": "representative_channel",
+        "tag": "core",
+        "parent": "core_channel_bundle"
+      },
+      {
+        "name": "core_mid_channel",
+        "type": "representative_channel",
+        "tag": "core",
+        "parent": "core_channel_bundle"
+      },
+      {
+        "name": "core_outer_channel",
+        "type": "representative_channel",
+        "tag": "core",
+        "parent": "core_channel_bundle"
+      },
+      {
+        "name": "ledinegg_instability_switch",
+        "type": "stability_guard",
+        "tag": "core"
+      },
+      {
+        "name": "core_exit_plenum",
+        "type": "volume",
+        "tag": "core"
+      },
+      {
+        "name": "turbine_tap",
+        "type": "splitter",
+        "tag": "turbine"
+      },
+      {
+        "name": "drive_turbine",
+        "type": "turbine",
+        "tag": "turbine"
+      },
+      {
+        "name": "turbine_exhaust_mixer",
+        "type": "mixer",
+        "tag": "turbine"
+      },
+      {
+        "name": "main_turbomachinery_shaft",
+        "type": "rotating_shaft",
+        "tag": "shaft"
+      },
+      {
+        "name": "electric_start_motor_shaft",
+        "type": "rotating_shaft",
+        "tag": "startup"
+      },
+      {
+        "name": "thrust_chamber",
+        "type": "volume",
+        "tag": "nozzle"
+      },
+      {
+        "name": "bell_nozzle",
+        "type": "expansion_nozzle",
+        "tag": "nozzle",
+        "variant": "baseline_demo"
+      },
+      {
+        "name": "deep_space_bell_nozzle",
+        "type": "expansion_nozzle_preset",
+        "tag": "nozzle",
+        "enabled": false,
+        "variant": "optional_deep_space_high_expansion",
+        "parent": "bell_nozzle"
+      },
+      {
+        "name": "tvc_controller",
+        "type": "thrust_vector_controller",
+        "tag": "tvc"
+      },
+      {
+        "name": "tvc_hot_gas_bleed_valve",
+        "type": "valve",
+        "tag": "tvc"
+      },
+      {
+        "name": "tvc_hydraulic_power_unit",
+        "type": "hydraulic_power_unit",
+        "tag": "tvc"
+      },
+      {
+        "name": "tvc_hydraulic_accumulator",
+        "type": "hydraulic_accumulator",
+        "tag": "tvc"
+      },
+      {
+        "name": "tvc_actuator_ring",
+        "type": "dual_axis_hydraulic_actuator",
+        "tag": "tvc",
+        "parent": "bell_nozzle"
+      },
+      {
+        "name": "nozzle_gimbal_joint",
+        "type": "gimbal_mount",
+        "tag": "tvc",
+        "parent": "thrust_chamber",
+        "child": "bell_nozzle"
+      }
+    ]
+  },
+  "solver_definitions": {
+    "variables": [
+      {
+        "name": "shaft_speed",
+        "type": "independent",
+        "target": "main_turbomachinery_shaft.speed",
+        "bounds": [
+          0.0,
+          7200.0
+        ],
+        "guess": "schedule(shaft_speed_guess_profile)"
+      },
+      {
+        "name": "turbine_split_fraction",
+        "type": "independent",
+        "target": "turbine_tap.split_fraction",
+        "bounds": [
+          0.0,
+          0.12
+        ],
+        "guess": "schedule(turbine_tap_fraction_profile)"
+      },
+      {
+        "name": "control_drum_angle",
+        "type": "independent",
+        "target": "control_drum_bank.angle",
+        "bounds": [
+          0.0,
+          110.0
+        ],
+        "guess": "schedule(control_drum_angle_profile)"
+      }
+    ],
+    "residuals": [
+      {
+        "name": "shaft_power_balance",
+        "target": 0.0,
+        "expression": "drive_turbine.power - main_turbopump.shaft_power",
+        "tolerance": 5000.0
+      },
+      {
+        "name": "chamber_pressure_target",
+        "target": "schedule(chamber_pressure_target_profile)",
+        "expression": "thrust_chamber.pressure",
+        "tolerance": 50000.0
+      },
+      {
+        "name": "core_power_tracking",
+        "target": "schedule(core_power_profile)",
+        "expression": "reactor_neutronics.thermal_power_proxy",
+        "tolerance": 2500000.0
+      },
+      {
+        "name": "mass_flow_closure",
+        "target": 0.0,
+        "expression": "main_turbopump.mass_flow - bell_nozzle.mass_flow",
+        "tolerance": 0.05
+      },
+      {
+        "name": "tvc_hydraulic_power_balance",
+        "target": 0.0,
+        "expression": "tvc_hydraulic_power_unit.shaft_power - tvc_actuator_ring.hydraulic_power_demand",
+        "tolerance": 2500.0
+      },
+      {
+        "name": "tvc_parasitic_flow_accounting",
+        "target": 0.0,
+        "expression": "drive_turbine.mass_flow - turbine_exhaust_mixer.mass_flow - tvc_hot_gas_bleed_valve.mass_flow",
+        "tolerance": 0.025
+      },
+      {
+        "name": "tvc_gimbal_tracking_error",
+        "target": 0.0,
+        "expression": "tvc_controller.pitch_command - tvc_actuator_ring.pitch_angle",
+        "tolerance": 0.05
+      }
+    ]
+  },
+  "instrumentation": [
+    {
+      "name": "s_tank_pressure",
+      "type": "pressure_sensor",
+      "target": "lh2_supply_tank.pressure",
+      "units": "Pa"
+    },
+    {
+      "name": "s_pump_speed",
+      "type": "tachometer",
+      "target": "main_turbomachinery_shaft.speed",
+      "units": "rpm"
+    },
+    {
+      "name": "s_core_exit_temperature",
+      "type": "temperature_sensor",
+      "target": "n_core_exit_plenum.temperature",
+      "units": "K"
+    },
+    {
+      "name": "s_neutronics_margin",
+      "type": "scalar_sensor",
+      "target": "reactor_neutronics.bounded_margin_proxy",
+      "units": "dimensionless"
+    },
+    {
+      "name": "s_chamber_pressure",
+      "type": "pressure_sensor",
+      "target": "thrust_chamber.pressure",
+      "units": "Pa"
+    },
+    {
+      "name": "s_thrust",
+      "type": "thrust_proxy_sensor",
+      "target": "bell_nozzle.ideal_thrust",
+      "units": "N"
+    }
+  ],
+  "connections": [
+    {
+      "from": "lh2_supply_tank.outlet",
+      "to": "tank_isolation_valve.inlet",
+      "edge": "feed-blue"
+    },
+    {
+      "from": "tank_isolation_valve.outlet",
+      "to": "boost_pump.inlet",
+      "edge": "feed-blue"
+    },
+    {
+      "from": "boost_pump.outlet",
+      "to": "main_turbopump.inlet",
+      "edge": "feed-blue"
+    },
+    {
+      "from": "main_turbopump.outlet",
+      "to": "discharge_manifold.inlet",
+      "edge": "feed-blue"
+    },
+    {
+      "from": "discharge_manifold.outlet",
+      "to": "nozzle_regen_jacket.cold_inlet",
+      "edge": "regen-cyan"
+    },
+    {
+      "from": "nozzle_regen_jacket.cold_outlet",
+      "to": "ortho_para_converter.inlet",
+      "edge": "regen-cyan"
+    },
+    {
+      "from": "ortho_para_converter.outlet",
+      "to": "core_inlet_line.inlet",
+      "edge": "regen-cyan"
+    },
+    {
+      "from": "core_inlet_line.outlet",
+      "to": "reactor_core.inlet",
+      "edge": "core-amber"
+    },
+    {
+      "from": "reactor_neutronics.output",
+      "to": "reactor_core.neutronics",
+      "edge": "control-purple"
+    },
+    {
+      "from": "fission_product_poisoning.output",
+      "to": "reactor_neutronics.poison_input",
+      "edge": "control-purple"
+    },
+    {
+      "from": "decay_heat_model.output",
+      "to": "reactor_neutronics.decay_heat",
+      "edge": "control-purple"
+    },
+    {
+      "from": "decay_heat_model.output",
+      "to": "reactor_core.decay_heat_model",
+      "edge": "control-purple"
+    },
+    {
+      "from": "core_channel_bundle.output",
+      "to": "reactor_core.channel_model",
+      "edge": "core-amber"
+    },
+    {
+      "from": "core_inner_channel.output",
+      "to": "core_channel_bundle.inner",
+      "edge": "core-amber"
+    },
+    {
+      "from": "core_mid_channel.output",
+      "to": "core_channel_bundle.mid",
+      "edge": "core-amber"
+    },
+    {
+      "from": "core_outer_channel.output",
+      "to": "core_channel_bundle.outer",
+      "edge": "core-amber"
+    },
+    {
+      "from": "reflector_gamma_heating.output",
+      "to": "reactor_reflector.gamma_heating",
+      "edge": "moderator-gray"
+    },
+    {
+      "from": "control_drum_bank.output",
+      "to": "reactor_neutronics.control_input",
+      "edge": "control-purple"
+    },
+    {
+      "from": "auxiliary_poison_bank.output",
+      "to": "reactor_neutronics.override_input",
+      "edge": "control-purple"
+    },
+    {
+      "from": "internal_shield.heat_leak",
+      "to": "lh2_supply_tank.shield_heat_input",
+      "edge": "moderator-gray"
+    },
+    {
+      "from": "core_channel_bundle.output",
+      "to": "ledinegg_instability_switch.monitored_channels",
+      "edge": "warning-amber"
+    },
+    {
+      "from": "ledinegg_instability_switch.output",
+      "to": "reactor_core.flow_stability_check",
+      "edge": "warning-amber"
+    },
+    {
+      "from": "reactor_core.outlet",
+      "to": "core_exit_plenum.inlet",
+      "edge": "core-amber"
+    },
+    {
+      "from": "core_exit_plenum.outlet",
+      "to": "turbine_tap.inlet",
+      "edge": "core-amber"
+    },
+    {
+      "from": "turbine_tap.outlet_primary",
+      "to": "thrust_chamber.inlet",
+      "edge": "core-amber"
+    },
+    {
+      "from": "turbine_tap.outlet_secondary",
+      "to": "drive_turbine.inlet",
+      "edge": "turbine-red"
+    },
+    {
+      "from": "drive_turbine.outlet",
+      "to": "turbine_exhaust_mixer.inlet_1",
+      "edge": "turbine-red"
+    },
+    {
+      "from": "drive_turbine.outlet",
+      "to": "tvc_hot_gas_bleed_valve.inlet",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_hot_gas_bleed_valve.outlet",
+      "to": "tvc_hydraulic_power_unit.hot_gas_inlet",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_hydraulic_power_unit.hot_gas_return",
+      "to": "turbine_exhaust_mixer.inlet_3",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_hydraulic_power_unit.hydraulic_outlet",
+      "to": "tvc_hydraulic_accumulator.inlet",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_hydraulic_accumulator.outlet",
+      "to": "tvc_actuator_ring.hydraulic_supply",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_actuator_ring.hydraulic_return",
+      "to": "tvc_hydraulic_power_unit.hydraulic_return",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_controller.output",
+      "to": "tvc_hot_gas_bleed_valve.commanded_by",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_controller.output",
+      "to": "tvc_actuator_ring.pitch_command",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "tvc_actuator_ring.output",
+      "to": "nozzle_gimbal_joint.actuator",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "nozzle_gimbal_joint.output",
+      "to": "bell_nozzle.gimbal_mount",
+      "edge": "tvc-green"
+    },
+    {
+      "from": "turbine_exhaust_mixer.outlet",
+      "to": "thrust_chamber.inlet",
+      "edge": "turbine-red"
+    },
+    {
+      "from": "thrust_chamber.outlet",
+      "to": "bell_nozzle.inlet",
+      "edge": "nozzle-orange"
+    },
+    {
+      "from": "bell_nozzle.outlet",
+      "to": "space_ambient.inlet",
+      "edge": "nozzle-orange"
+    }
+  ],
+  "data_catalog": {
+    "maps": [
+      {
+        "name": "boost_pump_map",
+        "columns": [
+          "speed",
+          "flow",
+          "head",
+          "efficiency"
+        ],
+        "row_count": 4
+      },
+      {
+        "name": "main_pump_map",
+        "columns": [
+          "speed",
+          "flow",
+          "head",
+          "efficiency"
+        ],
+        "row_count": 4
+      },
+      {
+        "name": "drive_turbine_map",
+        "columns": [
+          "pressure_ratio",
+          "flow",
+          "power",
+          "efficiency"
+        ],
+        "row_count": 4
+      },
+      {
+        "name": "core_pressure_loss_map",
+        "columns": [
+          "mass_flow",
+          "delta_p"
+        ],
+        "row_count": 4
+      },
+      {
+        "name": "regen_pressure_loss_map",
+        "columns": [
+          "mass_flow",
+          "delta_p"
+        ],
+        "row_count": 4
+      },
+      {
+        "name": "main_shaft_loss_map",
+        "columns": [
+          "speed",
+          "loss_torque"
+        ],
+        "row_count": 4
+      },
+      {
+        "name": "start_shaft_loss_map",
+        "columns": [
+          "speed",
+          "loss_torque"
+        ],
+        "row_count": 4
+      }
+    ],
+    "schedules": [
+      {
+        "name": "tank_pressure_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "Pa"
+        ]
+      },
+      {
+        "name": "tank_temperature_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "K"
+        ]
+      },
+      {
+        "name": "tank_para_fraction_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "para_equilibrium_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "tank_isolation_cv",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "boost_pump_speed_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "rpm"
+        ]
+      },
+      {
+        "name": "start_motor_command",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "core_power_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "decay_heat_proxy_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "iodine_inventory_proxy_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "arb"
+        ]
+      },
+      {
+        "name": "xenon_inventory_proxy_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "arb"
+        ]
+      },
+      {
+        "name": "xenon_poison_worth_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "delta_k_over_k"
+        ]
+      },
+      {
+        "name": "poisoned_reactivity_margin_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "delta_k_over_k"
+        ]
+      },
+      {
+        "name": "xenon_restart_memory_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "reflector_heat_proxy_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "shield_tank_heat_leak_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "control_drum_angle_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg"
+        ]
+      },
+      {
+        "name": "control_drum_worth_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "delta_k_over_k"
+        ]
+      },
+      {
+        "name": "aux_poison_insertion_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "aux_poison_worth_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "delta_k_over_k"
+        ]
+      },
+      {
+        "name": "regen_heat_pickup_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "turbine_tap_fraction_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "main_pump_efficiency_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "boost_pump_efficiency_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "turbine_efficiency_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "shaft_speed_guess_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "rpm"
+        ]
+      },
+      {
+        "name": "chamber_pressure_target_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "Pa"
+        ]
+      },
+      {
+        "name": "core_axial_shape_profile",
+        "columns": [
+          "position",
+          "value"
+        ]
+      },
+      {
+        "name": "core_radial_peaking_profile",
+        "columns": [
+          "radius_fraction",
+          "value"
+        ]
+      },
+      {
+        "name": "channel_group_power_shape_profile",
+        "columns": [
+          "group",
+          "value"
+        ]
+      },
+      {
+        "name": "channel_group_flow_split_profile",
+        "columns": [
+          "group",
+          "value"
+        ]
+      },
+      {
+        "name": "channel_representative_flow_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "kg_per_s"
+        ]
+      },
+      {
+        "name": "channel_hydraulic_diameter_profile",
+        "columns": [
+          "group",
+          "value"
+        ],
+        "units": [
+          "group",
+          "m"
+        ]
+      },
+      {
+        "name": "channel_heated_length_profile",
+        "columns": [
+          "group",
+          "value"
+        ],
+        "units": [
+          "group",
+          "m"
+        ]
+      },
+      {
+        "name": "ledinegg_margin_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "ledinegg_status_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "tvc_pitch_command_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg"
+        ]
+      },
+      {
+        "name": "tvc_yaw_command_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg"
+        ]
+      },
+      {
+        "name": "tvc_pitch_response_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg"
+        ]
+      },
+      {
+        "name": "tvc_yaw_response_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg"
+        ]
+      },
+      {
+        "name": "tvc_gimbal_rate_command_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg_per_s"
+        ]
+      },
+      {
+        "name": "tvc_pitch_rate_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg_per_s"
+        ]
+      },
+      {
+        "name": "tvc_yaw_rate_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg_per_s"
+        ]
+      },
+      {
+        "name": "tvc_authority_limit_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg"
+        ]
+      },
+      {
+        "name": "tvc_bleed_valve_cv_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      },
+      {
+        "name": "tvc_parasitic_bleed_flow_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "kg_per_s"
+        ]
+      },
+      {
+        "name": "tvc_hydraulic_power_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "tvc_hydraulic_power_demand_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "tvc_hydraulic_pressure_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "Pa"
+        ]
+      },
+      {
+        "name": "tvc_hydraulic_return_pressure_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "Pa"
+        ]
+      },
+      {
+        "name": "tvc_accumulator_energy_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "J"
+        ]
+      },
+      {
+        "name": "tvc_accumulator_draw_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "W"
+        ]
+      },
+      {
+        "name": "tvc_torque_demand_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "N_m"
+        ]
+      },
+      {
+        "name": "tvc_structural_torque_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "N_m"
+        ]
+      },
+      {
+        "name": "tvc_slew_rate_limit_profile",
+        "columns": [
+          "time",
+          "value"
+        ],
+        "units": [
+          "s",
+          "deg_per_s"
+        ]
+      },
+      {
+        "name": "tvc_nozzle_efficiency_penalty_profile",
+        "columns": [
+          "time",
+          "value"
+        ]
+      }
+    ]
+  },
+  "initial_conditions": [
+    {
+      "target": "n_lh2_tank_outlet",
+      "pressure": 1350000.0,
+      "temperature": 22.5
+    },
+    {
+      "target": "n_turbopump_inlet",
+      "pressure": 1200000.0,
+      "temperature": 23.0
+    },
+    {
+      "target": "n_turbopump_discharge",
+      "pressure": 1300000.0,
+      "temperature": 24.0
+    },
+    {
+      "target": "n_regen_exit",
+      "pressure": 1100000.0,
+      "temperature": 80.0
+    },
+    {
+      "target": "n_core_inlet_plenum",
+      "pressure": 1000000.0,
+      "temperature": 110.0
+    },
+    {
+      "target": "n_core_exit_plenum",
+      "pressure": 250000.0,
+      "temperature": 650.0
+    },
+    {
+      "target": "n_chamber",
+      "pressure": 200000.0,
+      "temperature": 650.0
+    },
+    {
+      "target": "n_nozzle_exit",
+      "pressure": 150000.0,
+      "temperature": 620.0
+    }
+  ],
+  "outputs": [
+    {
+      "type": "time_history",
+      "name": "tank_pressure",
+      "target": "lh2_supply_tank.pressure",
+      "interval": 0.25,
+      "panel": "feed"
+    },
+    {
+      "type": "time_history",
+      "name": "para_fraction",
+      "target": "ortho_para_converter.equilibrium",
+      "interval": 0.25,
+      "panel": "feed"
+    },
+    {
+      "type": "time_history",
+      "name": "boost_pump_speed",
+      "target": "boost_pump.speed",
+      "interval": 0.25,
+      "panel": "feed"
+    },
+    {
+      "type": "time_history",
+      "name": "main_pump_mdot",
+      "target": "main_turbopump.mass_flow",
+      "interval": 0.25,
+      "panel": "feed"
+    },
+    {
+      "type": "time_history",
+      "name": "shaft_speed",
+      "target": "main_turbomachinery_shaft.speed",
+      "interval": 0.25,
+      "panel": "turbomachinery"
+    },
+    {
+      "type": "time_history",
+      "name": "core_power",
+      "target": "reactor_core.power",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "channel_representative_flow",
+      "target": "core_channel_bundle.representative_flow",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "channel_group_power_shape",
+      "target": "core_channel_bundle.group_power_shape",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "channel_group_flow_split",
+      "target": "core_channel_bundle.group_flow_split",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "decay_heat",
+      "target": "decay_heat_model.thermal_power",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "iodine_inventory",
+      "target": "fission_product_poisoning.i135_inventory",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "xenon_inventory",
+      "target": "fission_product_poisoning.xe135_inventory",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "xenon_poison_worth",
+      "target": "fission_product_poisoning.net_worth",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "poisoned_reactivity_margin",
+      "target": "fission_product_poisoning.reactivity_margin",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "control_drum_angle",
+      "target": "control_drum_bank.angle",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "aux_poison_insertion",
+      "target": "auxiliary_poison_bank.insertion",
+      "interval": 0.25,
+      "panel": "core"
+    },
+    {
+      "type": "time_history",
+      "name": "shield_tank_heat",
+      "target": "internal_shield.heat_leak",
+      "interval": 0.25,
+      "panel": "thermal"
+    },
+    {
+      "type": "time_history",
+      "name": "reflector_gamma_heat",
+      "target": "reflector_gamma_heating.thermal_power",
+      "interval": 0.25,
+      "panel": "thermal"
+    },
+    {
+      "type": "time_history",
+      "name": "core_exit_temperature",
+      "target": "n_core_exit_plenum.temperature",
+      "interval": 0.25,
+      "panel": "thermal"
+    },
+    {
+      "type": "time_history",
+      "name": "ledinegg_margin",
+      "target": "ledinegg_instability_switch.margin",
+      "interval": 0.25,
+      "panel": "thermal"
+    },
+    {
+      "type": "time_history",
+      "name": "ledinegg_status",
+      "target": "ledinegg_instability_switch.status",
+      "interval": 0.25,
+      "panel": "thermal"
+    },
+    {
+      "type": "time_history",
+      "name": "chamber_pressure",
+      "target": "thrust_chamber.pressure",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "nozzle_mass_flow",
+      "target": "bell_nozzle.mass_flow",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "thrust_proxy",
+      "target": "bell_nozzle.ideal_thrust",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "tvc_pitch_angle",
+      "target": "nozzle_gimbal_joint.pitch_angle",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "tvc_yaw_angle",
+      "target": "nozzle_gimbal_joint.yaw_angle",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "tvc_torque_demand",
+      "target": "tvc_actuator_ring.torque_demand",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "tvc_hydraulic_pressure",
+      "target": "tvc_hydraulic_power_unit.pressure_supply",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "tvc_parasitic_bleed_flow",
+      "target": "tvc_hot_gas_bleed_valve.mass_flow",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "time_history",
+      "name": "tvc_nozzle_efficiency_penalty",
+      "target": "bell_nozzle.tvc_efficiency_penalty",
+      "interval": 0.25,
+      "panel": "nozzle"
+    },
+    {
+      "type": "snapshot",
+      "name": "mission_sequence",
+      "at": [
+        0.0,
+        90.0,
+        210.0,
+        520.0,
+        650.0,
+        900.0
+      ],
+      "panel": "overview"
+    }
+  ],
+  "graphics_layout": {
+    "canvas_width": 1500,
+    "canvas_height": 590,
+    "coordinate_system": "screen",
+    "theme_hint": "nasa_engineering_dark",
+    "primary_flow": [
+      "lh2_supply_tank",
+      "tank_isolation_valve",
+      "boost_pump",
+      "main_turbopump",
+      "nozzle_regen_jacket",
+      "ortho_para_converter",
+      "reactor_core",
+      "core_exit_plenum",
+      "turbine_tap",
+      "thrust_chamber",
+      "bell_nozzle",
+      "space_ambient"
+    ],
+    "swimlanes": {
+      "feed": {
+        "y_min": 250,
+        "y_max": 360
+      },
+      "core": {
+        "y_min": 155,
+        "y_max": 420
+      },
+      "turbomachinery": {
+        "y_min": 360,
+        "y_max": 455
+      },
+      "nozzle": {
+        "y_min": 170,
+        "y_max": 355
+      },
+      "tvc": {
+        "y_min": 430,
+        "y_max": 545
+      },
+      "instrumentation": {
+        "y_min": 85,
+        "y_max": 155
+      }
+    }
+  },
+  "parser_metadata": {
+    "expected_sections": [
+      "CASE",
+      "TITLE",
+      "UNITS",
+      "SYSTEM_METADATA",
+      "TIME_CONTROL",
+      "SOLVER_CONTROL",
+      "FLUID",
+      "MISSION_PROFILE",
+      "NODE",
+      "BOUNDARY",
+      "COMPONENT",
+      "SOLVER_VARIABLE",
+      "SOLVER_RESIDUAL",
+      "SENSOR",
+      "CONNECT",
+      "MAP",
+      "SCHEDULE",
+      "INITIAL_CONDITION",
+      "OUTPUT",
+      "GRAPHICS_LAYOUT",
+      "META",
+      "END_CASE"
+    ],
+    "fixture_intent": "ntp_system_graphics_component_network_restart_parser_baseline",
+    "parser_features": [
+      "blocks",
+      "key_value_pairs",
+      "quoted_strings",
+      "comments",
+      "inline_units",
+      "node_references",
+      "map_references",
+      "schedule_references",
+      "state_references",
+      "connectivity_graph",
+      "graphics_tuples",
+      "tags",
+      "panels",
+      "mission_phases",
+      "solver_residuals",
+      "nozzle_presets",
+      "ledinegg_stability_switch",
+      "iodine_xenon_point_kinetics",
+      "reflector_gamma_heating",
+      "decay_heat_model",
+      "multi_channel_core",
+      "thrust_vector_control",
+      "hydraulic_actuator_ring",
+      "turbine_exhaust_bleed"
+    ],
+    "validation_level": "syntactic_fixture_only"
+  }
+}

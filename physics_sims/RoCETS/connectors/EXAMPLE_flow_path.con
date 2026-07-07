@@ -1,0 +1,65 @@
+! ====================================================================
+! ROCETS SUB-NETWORK ROUTING MAP: REGENERATIVE COOLING & TURBINE LOOPS
+! FILE: connectors/flow_path.con
+! ====================================================================
+
+DEFINE FLOW PATHWAY: REGEN_AND_PREBURNER_LOOP
+
+! --------------------------------------------------------------------
+! 1. COOLING JACKET SUB-LOOP (Liquid Hydrogen Routing)
+! --------------------------------------------------------------------
+! Tracks fuel from pump exit, through the nozzle walls, up to the dome
+
+BEGIN_PATH: REGEN_COOLING_CIRCUIT
+
+    ! 1. Send high-pressure fuel to the manifold at the bottom of the nozzle
+    ROUTE High_Pressure_Fuel_Pump.Outlet  ---> Nozzle_Regen_Manifold.Inlet
+
+    ! 2. Route up through the structural cooling channels of the nozzle
+    ROUTE Nozzle_Regen_Manifold.Outlet    ---> Combustion_Chamber_Jacket.Inlet
+
+    ! 3. Exit the combustion chamber wall jacket as superheated gaseous hydrogen (GH2)
+    ROUTE Combustion_Chamber_Jacket.Outlet ---> Fuel_Injector_Dome.Coolant_Inlet
+
+END_PATH
+
+
+! --------------------------------------------------------------------
+! 2. FUEL-RICH PREBURNER BRANCH (Gas Generator Power Loop)
+! --------------------------------------------------------------------
+! Models the fluid tap-off used to generate hot gas for driving the turbines
+
+BEGIN_PATH: POWER_GENERATION_LOOP
+
+    ! 1. Split a portion of the heated fuel gas out toward the Preburner
+    ROUTE Fuel_Injector_Dome.Split_Outlet  ---> Fuel_Preburner.Fuel_Inlet
+
+    ! 2. Tap off a precise, valve-controlled amount of LOX to sustain combustion
+    ROUTE Main_Ox_Valve.Preburner_Tap     ---> Preburner_Ox_Valve.Inlet
+    ROUTE Preburner_Ox_Valve.Outlet       ---> Fuel_Preburner.Ox_Inlet
+
+    ! 3. Route the resulting high-pressure, fuel-rich hot gas into the turbines
+    ROUTE Fuel_Preburner.Gas_Exhaust       ---> High_Pressure_Fuel_Turbine.Inlet
+    ROUTE High_Pressure_Fuel_Turbine.Outlet ---> High_Pressure_Ox_Turbine.Inlet
+
+    ! 4. Dump the spent turbine exhaust gas back into the main injector dome
+    ROUTE High_Pressure_Ox_Turbine.Outlet  ---> Main_Combustion_Chamber.Preburner_Exhaust_Inlet
+
+END_PATH
+
+
+! --------------------------------------------------------------------
+! 3. FLUID PROPERTY ASSIGNMENTS
+! --------------------------------------------------------------------
+! Forces the simulation solver to update the composition matrix
+! dynamically as fluids change phases or chemical states.
+
+BEGIN_FLUID_STATE_ASSIGNMENTS
+
+    PATH(REGEN_COOLING_CIRCUIT)       DEFAULT_PROP = LH2     ! Liquid phase
+    PATH(POWER_GENERATION_LOOP.Step3) DEFAULT_PROP = GH2     ! Superheated phase
+    PATH(POWER_GENERATION_LOOP.Step4) DEFAULT_PROP = RICH_GAS! Chemically reacted gas
+
+END_FLUID_STATE_ASSIGNMENTS
+
+END_FLOW_PATHWAY

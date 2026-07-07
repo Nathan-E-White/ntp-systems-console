@@ -1,0 +1,177 @@
+! ====================================================================
+! ROCETS-LIKE NTP MASTER EXECUTION DECK
+! FILE: engine.run
+! ====================================================================
+
+INITIALIZE_SIMULATION: NTP_RESTART_TRANSIENT
+
+    SET PROJECT_NAME = "NTP breadboard LH2 feed / reactor / turbine / nozzle"
+    SET DATA_UNITS   = SI
+    SET FIXTURE_POSTURE = NON_OPERATIONAL_SYNTHETIC
+
+    INCLUDE "./components/boost_pump.cmp"
+    INCLUDE "./components/ortho_para_feed_line.cmp"
+    INCLUDE "./components/reactor_core.cmp"
+    INCLUDE "./components/thrust_chamber.cmp"
+    INCLUDE "./components/avionics.cmp"
+    INCLUDE "./subsystems/feed_system.sub"
+    INCLUDE "./connectors/assembly.con"
+    INCLUDE "./connectors/flow_path.con"
+    LOAD_FLUID_DATA "./fluids/ntp_hydrogen.fluid"
+    LOAD_FLUID_DATA "./fluids/hydrogen_spin.fluid"
+
+BEGIN_SOLVER_SETTINGS
+    NONLINEAR_SOLVER = NEWTON_DAMPED
+    LINEAR_SOLVER    = SPARSE_DIRECT
+    MAX_ITERATIONS   = 35
+    CONV_TOLERANCE   = 1.0E-06
+    ABS_TOLERANCE    = 1.0E-08
+    INTEGRATOR_TYPE  = BDF2
+    MIN_TIMESTEP     = 1.0E-06
+    MAX_TIMESTEP     = 2.5E-01
+    MASS_BALANCE_CHECK = STRICT
+    ENERGY_BALANCE_CHECK = REPORT
+END_SOLVER_SETTINGS
+
+BEGIN_INITIAL_CONDITIONS
+    LH2_Tank.Outlet.Pressure             = 1.35E+06
+    LH2_Tank.Outlet.Temperature          = 22.5
+    LH2_Tank.Outlet.Para_Fraction        = 0.998
+    Boost_Pump.Shaft.RPM                 = 0.0
+    Main_Turbopump.Shaft.RPM             = 450.0
+    Reactor_Core.Power                   = 0.0
+    Reactor_Core.Decay_Heat              = 0.0
+    Reactor_Core.Xenon_Inventory         = 0.0
+    Thrust_Chamber.Pressure              = 2.00E+05
+    Thrust_Chamber.Temperature           = 650.0
+    Bell_Nozzle.Thrust                   = 0.0
+END_INITIAL_CONDITIONS
+
+BEGIN_EXECUTION_SEQUENCE
+    RUN_STEADY_STATE_TRIM
+
+    TIME = 0.0
+    OUTPUT_INTERVAL = 0.25
+
+    SCHEDULE Tank_Isolation_Valve.Percent_Open = TABLE(tank_isolation_schedule)
+    SCHEDULE Boost_Pump.Shaft.RPM              = TABLE(boost_pump_speed_schedule)
+    SCHEDULE Main_Turbopump.Throttle_Command   = TABLE(main_turbopump_command_schedule)
+    SCHEDULE Reactor_Core.Power_Command        = TABLE(core_power_schedule)
+    SCHEDULE Reactor_Core.Control_Drum_Angle   = TABLE(control_drum_angle_schedule)
+    SCHEDULE Reactor_Core.Aux_Poison_Insertion = TABLE(aux_poison_schedule)
+    SCHEDULE Turbine_Tap.Split_Fraction        = TABLE(turbine_tap_fraction_schedule)
+    SCHEDULE Avionics.Restart_Enable           = TABLE(restart_enable_schedule)
+
+    TRANSIENT_RUN FROM TIME = 0.0   TO 90.0
+    TRANSIENT_RUN FROM TIME = 90.0  TO 210.0
+    TRANSIENT_RUN FROM TIME = 210.0 TO 520.0
+    TRANSIENT_RUN FROM TIME = 520.0 TO 650.0
+    TRANSIENT_RUN FROM TIME = 650.0 TO 900.0
+END_EXECUTION_SEQUENCE
+
+BEGIN_SCHEDULE_TABLES
+    TABLE tank_isolation_schedule COLUMNS = [TIME, VALUE]
+        0.0    0.00
+        12.0   1.00
+        210.0  1.00
+        225.0  0.00
+        520.0  0.00
+        545.0  1.00
+        900.0  0.00
+    END_TABLE
+
+    TABLE boost_pump_speed_schedule COLUMNS = [TIME, RPM]
+        0.0    0.0
+        12.0   1450.0
+        25.0   2200.0
+        90.0   1800.0
+        225.0  0.0
+        520.0  0.0
+        545.0  1800.0
+        900.0  0.0
+    END_TABLE
+
+    TABLE main_turbopump_command_schedule COLUMNS = [TIME, VALUE]
+        0.0    0.00
+        25.0   0.58
+        90.0   1.00
+        210.0  1.00
+        225.0  0.08
+        520.0  0.00
+        560.0  0.72
+        650.0  0.82
+        900.0  0.00
+    END_TABLE
+
+    TABLE core_power_schedule COLUMNS = [TIME, FRACTION]
+        0.0    0.00
+        25.0   0.17
+        90.0   1.00
+        210.0  1.00
+        320.0  0.07
+        520.0  0.04
+        560.0  0.35
+        650.0  0.71
+        900.0  0.14
+    END_TABLE
+
+    TABLE control_drum_angle_schedule COLUMNS = [TIME, DEG]
+        0.0    0.0
+        25.0   55.0
+        90.0   92.0
+        210.0  92.0
+        235.0  0.0
+        520.0  10.0
+        560.0  70.0
+        650.0  86.0
+        900.0  0.0
+    END_TABLE
+
+    TABLE aux_poison_schedule COLUMNS = [TIME, FRACTION]
+        0.0    0.00
+        210.0  0.00
+        235.0  0.35
+        520.0  0.35
+        560.0  0.12
+        650.0  0.00
+        900.0  0.35
+    END_TABLE
+
+    TABLE turbine_tap_fraction_schedule COLUMNS = [TIME, FRACTION]
+        0.0    0.00
+        25.0   0.04
+        90.0   0.05
+        210.0  0.05
+        520.0  0.00
+        560.0  0.045
+        650.0  0.040
+        900.0  0.00
+    END_TABLE
+
+    TABLE restart_enable_schedule COLUMNS = [TIME, VALUE]
+        0.0    0.0
+        520.0  1.0
+        650.0  1.0
+        900.0  0.0
+    END_TABLE
+END_SCHEDULE_TABLES
+
+BEGIN_DATA_EXPORT
+    EXPORT_FILE = "./output/startup_telemetry.dat"
+    VARIABLES = [TIME,
+                 Reactor_Core.Power,
+                 Reactor_Core.Decay_Heat,
+                 Reactor_Core.Xenon_Inventory,
+                 Main_Turbopump.MassFlow,
+                 Main_Turbopump.Shaft.RPM,
+                 Thrust_Chamber.Pressure,
+                 Bell_Nozzle.Thrust,
+                 Ledinegg_Guard.Margin,
+                 Ledinegg_Guard.Status]
+
+    PLOT_FILE   = "./output/performance_curves.plt"
+    PLOT_FORMAT = TECPLOT
+    LISTING_FILE = "./output/engine.out"
+END_DATA_EXPORT
+
+END_SIMULATION

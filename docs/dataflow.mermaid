@@ -1,0 +1,121 @@
+%% Integrated NTP analysis dataflow
+%% Shows how authoritative data products move from physics codes to
+%% reduced closures, coupled fuel-performance cases, and review artifacts.
+
+flowchart LR
+  %% -------------------------------------------------------------------
+  %% Inputs and controlled source data
+  %% -------------------------------------------------------------------
+  subgraph SRC[Controlled source data]
+    REQ["Requirements\nmission cases\nacceptance metrics"]
+    GEOM["CAD and meshes\nunit cell, core sector\nchannel benchmark"]
+    MAT0["Baseline materials\nsource properties\nuncertainty bounds"]
+    XS["Nuclear data\ncross sections\ndepletion chains"]
+    TRANS["Transient profiles\nstartup, shutdown\nrestart, abort"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% Reference physics and high fidelity models
+  %% -------------------------------------------------------------------
+  subgraph REF[Reference and benchmark physics]
+    MC["MCNP / OpenMC\nreference transport"]
+    CARD["Cardinal / NekRS\nhigh-fidelity CFD and CHT"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% MOOSE production physics
+  %% -------------------------------------------------------------------
+  subgraph MOOSE[MOOSE-family production models]
+    GRIFFIN["Griffin\ntransient neutronics"]
+    PRONG["Pronghorn\ncore thermal hydraulics"]
+    THM["MOOSE THM / SAM-like model\nsystem thermal hydraulics"]
+    MARMOT["MARMOT\nmesoscale material evolution"]
+    BISON["BISON\nfuel performance"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% Reduced controlled data products
+  %% -------------------------------------------------------------------
+  subgraph PRODUCTS[Controlled data products]
+    POWER["Normalized power maps\nflux, fission, gamma\nuncertainty"]
+    CLOSURE["Thermal-hydraulic closures\nHTC, pressure drop\nhot-channel factors"]
+    MATC["MARMOT-informed material tables\nconductivity, stiffness\nswelling, damage"]
+    BC["Boundary condition histories\nflow, pressure\ntemperature, power"]
+    MARGIN["Fuel-performance metrics\ntemperature, stress\ndamage, margins"]
+  end
+
+  %% -------------------------------------------------------------------
+  %% Evidence and review products
+  %% -------------------------------------------------------------------
+  subgraph REVIEW[Evidence and review layer]
+    PROV["Provenance record\ncode version, commit\nmesh, data, analyst"]
+    UQ["Uncertainty summary\nsensitivities\nmodel-form notes"]
+    VAL["V&V evidence\nregression, benchmark\nvalidation status"]
+    API["Static review bundle\nJSON, CSV, plots\nmesh manifests"]
+    APP["React console\ninteractive review\ntraceable diagnostics"]
+    MEMO["Technical memo\nreview board package"]
+  end
+
+  REQ --> TRANS
+  REQ --> GEOM
+  GEOM --> MC
+  GEOM --> CARD
+  GEOM --> GRIFFIN
+  GEOM --> PRONG
+  GEOM --> BISON
+  MAT0 --> MARMOT
+  MAT0 --> BISON
+  XS --> MC
+  XS --> GRIFFIN
+  TRANS --> THM
+
+  MC --> POWER
+  POWER --> GRIFFIN
+  POWER --> PRONG
+  POWER --> BISON
+
+  CARD --> CLOSURE
+  CLOSURE --> PRONG
+  CLOSURE --> THM
+
+  THM --> BC
+  BC --> PRONG
+  BC --> BISON
+
+  GRIFFIN --> POWER
+  GRIFFIN --> BC
+  PRONG --> BC
+
+  MARMOT --> MATC
+  MATC --> BISON
+
+  BISON --> MARGIN
+  MARGIN --> UQ
+  MARGIN --> VAL
+  MARGIN --> API
+
+  POWER --> PROV
+  CLOSURE --> PROV
+  MATC --> PROV
+  BC --> PROV
+  MARGIN --> PROV
+
+  PROV --> API
+  UQ --> API
+  VAL --> API
+  API --> APP
+  API --> MEMO
+  APP -.questions and drilldown.-> PROV
+  MEMO -.review findings.-> REQ
+
+  classDef source fill:#eef4ff,stroke:#315a8c,stroke-width:1px,color:#102033;
+  classDef reference fill:#fff7ed,stroke:#b45309,stroke-width:1px,color:#2f1600;
+  classDef moose fill:#f0fdf4,stroke:#15803d,stroke-width:1px,color:#052e16;
+  classDef product fill:#f8fafc,stroke:#475569,stroke-width:1px,color:#111827;
+  classDef review fill:#fdf2f8,stroke:#be185d,stroke-width:1px,color:#3b0820;
+
+  class REQ,GEOM,MAT0,XS,TRANS source;
+  class MC,CARD reference;
+  class GRIFFIN,PRONG,THM,MARMOT,BISON moose;
+  class POWER,CLOSURE,MATC,BC,MARGIN product;
+  class PROV,UQ,VAL,API,APP,MEMO review;

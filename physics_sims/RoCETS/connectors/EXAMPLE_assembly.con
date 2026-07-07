@@ -1,0 +1,84 @@
+! ====================================================================
+! ROCETS CONNECTION & NETWORK TOPOLOGY MAP
+! FILE: connectors/assembly.con
+! ====================================================================
+
+DEFINE SYSTEM CONNECTIONS: SPACE_SHUTTLE_MAIN_ENGINE_SIM
+
+! --------------------------------------------------------------------
+! 1. FLUID PATHWAY CONNECTIONS (Port-to-Port Wiring)
+! --------------------------------------------------------------------
+! Syntax: LINK ComponentA.PortName TO ComponentB.PortName [FLUID_TYPE]
+
+BEGIN_FLUID_CONNECTIONS
+
+    ! --- FUEL FEED & PUMP NETWORK ---
+    LINK Fuel_Tank.Outlet          TO  Low_Pressure_Fuel_Pump.Inlet    FLUID=LH2
+    LINK Low_Pressure_Fuel_Pump.Outlet TO High_Pressure_Fuel_Pump.Inlet  FLUID=LH2
+    LINK High_Pressure_Fuel_Pump.Outlet TO Main_Fuel_Valve.Inlet         FLUID=LH2
+
+    ! --- OXIDIZER FEED NETWORK ---
+    LINK Ox_Tank.Outlet            TO  High_Pressure_Ox_Pump.Inlet     FLUID=LOX
+    LINK High_Pressure_Ox_Pump.Outlet  TO  Main_Ox_Valve.Inlet           FLUID=LOX
+
+    ! --- VALVE TO MAIN COMBUSTION CHAMBER (MCC) FLOW ---
+    LINK Main_Fuel_Valve.Outlet    TO  Combustion_Chamber.Fuel_Inlet   FLUID=LH2
+    LINK Main_Ox_Valve.Outlet      TO  Combustion_Chamber.Ox_Inlet     FLUID=LOX
+
+    ! --- CHAMBER EXHAUST TO NOZZLE EXPANSION ---
+    LINK Combustion_Chamber.Gas_Exhaust TO Main_Nozzle.Inlet           FLUID=HOT_GAS
+
+END_FLUID_CONNECTIONS
+
+
+! --------------------------------------------------------------------
+! 2. MECHANICAL & SHAFT POWER CONNECTIONS (Rotational Torque)
+! --------------------------------------------------------------------
+! Connects turbopump turbine components to pump impeller shafts
+
+BEGIN_MECHANICAL_CONNECTIONS
+
+    LINK High_Pressure_Turbine.Shaft  TO  High_Pressure_Fuel_Pump.Shaft   TYPE=ROTATIONAL
+    LINK Low_Pressure_Turbine.Shaft   TO  Low_Pressure_Fuel_Pump.Shaft    TYPE=ROTATIONAL
+
+END_MECHANICAL_CONNECTIONS
+
+
+! --------------------------------------------------------------------
+! 3. THERMAL & CONVECTIVE HEAT RECOVERY CONNECTIONS (Regenerative Cooling)
+! --------------------------------------------------------------------
+! Hooks up the combustion chamber wall heat flux to the nozzle cooling jacket
+
+BEGIN_THERMAL_CONNECTIONS
+
+    LINK Combustion_Chamber.Wall_Cooling TO Nozzle_Cooling_Jacket.Heat_Input
+
+END_THERMAL_CONNECTIONS
+
+
+! --------------------------------------------------------------------
+! 4. NODE SOLVER BALANCING & CONVERGENCE CONSTRAINTS
+! --------------------------------------------------------------------
+! This section enforces that pressures and mass flow rates equalize
+! between component interfaces. The central solver will vary independent
+! variables until these residuals (errors) equal 0.0.
+
+BEGIN_NODE_CONSTRAINTS
+
+    ! Ensure pressure matching at the fuel pump exit into the valve
+    NODE_BALANCE: Fuel_Pump_To_Valve_Node
+        EQUATE High_Pressure_Fuel_Pump.Outlet.Pressure = Main_Fuel_Valve.Inlet.Pressure
+        TOLERANCE = 1.0E-5
+    END_NODE
+
+    ! Ensure mass conservation at the combustion chamber injection point
+    NODE_BALANCE: MCC_Injector_Node
+        SUM_FLOW_IN  = Main_Fuel_Valve.Outlet.MassFlow + Main_Ox_Valve.Outlet.MassFlow
+        SUM_FLOW_OUT = Combustion_Chamber.Fuel_Inlet.MassFlow + Combustion_Chamber.Ox_Inlet.MassFlow
+        RESIDUAL     = SUM_FLOW_IN - SUM_FLOW_OUT
+        TOLERANCE    = 1.0E-6
+    END_NODE
+
+END_NODE_CONSTRAINTS
+
+END_SYSTEM_CONNECTIONS

@@ -1,0 +1,23 @@
+! LOCATION: /components/avionics.cmp
+
+DEFINE COMPONENT TYPE: FLIGHT_COMPUTER
+
+BEGIN_PORTS
+    INLET_SIGNAL Pt_Chamber_Raw   TYPE: SIGNAL_PORT
+    OUTLET_CMD   Valve_Actuator   TYPE: SIGNAL_PORT
+END_PORTS
+
+BEGIN_MATH_MODEL
+    ! SENSOR BLOCK: Processes raw voltage/pressure signal filtering
+    BEGIN_SENSOR: Chamber_Pressure_Filter
+        INPUT_VARIABLE = Pt_Chamber_Raw
+        FILTER_TYPE    = LOW_PASS
+        CUTOFF_FREQ    = 50.0  ! 50 Hz noise filtering
+        OUTPUT_SIGNAL  = Clean_Pc
+    END_SENSOR
+
+    ! Use the sensor's clean output signal to drive a throttle control algorithm
+    IF (Clean_Pc < 1000.0) THEN
+        Valve_Actuator = 1.0  ! Command valve to open wider
+    ENDIF
+END_MATH_MODEL

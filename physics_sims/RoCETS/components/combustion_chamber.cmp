@@ -1,0 +1,5 @@
+! Compatibility filename for ROCETS examples.
+! The NTP fixture does not model chemical combustion; it aliases the
+! thrust chamber / nozzle plenum component used by engine.run.
+
+INCLUDE "./components/thrust_chamber.cmp"

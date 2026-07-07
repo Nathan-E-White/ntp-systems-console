@@ -1,5 +1,18 @@
+import {
+    PRESSURE_DROP_CHAMBER_COEFFICIENT,
+    PRESSURE_DROP_FLOW_COEFFICIENT,
+    PRESSURE_DROP_FLOW_EXPONENT,
+    PRESSURE_DROP_MAXIMUM_MPA,
+    PRESSURE_DROP_MINIMUM_MPA,
+} from './reducedOrderModelConstants';
+
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 
 export function estimatePressureDrop(massFlowKgPerSec: number, chamberPressureMpa: number): number {
-    return clamp(0.018 * massFlowKgPerSec ** 1.35 + 0.015 * chamberPressureMpa, 0.05, 3.5);
+    return clamp(
+        PRESSURE_DROP_FLOW_COEFFICIENT * massFlowKgPerSec ** PRESSURE_DROP_FLOW_EXPONENT
+        + PRESSURE_DROP_CHAMBER_COEFFICIENT * chamberPressureMpa,
+        PRESSURE_DROP_MINIMUM_MPA,
+        PRESSURE_DROP_MAXIMUM_MPA,
+    );
 }

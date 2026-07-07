@@ -194,8 +194,7 @@ export function ImportedAnalysisPanel({analysis}: Readonly<ImportedAnalysisProps
             </div>
 
             <p className="muted-copy">
-                Public fixture data only: MCNP-like, ROCETS-like, and MOOSE-like summaries for parser and UI
-                demonstration. These values are illustrative and are not validated calculation results.
+                Public MCNP/ROCETS/MOOSE fixture summaries for parser/UI only; synthetic and not validated.
             </p>
 
             <div className="analysis-source-grid">

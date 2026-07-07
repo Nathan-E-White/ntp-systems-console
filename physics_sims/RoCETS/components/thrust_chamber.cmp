@@ -1,0 +1,46 @@
+! ====================================================================
+! ROCETS-LIKE COMPONENT MODULE: NTP THRUST CHAMBER / NOZZLE PLENUM
+! FILE: components/thrust_chamber.cmp
+! ====================================================================
+
+DEFINE COMPONENT TYPE: NTP_THRUST_CHAMBER
+
+BEGIN_PORTS
+    INLET_PORT  Hot_H2_Inlet TYPE: FLUID_PORT
+    OUTLET_PORT Nozzle_Inlet TYPE: FLUID_PORT
+    THERMAL_OUT Wall_Load    TYPE: HEAT_PORT
+END_PORTS
+
+BEGIN_CONSTANTS
+    Chamber_Volume       = 0.095
+    Wall_Heat_Capacity   = 2.40E+04
+    Pressure_Loss_Factor = 0.018
+END_CONSTANTS
+
+BEGIN_VARIABLES
+    Pressure    = 2.00E+05
+    Temperature = 650.0
+    Wall_Temperature = 315.0
+END_VARIABLES
+
+BEGIN_MATH_MODEL
+    Mdot = Hot_H2_Inlet.MassFlow
+    Pressure = Hot_H2_Inlet.Pressure * (1.0 - Pressure_Loss_Factor)
+    Temperature = Hot_H2_Inlet.Temperature
+
+    Wall_Load.Q_flux = 0.025 * Mdot * MAX(Temperature - Wall_Temperature, 0.0)
+    DERIV(Wall_Temperature) = Wall_Load.Q_flux / Wall_Heat_Capacity
+
+    Nozzle_Inlet.MassFlow = Mdot
+    Nozzle_Inlet.Pressure = Pressure
+    Nozzle_Inlet.Temperature = Temperature
+    Nozzle_Inlet.Para_Fraction = Hot_H2_Inlet.Para_Fraction
+END_MATH_MODEL
+
+BEGIN_OUTPUTS
+    TRACK Pressure         LABEL="THRUST CHAMBER PRESSURE" UNITS="PA"
+    TRACK Temperature      LABEL="CHAMBER GAS TEMP"        UNITS="K"
+    TRACK Wall_Temperature LABEL="CHAMBER WALL TEMP"       UNITS="K"
+END_OUTPUTS
+
+END_COMPONENT_TYPE

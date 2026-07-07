@@ -1,0 +1,41 @@
+! ====================================================================
+! ROCETS-LIKE NTP FLOW PATHWAY MAP
+! FILE: connectors/flow_path.con
+! ====================================================================
+
+DEFINE FLOW PATHWAY: NTP_LH2_CORE_AND_TURBINE_LOOP
+
+BEGIN_PATH: LH2_FEED_AND_REGEN
+    ROUTE LH2_Tank.Outlet             ---> Tank_Isolation_Valve.Inlet
+    ROUTE Tank_Isolation_Valve.Outlet ---> Boost_Pump.Inlet
+    ROUTE Boost_Pump.Outlet           ---> Ortho_Para_Feed_Line.Inlet
+    ROUTE Ortho_Para_Feed_Line.Outlet ---> Nozzle_Regen_Jacket.Cold_Inlet
+    ROUTE Nozzle_Regen_Jacket.Cold_Out ---> Reactor_Core.Core_Inlet
+END_PATH
+
+BEGIN_PATH: CORE_TO_NOZZLE_PRIMARY
+    ROUTE Reactor_Core.Core_Exit      ---> Turbine_Tap.Inlet
+    ROUTE Turbine_Tap.Primary_Outlet  ---> Thrust_Chamber.Hot_H2_Inlet
+    ROUTE Thrust_Chamber.Nozzle_Inlet ---> Bell_Nozzle.Inlet
+    ROUTE Bell_Nozzle.Outlet          ---> Space_Ambient.Inlet
+END_PATH
+
+BEGIN_PATH: TURBINE_BYPASS_LOOP
+    ROUTE Turbine_Tap.Secondary_Outlet ---> Drive_Turbine.Inlet
+    ROUTE Drive_Turbine.Outlet         ---> Turbine_Exhaust_Mixer.Inlet_1
+    ROUTE Turbine_Exhaust_Mixer.Outlet ---> Thrust_Chamber.Hot_H2_Inlet
+END_PATH
+
+BEGIN_FLUID_STATE_ASSIGNMENTS
+    PATH(LH2_FEED_AND_REGEN)       DEFAULT_PROP = LH2
+    PATH(CORE_TO_NOZZLE_PRIMARY)   DEFAULT_PROP = HOT_H2
+    PATH(TURBINE_BYPASS_LOOP)      DEFAULT_PROP = HOT_H2
+END_FLUID_STATE_ASSIGNMENTS
+
+BEGIN_COUPLING_NOTES
+    MCNP_HEAT_SOURCE = ../../reactor/multi/mcnp_wrapper.i
+    BISON_FUEL_RESPONSE = ../../reactor/multi/bison_sub.i
+    MARMOT_MICRO_CLOSURE = ../../reactor/multi/marmot_sub.i
+END_COUPLING_NOTES
+
+END_FLOW_PATHWAY

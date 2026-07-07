@@ -3,6 +3,6 @@ export interface TransientPoint {
   powerMw: number;
   outletTemperatureK: number;
   thrustKn: number;
-  thermalMarginK: number;
-  stabilityScore: number;
+  channelWallCriterionMarginK: number;
+  basisCompletenessPercent: number;
 }

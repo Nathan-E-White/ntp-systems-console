@@ -1,6 +1,9 @@
 export type MissionMode = 'startup' | 'steadyBurn' | 'shutdown' | 'cooldown';
+export type ThermalCouplingMode = 'benchmarkClosure' | 'fixedEfficiency';
+export type EngineModelProfileId = 'peweeInspired' | 'thermalInvestigation';
 
 export interface EngineInputs {
+  modelProfileId: EngineModelProfileId;
   thermalPowerMw: number;
   massFlowKgPerSec: number;
   inletTemperatureK: number;
@@ -10,19 +13,33 @@ export interface EngineInputs {
   fuelTemperatureLimitK: number;
   shieldingMassFraction: number;
   missionMode: MissionMode;
+  thermalCouplingMode: ThermalCouplingMode;
+  thermalCouplingEfficiency: number;
+  channelLengthM: number;
+  channelHydraulicDiameterM: number;
+  channelCount: number;
+  channelRoughnessM: number;
+  channelInletLossCoefficient: number;
+  channelExitLossCoefficient: number;
+  channelWallCriterionK: number;
+  nozzleEfficiency: number;
+  ambientPressureKpa: number;
+  overrideRationale: string;
 }
 
-export interface EngineOutputs {
+export interface ReferenceControlledEngineOutputs {
   outletTemperatureK: number;
   exhaustVelocityMPerSec: number;
   specificImpulseSec: number;
   thrustKn: number;
-  fuelTemperatureK: number;
-  thermalMarginK: number;
+  peakChannelWallTemperatureK: number;
+  channelWallCriterionMarginK: number;
   pressureDropMpa: number;
-  stabilityScore: number;
-  stabilityStatus: 'nominal' | 'watch' | 'limit';
+  basisCompletenessPercent: number;
+  reviewPosture: 'nominal' | 'watch' | 'limit';
 }
+
+export type EngineOutputs = ReferenceControlledEngineOutputs;
 
 export interface EngineState {
   inputs: EngineInputs;

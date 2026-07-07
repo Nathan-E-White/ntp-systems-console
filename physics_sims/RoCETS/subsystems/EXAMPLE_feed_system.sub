@@ -1,0 +1,60 @@
+! ====================================================================
+! ROCETS SUBSYSTEM ASSEMBLY MODULE: LOW PRESSURE FUEL FEED LOOP
+! FILE: subsystems/feed_system.sub
+! ====================================================================
+
+DEFINE SUBSYSTEM TYPE: LP_FUEL_FEED_SYSTEM
+
+! --------------------------------------------------------------------
+! 1. MASTER INTERFACE BOUNDARY PORTS (Visible to the outside world)
+! --------------------------------------------------------------------
+! These are the only ports exposed when this subsystem is imported.
+BEGIN_INTERFACE_PORTS
+    INLET_PORT  Main_Tank_Inlet     TYPE: FLUID_PORT
+    OUTLET_PORT HP_Pump_Feeding     TYPE: FLUID_PORT
+    CONTROL_IN  Actuator_Signal     TYPE: SIGNAL_PORT
+END_INTERFACE_PORTS
+
+
+! --------------------------------------------------------------------
+! 2. INTERNAL COMPONENT INGESTION (Encapsulated hardware definitions)
+! --------------------------------------------------------------------
+! These components are strictly isolated inside this subsystem.
+BEGIN_INTERNAL_COMPONENTS
+    INCLUDE "../components/pump.cmp"      AS Internal_Boost_Pump
+    INCLUDE "../components/valve.cmp"     AS Internal_ByPass_Valve
+    INCLUDE "../components/line.cmp"      AS Internal_Feed_Line
+END_INTERNAL_COMPONENTS
+
+
+! --------------------------------------------------------------------
+! 3. INTERNAL ROUTING TOPOLOGY (Wiring inside the black box)
+! --------------------------------------------------------------------
+BEGIN_INTERNAL_CONNECTIONS
+
+    ! 1. Map the master subsystem entrance port to the internal boost pump
+    LINK Main_Tank_Inlet            TO Internal_Boost_Pump.Inlet
+
+    ! 2. Feed the boost pump output through the bypass valve loop
+    LINK Internal_Boost_Pump.Outlet TO Internal_ByPass_Valve.Inlet
+    LINK Actuator_Signal            TO Internal_ByPass_Valve.Signal
+
+    ! 3. Route through the physical feed lines
+    LINK Internal_ByPass_Valve.Outlet TO Internal_Feed_Line.Inlet
+
+    ! 4. Map the internal line terminal point to the master subsystem exit port
+    LINK Internal_Feed_Line.Outlet  TO HP_Pump_Feeding
+
+END_INTERNAL_CONNECTIONS
+
+
+! --------------------------------------------------------------------
+! 4. INTERNAL DESIGN FACTOR OVERRIDES
+! --------------------------------------------------------------------
+! Allows customization of internal parts without altering base templates
+BEGIN_PARAMETER_OVERRIDES
+    Internal_Boost_Pump.Impeller_Diameter = 12.45
+    Internal_Feed_Line.Wall_Roughness     = 0.0012
+END_PARAMETER_OVERRIDES
+
+END_SUBSYSTEM_TYPE

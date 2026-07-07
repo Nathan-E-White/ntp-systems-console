@@ -22,24 +22,6 @@ export function useEngineTransient() {
     return useMemo(() => generateTransient(inputs), [inputs]);
 }
 
-export function useSelectedTransientPoint() {
-    const transient = useEngineTransient();
-    const selectedTransientTimeSec = useEngineStore((state) => state.selectedTransientTimeSec);
-
-    return useMemo(() => {
-        if (transient.length === 0) {
-            return undefined;
-        }
-
-        return transient.reduce((nearestPoint, candidatePoint) => {
-            const nearestDistance = Math.abs(nearestPoint.timeSec - selectedTransientTimeSec);
-            const candidateDistance = Math.abs(candidatePoint.timeSec - selectedTransientTimeSec);
-
-            return candidateDistance < nearestDistance ? candidatePoint : nearestPoint;
-        }, transient[0]);
-    }, [selectedTransientTimeSec, transient]);
-}
-
 export function useDesignReviewModel() {
     const outputs = useEngineOutputs();
 

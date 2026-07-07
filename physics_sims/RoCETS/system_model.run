@@ -1,0 +1,73 @@
+! ====================================================================
+! ROCETS-LIKE VEHICLE SYSTEM MODEL
+! FILE: system_model.run
+! ====================================================================
+
+INITIALIZE_SIMULATION: NTP_UPPER_STAGE_DEMO
+
+    SET PROJECT_NAME = "Upper-stage NTP restart demonstration"
+    SET DATA_UNITS = SI
+    SET FIXTURE_POSTURE = NON_OPERATIONAL_SYNTHETIC
+
+    INCLUDE "./engine.run" AS NTP_Engine
+
+BEGIN_SYSTEM_COMPONENTS
+    BUILD SUBSYSTEM: LH2_FEED_SYSTEM AS LH2_Feed
+    BUILD ENGINE: NTP_Engine AS Restartable_NTP_Engine
+    BUILD COMPONENT: FLIGHT_COMPUTER AS Engine_Controller
+END_SYSTEM_COMPONENTS
+
+BEGIN_SYSTEM_CONNECTIONS
+    LINK LH2_Feed.Engine_Feed_Out TO Restartable_NTP_Engine.LH2_Inlet
+    LINK Restartable_NTP_Engine.Telemetry_Out TO Engine_Controller.Pt_Chamber_Raw
+    LINK Engine_Controller.Valve_Actuator TO LH2_Feed.Actuator_Signal
+END_SYSTEM_CONNECTIONS
+
+BEGIN_MISSION_PROFILE: deep_space_restart_demo
+    PHASE startup_ramp
+        START = 0.0
+        STOP  = 90.0
+        MODE  = STARTUP
+    END_PHASE
+
+    PHASE rated_burn
+        START = 90.0
+        STOP  = 210.0
+        MODE  = STEADY_POWER_HOLD
+    END_PHASE
+
+    PHASE shutdown_soak
+        START = 210.0
+        STOP  = 520.0
+        MODE  = DECAY_HEAT_AND_TANK_HEAT_LEAK
+    END_PHASE
+
+    PHASE restart_ramp
+        START = 520.0
+        STOP  = 650.0
+        MODE  = CONSERVATIVE_RESTART_DEMONSTRATION
+    END_PHASE
+
+    PHASE cooldown
+        START = 650.0
+        STOP  = 900.0
+        MODE  = POST_BURN_COOLDOWN
+    END_PHASE
+END_MISSION_PROFILE
+
+BEGIN_EXECUTION_SEQUENCE
+    TIME = 0.0
+    OUTPUT_INTERVAL = 0.25
+    RUN_ENGINE Restartable_NTP_Engine FROM TIME = 0.0 TO 900.0
+END_EXECUTION_SEQUENCE
+
+BEGIN_DATA_EXPORT
+    EXPORT_FILE = "./output/system_profile.dat"
+    VARIABLES = [TIME,
+                 Restartable_NTP_Engine.Reactor_Core.Power,
+                 Restartable_NTP_Engine.Main_Turbopump.MassFlow,
+                 Restartable_NTP_Engine.Bell_Nozzle.Thrust,
+                 Restartable_NTP_Engine.Reactor_Core.Xenon_Inventory]
+END_DATA_EXPORT
+
+END_SIMULATION

@@ -1,0 +1,55 @@
+! ====================================================================
+! ROCETS-LIKE COMPONENT MODULE: LH2 BOOST PUMP
+! FILE: components/boost_pump.cmp
+! ====================================================================
+
+DEFINE COMPONENT TYPE: LH2_BOOST_PUMP
+
+BEGIN_PORTS
+    INLET_PORT  Inlet       TYPE: FLUID_PORT
+    OUTLET_PORT Outlet      TYPE: FLUID_PORT
+    SHAFT_PORT  Shaft       TYPE: ROTATIONAL_PORT
+    SIGNAL_IN   Speed_Cmd   TYPE: SIGNAL_PORT
+END_PORTS
+
+BEGIN_CONSTANTS
+    Design_Mass_Flow     = 8.0       ! kg/s
+    Design_Delta_P       = 8.5E+05   ! Pa
+    NPSH_Margin_Min      = 1.15
+    Impeller_Diameter    = 0.118     ! m
+    Reference_RPM        = 2200.0
+END_CONSTANTS
+
+BEGIN_VARIABLES
+    MassFlow       = 0.0
+    DeltaP         = 0.0
+    Efficiency     = 0.42
+    CavitationFlag = 0
+END_VARIABLES
+
+BEGIN_MATH_MODEL
+    SpeedRatio = MAX(Shaft.RPM, 0.0) / Reference_RPM
+    Efficiency = LIMIT(0.18 + 0.38 * SpeedRatio, 0.10, 0.58)
+    DeltaP = Design_Delta_P * SpeedRatio * SpeedRatio
+    MassFlow = Design_Mass_Flow * SpeedRatio * LIMIT(Inlet.Pressure / 1.35E+06, 0.0, 1.2)
+
+    IF (Inlet.Temperature > 29.0) THEN
+        CavitationFlag = 1
+        MassFlow = MassFlow * 0.92
+    ELSE
+        CavitationFlag = 0
+    ENDIF
+
+    Outlet.MassFlow = MassFlow
+    Outlet.Pressure = Inlet.Pressure + DeltaP
+    Outlet.Temperature = Inlet.Temperature + 0.35 * (1.0 - Efficiency)
+    Outlet.Para_Fraction = Inlet.Para_Fraction
+END_MATH_MODEL
+
+BEGIN_OUTPUTS
+    TRACK MassFlow       LABEL="BOOST PUMP MASS FLOW" UNITS="KG/S"
+    TRACK DeltaP         LABEL="BOOST PUMP DELTA P"   UNITS="PA"
+    TRACK CavitationFlag LABEL="CAVITATION WATCH"     UNITS="FLAG"
+END_OUTPUTS
+
+END_COMPONENT_TYPE

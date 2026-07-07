@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reference-Controlled Engine Model Data Handbook</title>
+  <style>
+    :root{--ink:#172431;--muted:#52616d;--paper:#e8edf1;--panel:#fff;--line:#b8c4cd;--navy:#123a5b;--blue:#176b9c;--amber:#875b0a;--red:#9d3034;--green:#286a49;--max:1120px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.58 Arial,sans-serif}a{color:var(--blue)}code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    header,main,footer{width:min(calc(100% - 2rem),var(--max));margin:auto}header{margin-top:1.2rem;border:1px solid var(--line);border-top:8px solid var(--navy);padding:2.2rem;background:var(--panel)}h1,h2{font-family:Georgia,serif;color:var(--navy);line-height:1.18}h1{margin:.2rem 0;font-size:clamp(2rem,5vw,3.4rem)}h2{margin:.2rem 0 1rem}.eyebrow{color:var(--blue);font-size:.74rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}.lede{max-width:850px;color:var(--muted);font:1.08rem/1.55 Georgia,serif}
+    nav,section{margin:1rem 0;border:1px solid var(--line);padding:clamp(1.1rem,3vw,2.1rem);background:var(--panel)}nav{display:flex;flex-wrap:wrap;gap:.7rem}table{display:block;overflow:auto;width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:.65rem;text-align:left;vertical-align:top}th{color:var(--navy);font-size:.72rem;text-transform:uppercase}td{color:var(--muted)}.notice{border-left:5px solid var(--amber);padding:.8rem 1rem;background:#fff6df}.danger{border-color:var(--red);background:#fbeff0}.good{border-color:var(--green);background:#edf7f1}
+    .equation{margin:1rem 0;border:1px solid var(--line)}.equation h3{margin:0;padding:.65rem .8rem;color:#fff;background:var(--navy)}.math{overflow:auto;padding:1.25rem;text-align:center}.math math{font:1.35rem "Cambria Math","STIX Two Math",serif}.symbols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem 1rem;padding:1rem;background:#f4f7f9}.symbols p{margin:.15rem}.tag{display:inline-block;border:1px solid currentColor;padding:.15rem .35rem;font-size:.68rem;font-weight:700;text-transform:uppercase}.cited{color:var(--green)}.user{color:#7952a0}.calibrated{color:var(--amber)}.legacy{color:var(--red)}pre{overflow:auto;padding:1rem;background:#f4f7f9}footer{padding:1rem 0 4rem;color:var(--muted);font-size:.82rem}@media(max-width:720px){.symbols{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">SNP Engine Systems Analysis Workbench / Configuration-Controlled Model Note</p>
+  <h1>Reference-Controlled Engine Model Data Handbook</h1>
+  <p class="lede">Sources, equations, applicability, user inputs, calibration targets, diagnostics, and implementation traceability for the Pewee-inspired browser calculation.</p>
+  <p><strong>Revision:</strong> June 11, 2026 · <strong>Status:</strong> Screening study / not for design</p>
+  <nav><a href="../">Workbench</a><a href="physics.html">Fixture physics</a><a href="design.html">Design basis</a><a href="#bibliography">Bibliography</a></nav>
+</header>
+<main>
+  <section id="scope">
+    <p class="eyebrow">01 / Claim Boundary</p>
+    <h2>What This Model Is</h2>
+    <p>The default profile is a Pewee-scale benchmark closure connected to a bounded one-dimensional representative channel and an ideal frozen-hydrogen nozzle calculation. It is not a Pewee reconstruction, NESS replacement, qualified fuel model, transient solver, safety analysis, or prediction of delivered hardware performance.</p>
+    <div class="notice danger"><strong>Conservative conclusion rule.</strong> The application cannot report an unqualified nominal posture while a controlling basis is missing, outside a correlation range, or dependent on a screening closure.</div>
+  </section>
+
+  <section id="profiles">
+    <p class="eyebrow">02 / Reference Profiles</p>
+    <h2>Controlled Starting Points</h2>
+    <table><thead><tr><th>Profile</th><th>Inputs and target</th><th>Disposition</th></tr></thead><tbody>
+      <tr><td><strong>Pewee-Inspired Benchmark</strong></td><td>500 MWth; 25,000 lbf / 111.2 kN; 2550 K propellant exit; 2750 K historical peak-fuel comparison; 875 s ideal vacuum Isp; derived flow 12.96 kg/s.</td><td><span class="tag cited">Cited</span> Historical comparison envelope. Channel geometry is separately identified as representative.</td></tr>
+      <tr><td><strong>Thermal Margin Investigation</strong></td><td>535 MWth; 11.8 kg/s; 2500 K analyst-selected wall criterion; fixed 0.78 thermal coupling.</td><td><span class="tag user">User</span> Deliberate what-if. It does not claim historical Pewee behavior or fixture reruns.</td></tr>
+    </tbody></table>
+    <h3>Benchmark conversions</h3>
+    <pre>25,000 lbf × 4.448221615 N/lbf = 111,205.54 N = 111.206 kN
+m_dot = F / (Isp g0) = 111,205.54 / (875 × 9.80665) = 12.9598 kg/s</pre>
+  </section>
+
+  <section id="thermochemistry">
+    <p class="eyebrow">03 / Hydrogen Thermochemistry</p>
+    <h2>NIST Shomate Implementation</h2>
+    <div class="equation"><h3>Heat capacity and enthalpy</h3><div class="math">
+      <math display="block"><msub><mi>C</mi><mi>p</mi></msub><mo>=</mo><mi>A</mi><mo>+</mo><mi>B</mi><mi>t</mi><mo>+</mo><mi>C</mi><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><mi>D</mi><msup><mi>t</mi><mn>3</mn></msup><mo>+</mo><mfrac><mi>E</mi><msup><mi>t</mi><mn>2</mn></msup></mfrac></math>
+      <math display="block"><mi>H</mi><mo>−</mo><msub><mi>H</mi><mn>298.15</mn></msub><mo>=</mo><mi>A</mi><mi>t</mi><mo>+</mo><mfrac><mi>B</mi><mn>2</mn></mfrac><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><mfrac><mi>C</mi><mn>3</mn></mfrac><msup><mi>t</mi><mn>3</mn></msup><mo>+</mo><mfrac><mi>D</mi><mn>4</mn></mfrac><msup><mi>t</mi><mn>4</mn></msup><mo>−</mo><mfrac><mi>E</mi><mi>t</mi></mfrac><mo>+</mo><mi>F</mi><mo>−</mo><mi>H</mi></math>
+    </div><div class="symbols"><p><strong>t</strong> = T/1000</p><p><strong>A-E</strong> = NIST interval coefficients</p><p><strong>Cp</strong> = molar heat capacity, J/(mol K)</p><p><strong>H</strong> = molar enthalpy increment, kJ/mol</p></div></div>
+    <table><thead><tr><th>Temperature interval</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>H</th></tr></thead><tbody>
+      <tr><td>298-1000 K</td><td>33.066178</td><td>-11.363417</td><td>11.432816</td><td>-2.772874</td><td>-0.158558</td><td>-9.980797</td><td>0</td></tr>
+      <tr><td>1000-2500 K</td><td>18.563083</td><td>12.257357</td><td>-2.859786</td><td>0.268238</td><td>1.977990</td><td>-1.147438</td><td>0</td></tr>
+      <tr><td>2500-6000 K</td><td>43.413560</td><td>-4.293079</td><td>1.272428</td><td>-0.096876</td><td>-20.533862</td><td>-38.515158</td><td>0</td></tr>
+    </tbody></table>
+    <div class="notice"><strong>Incomplete below 298 K.</strong> The app refuses to treat cryogenic inlet states as complete. A controlled real-fluid/parahydrogen property provider is required. Viscosity, Prandtl number, and conductivity presently use a visible screening closure because the NIST source above supplies thermochemistry, not the matching high-pressure transport table.</div>
+  </section>
+
+  <section id="channel">
+    <p class="eyebrow">04 / Representative Channel</p>
+    <h2>ELM-Style Axial March</h2>
+    <p>The channel is divided into 36 axial control volumes. Deposited power is normalized from ELM's Pewee power-shape polynomial. Each station advances enthalpy, iterates wall temperature, and accumulates friction, acceleration, entrance, and exit losses.</p>
+    <div class="equation"><h3>Pewee axial power shape</h3><div class="math"><math display="block"><mi>PSF</mi><mo>(</mo><mi>ξ</mi><mo>)</mo><mo>=</mo><mi>A</mi><mo>+</mo><mi>B</mi><mi>ξ</mi><mo>+</mo><mi>C</mi><msup><mi>ξ</mi><mn>2</mn></msup><mo>+</mo><mi>D</mi><msup><mi>ξ</mi><mn>3</mn></msup><mo>+</mo><mi>E</mi><msup><mi>ξ</mi><mn>4</mn></msup></math></div><div class="symbols"><p><strong>ξ</strong> = x/L, bounded 0-1</p><p><strong>A-E</strong> = 0.315263743551, 4.01075764283, -2.81198488737, -2.13642616902, 0.653731955838</p></div></div>
+    <div class="equation"><h3>Energy and wall temperature</h3><div class="math"><math display="block"><mi>η</mi><mi>P</mi><mo>=</mo><mover><mi>m</mi><mo>˙</mo></mover><mo>[</mo><mi>h</mi><mo>(</mo><msub><mi>T</mi><mi>out</mi></msub><mo>)</mo><mo>−</mo><mi>h</mi><mo>(</mo><msub><mi>T</mi><mi>in</mi></msub><mo>)</mo><mo>]</mo></math><math display="block"><mi>q</mi><mo>=</mo><msub><mi>h</mi><mi>c</mi></msub><msub><mi>A</mi><mi>s</mi></msub><mo>(</mo><msub><mi>T</mi><mi>wall</mi></msub><mo>−</mo><msub><mi>T</mi><mi>bulk</mi></msub><mo>)</mo></math></div><div class="symbols"><p><strong>η</strong> = calibrated or user-supplied coupling efficiency</p><p><strong>hc</strong> = Nu k/Dh</p><p><strong>q</strong> = station heat rate</p><p><strong>As</strong> = wetted heat-transfer area</p></div></div>
+    <div class="equation"><h3>Modified Wolf-McCarthy and Taylor correlations</h3><div class="math"><math display="block"><mi>Nu</mi><mo>=</mo><mn>0.025</mn><msup><mi>Re</mi><mn>0.8</mn></msup><msup><mi>Pr</mi><mn>0.4</mn></msup><msup><mfenced><mfrac><msub><mi>T</mi><mi>w</mi></msub><msub><mi>T</mi><mi>b</mi></msub></mfrac></mfenced><mrow><mo>−</mo><mn>0.55</mn></mrow></msup><mfenced><mrow><mn>1</mn><mo>+</mo><mn>0.3</mn><msup><mfenced><mfrac><mi>x</mi><mi>D</mi></mfrac></mfenced><mrow><mo>−</mo><mn>0.7</mn></mrow></msup></mrow></mfenced></math><math display="block"><mi>f</mi><mo>=</mo><mfenced><mrow><mn>0.0014</mn><mo>+</mo><mfrac><mn>0.125</mn><msup><msub><mi>Re</mi><mi>w</mi></msub><mn>0.32</mn></msup></mfrac></mrow></mfenced><msqrt><mfrac><msub><mi>T</mi><mi>b</mi></msub><msub><mi>T</mi><mi>w</mi></msub></mfrac></msqrt></math></div><div class="symbols"><p><strong>Nu</strong> = Nusselt number</p><p><strong>Rew</strong> = wall-referenced Reynolds number</p><p><strong>Pr</strong> = Prandtl number</p><p><strong>f</strong> = Fanning friction factor</p></div></div>
+    <p>ELM documents the Taylor turbulent range at approximately 3,000 &lt; Re<sub>w</sub> &lt; 187,000. The app records station-level warnings outside encoded ranges. Default geometry is labeled representative NERVA-family geometry: 1.3716 m length, 2.54 mm hydraulic diameter, and 7,638 channels. It is not asserted as Pewee hardware geometry.</p>
+  </section>
+
+  <section id="nozzle">
+    <p class="eyebrow">05 / Nozzle and Performance</p>
+    <h2>Ideal Frozen-Hydrogen Performance</h2>
+    <div class="equation"><h3>Area ratio, exit state, and thrust</h3><div class="math"><math display="block"><mfrac><msub><mi>A</mi><mi>e</mi></msub><msub><mi>A</mi><mi>t</mi></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>M</mi><mi>e</mi></msub><msup><mfenced><mrow><mfrac><mn>2</mn><mrow><mi>γ</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mfenced><mrow><mn>1</mn><mo>+</mo><mfrac><mrow><mi>γ</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></mfrac><msubsup><mi>M</mi><mi>e</mi><mn>2</mn></msubsup></mrow></mfenced></mrow></mfenced><mfrac><mrow><mi>γ</mi><mo>+</mo><mn>1</mn></mrow><mrow><mn>2</mn><mfenced><mrow><mi>γ</mi><mo>−</mo><mn>1</mn></mrow></mfenced></mrow></mfrac></msup></math><math display="block"><mi>F</mi><mo>=</mo><mover><mi>m</mi><mo>˙</mo></mover><msub><mi>V</mi><mi>e</mi></msub><mo>+</mo><mo>(</mo><msub><mi>p</mi><mi>e</mi></msub><mo>−</mo><msub><mi>p</mi><mi>a</mi></msub><mo>)</mo><msub><mi>A</mi><mi>e</mi></msub></math></div><div class="symbols"><p><strong>Me</strong> = supersonic exit Mach number</p><p><strong>γ</strong> = temperature-dependent ideal-gas heat-capacity ratio</p><p><strong>Ve</strong> = ideal exit velocity multiplied by √ηn</p><p><strong>ηn</strong> = cited or user-supplied lumped nozzle performance factor</p></div></div>
+    <p>NASA CEA is identified as the higher-fidelity replacement for equilibrium/frozen chemistry and dissociation. The browser does not implement CEA.</p>
+  </section>
+
+  <section id="flags">
+    <p class="eyebrow">06 / Review Flags</p>
+    <h2>No Synthetic Stability Score</h2>
+    <p>Model-basis completeness is reported directly: 100% complete, 70% screening closures active, or 0% incomplete. The visible UI labels it accordingly. The review posture is:</p>
+    <pre>limit   when channel wall criterion margin &lt; 0 K
+nominal only when no missing or screening basis remains
+watch   otherwise</pre>
+    <p>Separate flags identify thermal criterion exceedance, incomplete pressure basis, out-of-range correlations, power-to-flow mismatch, unavailable transient model, and user overrides.</p>
+  </section>
+
+  <section id="disposition">
+    <p class="eyebrow">07 / Legacy Constant Disposition</p>
+    <h2>What Was Retained, Replaced, or Removed</h2>
+    <table><thead><tr><th>Former term</th><th>Disposition</th><th>Replacement</th></tr></thead><tbody>
+      <tr><td>cp = 14,300 J/(kg K)</td><td>Legacy only</td><td>NIST Shomate Cp and enthalpy by temperature interval</td></tr>
+      <tr><td>η = 0.82 hidden constant</td><td>Removed from default</td><td>Benchmark closure or visible user input</td></tr>
+      <tr><td>3,200 K outlet cap</td><td>Removed</td><td>Range failure against implemented property basis</td></tr>
+      <tr><td>340 K fuel offset</td><td>Removed</td><td>Calculated channel-wall temperature; no fuel temperature without conduction model</td></tr>
+      <tr><td>Drum and mission temperature penalties</td><td>Removed</td><td>No replacement until a coupled transient/kinetics basis exists</td></tr>
+      <tr><td>Whole-path pressure correlation</td><td>Removed</td><td>Channel friction, acceleration, entrance, and exit losses</td></tr>
+      <tr><td>Empirical expansion gain</td><td>Removed</td><td>Isentropic area-ratio and exit-state relations</td></tr>
+      <tr><td>0-100 stability score</td><td>Removed</td><td>Explicit review flags and basis completeness</td></tr>
+    </tbody></table>
+  </section>
+
+  <section id="traceability">
+    <p class="eyebrow">08 / Implementation Traceability</p>
+    <h2>Source to Code to Test</h2>
+    <table><thead><tr><th>Basis</th><th>Implementation</th><th>Verification</th></tr></thead><tbody>
+      <tr><td>Reference registry and profiles</td><td><code>referenceBasis.ts</code>, <code>modelProfiles.ts</code></td><td>Published values, conversions, classification, legacy isolation</td></tr>
+      <tr><td>NIST Shomate</td><td><code>hydrogenProperties.ts</code></td><td>Cp/H evaluations and 298-6000 K range diagnostics</td></tr>
+      <tr><td>ELM channel method</td><td><code>representativeChannelModel.ts</code></td><td>Power shape, energy conservation, monotonic pressure loss, correlation ranges</td></tr>
+      <tr><td>Nozzle relations</td><td><code>nozzlePerformance.ts</code></td><td>Area ratio, pressure thrust, ambient and efficiency sensitivity</td></tr>
+      <tr><td>Integrated trace</td><td><code>evaluateEngineCase.ts</code></td><td>Output/trace identity, profile posture, missing-basis behavior</td></tr>
+    </tbody></table>
+  </section>
+
+  <section id="bibliography">
+    <p class="eyebrow">09 / Controlled References</p>
+    <h2>Bibliography and Applicability</h2>
+    <ol>
+      <li><a href="https://www.nationalacademies.org/read/25977/chapter/4">National Academies, Space Nuclear Propulsion for Human Mars Exploration, Chapter 2</a>. Historical benchmark and limitations.</li>
+      <li><a href="https://ntrs.nasa.gov/api/citations/19930009917/downloads/19930009917.pdf">NASA-TM-105867, Program ELM</a>. One-dimensional channel method, correlations, and Pewee axial power coefficients.</li>
+      <li><a href="https://ntrs.nasa.gov/api/citations/19930014686/downloads/19930014686.pdf">NASA-CR-191081, NESS Version 2.0 User Guide</a>. System architecture, property envelope, and analysis context.</li>
+      <li><a href="https://ntrs.nasa.gov/api/citations/19920005899/downloads/19920005899.pdf">NASA-CR-184270, Rover Engine Tests</a>. Historical test overview.</li>
+      <li><a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C1333740&amp;Mask=1#Thermo-Gas">NIST Chemistry WebBook SRD 69: Hydrogen</a>. Shomate thermochemistry.</li>
+      <li><a href="https://ntrs.nasa.gov/api/citations/19950013764/downloads/19950013764.pdf">NASA-RP-1311, CEA</a>. Higher-fidelity chemistry and theoretical rocket performance reference.</li>
+      <li><a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rocket-thrust/">NASA Glenn, Rocket Thrust</a>. Generalized thrust equation.</li>
+      <li><a href="https://standards.nasa.gov/standard/nasa/nasa-std-7009">NASA-STD-7009</a>. Model credibility and evidence-traceability guidance.</li>
+    </ol>
+    <h3>1993 Technical Interchange collection</h3>
+    <p>NASA NTRS records 19930017763 through 19930017773 are cataloged in <code>src/physics/referenceBasis.ts</code> as system-architecture provenance. They are not numerical authority unless a separate controlled basis entry identifies an exact equation or value.</p>
+  </section>
+</main>
+<footer>Reference-controlled model-data handbook for a synthetic portfolio study. Not for design, safety, or hardware decisions.</footer>
+</body>
+</html>

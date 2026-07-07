@@ -1,0 +1,41 @@
+! ====================================================================
+! ROCETS-LIKE FLUID PROPERTY DATA: NTP HYDROGEN
+! FILE: fluids/ntp_hydrogen.fluid
+! ====================================================================
+
+DEFINE FLUID_DATA: NTP_HYDROGEN
+
+BEGIN_BOUNDS
+    P_MIN = 1.0E+03
+    P_MAX = 8.0E+06
+    T_MIN = 20.0
+    T_MAX = 3200.0
+    GAS_CONSTANT = 4124.0
+END_BOUNDS
+
+BEGIN_TABLE_GRID
+    DIMENSION_1: PRESSURE    POINTS = 2 VALUES = [1.0E+05, 4.0E+06]
+    DIMENSION_2: TEMPERATURE POINTS = 6 VALUES = [22.0, 90.0, 300.0, 900.0, 1800.0, 3000.0]
+    OUTPUT_FIELDS = [DENSITY, ENTHALPY, CP, VISCOSITY, CONDUCTIVITY]
+END_TABLE_GRID
+
+BEGIN_DATA_BLOCK
+  BLOCK_P = 1.0E+05
+  ! T(K)   DENSITY(kg/m3) ENTHALPY(J/kg) CP(J/kg-K) VISC(Pa-s) COND(W/m-K)
+    22.0   70.5           -4.45E+05     9700.0     1.30E-06   0.105
+    90.0    0.27           5.80E+05    14300.0     4.60E-06   0.072
+   300.0    0.081          3.90E+06    14320.0     8.90E-06   0.183
+   900.0    0.027          1.26E+07    14550.0     1.80E-05   0.420
+  1800.0    0.014          2.62E+07    15100.0     3.10E-05   0.780
+  3000.0    0.008          4.48E+07    15800.0     4.90E-05   1.160
+
+  BLOCK_P = 4.0E+06
+    22.0   72.1           -4.20E+05     9850.0     1.36E-06   0.111
+    90.0   10.8            5.95E+05    14350.0     4.90E-06   0.079
+   300.0    3.23           3.92E+06    14360.0     9.30E-06   0.191
+   900.0    1.08           1.27E+07    14600.0     1.86E-05   0.435
+  1800.0    0.54           2.63E+07    15180.0     3.20E-05   0.803
+  3000.0    0.32           4.50E+07    15920.0     5.04E-05   1.190
+END_DATA_BLOCK
+
+END_FLUID_DATA

@@ -1,0 +1,416 @@
+
+
+{
+  "schemaVersion": 1,
+  "caseId": "ntp-bison-fuel-performance-001",
+  "displayName": "NTP BISON fuel-channel performance scaffold",
+  "discipline": "fuel_performance",
+  "fixtureFamily": "bison_moose_like",
+  "primaryInput": "ntp.bison.i",
+  "meshContext": {
+    "activeDeckMesh": "GeneratedMesh RZ unit-cell surrogate",
+    "projectMeshCandidate": "ntp_rocket.e",
+    "recommendedMeshUpgrade": "Replace GeneratedMesh with FileMesh after Exodus block and boundary QA.",
+    "expectedPhysicalConcept": "Representative fuel-channel ligament adjacent to hot hydrogen coolant channel",
+    "expectedBlocksForFutureMesh": [
+      "fuel_compact_inner",
+      "fuel_compact_mid",
+      "fuel_compact_outer",
+      "graphite_matrix",
+      "refractory_web",
+      "coolant_channel_liner",
+      "coating_barrier",
+      "hot_face_skin",
+      "tie_tube_lattice_proxy",
+      "axial_segment_A",
+      "axial_segment_B",
+      "axial_segment_C"
+    ],
+    "expectedBoundariesForFutureMesh": [
+      "channel_hot_wall",
+      "channel_inlet_end",
+      "channel_exit_end",
+      "symmetry_axis",
+      "outer_ligament_symmetry",
+      "fuel_element_seat",
+      "upper_support_land",
+      "lower_support_land"
+    ]
+  },
+  "sourceFiles": {
+    "mcnpFixedSource": "ntp_mcnp.inp",
+    "mcnpCriticalityBurnup": "ntp_crit.inp",
+    "mooseThermalSystem": "ntp_moose.inp",
+    "rocetsSystem": "ntp_rocet.inp",
+    "candidateMesh": "ntp_rocket.e"
+  },
+  "modelPosture": {
+    "executionStatus": "executable_lite_scaffold",
+    "validationStatus": "not_validated",
+    "safetyPosture": "non_operational_synthetic_fixture",
+    "designPosture": "representative_analysis_fixture_not_design_basis",
+    "intendedUse": [
+      "parser and visualization integration",
+      "BISON/MOOSE input review scaffold",
+      "future check-input and regression-test target",
+      "fuel-performance concept communication"
+    ],
+    "notIntendedUse": [
+      "reactor design",
+      "criticality safety analysis",
+      "fuel qualification",
+      "flight hardware substantiation",
+      "validated NTP performance prediction"
+    ]
+  },
+  "missionProfile": {
+    "name": "deep_space_restart_demo",
+    "durationSeconds": 900,
+    "phases": [
+      {
+        "name": "startup_ramp",
+        "start": 0,
+        "stop": 90,
+        "mode": "startup"
+      },
+      {
+        "name": "rated_burn",
+        "start": 90,
+        "stop": 210,
+        "mode": "steady_power_hold"
+      },
+      {
+        "name": "shutdown_soak",
+        "start": 210,
+        "stop": 520,
+        "mode": "decay_heat_and_tank_heat_leak"
+      },
+      {
+        "name": "restart_ramp",
+        "start": 520,
+        "stop": 650,
+        "mode": "conservative_restart_demonstration"
+      },
+      {
+        "name": "cooldown",
+        "start": 650,
+        "stop": 900,
+        "mode": "post_burn_cooldown"
+      }
+    ]
+  },
+  "physicsCoverage": {
+    "includedInInput": [
+      "transient heat conduction",
+      "volumetric fission-power source surrogate",
+      "decay-heat source surrogate",
+      "reflector-gamma heat contribution surrogate",
+      "coolant-wall convective boundary condition",
+      "finite-strain thermomechanics scaffold",
+      "thermal-expansion eigenstrain",
+      "hydrogen inventory diffusion surrogate",
+      "burnup accumulation surrogate",
+      "damage-index surrogate",
+      "restart memory and poisoning proxy AuxVariables",
+      "Ledinegg and thermal margin proxy AuxVariables"
+    ],
+    "keptInMetadataOnly": [
+      "MCNP material-card identities",
+      "MCNP tally identities",
+      "criticality and burnup card descriptions",
+      "ROCETS component network",
+      "gimbal hydraulic bleed interpretation",
+      "support-grid pressure-drop interpretation",
+      "validation and uncertainty plan"
+    ],
+    "futureCustomBisonObjects": [
+      "NTP graphite/cermet thermal conductivity model",
+      "hydrogen corrosion or mass-loss model",
+      "coating/barrier failure model",
+      "fuel-specific creep and swelling model",
+      "MCNP-to-BISON mesh power mapper",
+      "ROCETS coolant boundary-condition importer"
+    ]
+  },
+  "crossLinks": {
+    "mcnpMaterialMap": [
+      {
+        "id": "M1",
+        "role": "hydrogen_material_placeholder",
+        "bisonUse": "coolant boundary condition metadata only"
+      },
+      {
+        "id": "M2",
+        "role": "fuel_graphite_composite_placeholder",
+        "bisonUse": "fuel material calibration target"
+      },
+      {
+        "id": "M5",
+        "role": "refractory_wall_placeholder",
+        "bisonUse": "future channel liner / hot-face material target"
+      },
+      {
+        "id": "M11",
+        "role": "virtual_channel_stability_monitor_proxy",
+        "bisonUse": "metadata only; not a material model"
+      }
+    ],
+    "mcnpTallyMap": [
+      {
+        "tally": "F4:N",
+        "role": "core axial segment A flux proxy",
+        "futureBisonUse": "low-axial power-map bin"
+      },
+      {
+        "tally": "F14:N",
+        "role": "core axial segment B flux proxy",
+        "futureBisonUse": "mid-core power-map bin"
+      },
+      {
+        "tally": "F24:N",
+        "role": "core axial segment C flux proxy",
+        "futureBisonUse": "outlet-side power-map bin"
+      },
+      {
+        "tally": "F34:N",
+        "role": "reflector/control/poison/vessel flux proxy",
+        "futureBisonUse": "reflector gamma heating metadata"
+      },
+      {
+        "tally": "F84:N",
+        "role": "Ledinegg virtual channel monitor proxy",
+        "futureBisonUse": "stability panel metadata only"
+      }
+    ],
+    "criticalityBurnupMap": {
+      "sourceInput": "ntp_crit.inp",
+      "transportMode": "synthetic_kcode_burnup_parser_fixture",
+      "burnableMaterial": "M2",
+      "burnableCells": "23-40",
+      "burnupGrid": [0, 0.01, 0.05, 0.1, 0.25, 0.5],
+      "burnupUnits": "MWd_kgHM_proxy",
+      "trackedOutputs": [
+        "keff",
+        "actinides",
+        "iodine135",
+        "xenon135",
+        "decay_heat"
+      ],
+      "bisonUse": "calibration/provenance metadata until a conservative power-map and burnup normalization pipeline is implemented"
+    },
+    "rocetsComponentMap": [
+      {
+        "component": "reactor_core",
+        "state": "power",
+        "bisonFunction": "core_power_profile"
+      },
+      {
+        "component": "fission_product_poisoning",
+        "state": "i135_inventory",
+        "bisonFunction": "iodine_inventory_profile"
+      },
+      {
+        "component": "fission_product_poisoning",
+        "state": "xe135_inventory",
+        "bisonFunction": "xenon_inventory_profile"
+      },
+      {
+        "component": "control_drum_bank",
+        "state": "angle",
+        "bisonFunction": "control_drum_angle_profile"
+      },
+      {
+        "component": "auxiliary_poison_bank",
+        "state": "insertion",
+        "bisonFunction": "aux_poison_insertion_profile"
+      },
+      {
+        "component": "main_turbopump",
+        "state": "mass_flow",
+        "bisonFunction": "mass_flow_profile"
+      },
+      {
+        "component": "turbine_tap",
+        "state": "tap_fraction",
+        "bisonFunction": "turbine_tap_fraction_profile"
+      },
+      {
+        "component": "ledinegg_instability_switch",
+        "state": "margin",
+        "bisonFunction": "ledinegg_margin_profile"
+      },
+      {
+        "component": "core_support_grid",
+        "state": "pressure_drop",
+        "bisonFunction": "grid_pressure_drop_profile"
+      },
+      {
+        "component": "dual_axis_hydraulic_actuator_ring",
+        "state": "bleed_fraction",
+        "bisonFunction": "gimbal_bleed_profile"
+      }
+    ],
+    "mooseThermalMap": [
+      {
+        "sourceFunction": "core_power_profile",
+        "bisonFunction": "core_power_profile"
+      },
+      {
+        "sourceFunction": "decay_heat_profile",
+        "bisonFunction": "decay_heat_profile"
+      },
+      {
+        "sourceFunction": "reflector_gamma_heat_profile",
+        "bisonFunction": "reflector_gamma_heat_profile"
+      },
+      {
+        "sourceFunction": "thermal_margin_profile",
+        "bisonFunction": "thermal_margin_profile"
+      },
+      {
+        "sourceFunction": "core_support_grid_pressure_drop_profile",
+        "bisonFunction": "grid_pressure_drop_profile"
+      },
+      {
+        "sourceFunction": "gimbal_hydraulic_bleed_profile",
+        "bisonFunction": "gimbal_bleed_profile"
+      }
+    ]
+  },
+  "appPanels": {
+    "summaryCards": [
+      "peak_fuel_temperature",
+      "average_fuel_temperature",
+      "average_hydrogen_inventory",
+      "average_burnup_proxy",
+      "maximum_damage_index",
+      "minimum_ledinegg_margin",
+      "mean_thermal_margin",
+      "restart_memory_index"
+    ],
+    "trendSeries": [
+      "normalized_core_power",
+      "decay_heat_fraction",
+      "iodine_inventory_proxy",
+      "xenon_inventory_proxy",
+      "rocets_mass_flow_proxy",
+      "reflector_gamma_heat_fraction",
+      "grid_pressure_drop_proxy",
+      "gimbal_bleed_proxy",
+      "coating_barrier_margin_proxy",
+      "hydrogen_attack_margin_proxy"
+    ],
+    "profileOutputs": [
+      "axial_temperature_profile",
+      "hot_wall_hydrogen_profile"
+    ],
+    "reviewBadges": [
+      {
+        "label": "Executable-lite",
+        "tone": "caution",
+        "reason": "Generated mesh and generic materials support parser/check-input work but not validation claims."
+      },
+      {
+        "label": "NTP coupled context",
+        "tone": "info",
+        "reason": "Schedules are aligned with MCNP, criticality/burnup, MOOSE, and ROCETS companion fixtures."
+      },
+      {
+        "label": "Not validated",
+        "tone": "danger",
+        "reason": "No benchmark data, material calibration package, mesh QA, or uncertainty study is attached."
+      }
+    ]
+  },
+  "verificationPlan": [
+    {
+      "id": "mesh-qa-001",
+      "title": "GeneratedMesh sanity check",
+      "acceptance": "Input parses, creates RZ mesh, and exposes left/right/top/bottom boundaries."
+    },
+    {
+      "id": "thermal-analytic-001",
+      "title": "1-D conduction manufactured comparison",
+      "acceptance": "Peak and mean temperature converge with mesh and timestep refinement."
+    },
+    {
+      "id": "energy-balance-001",
+      "title": "Integrated heat source versus convective removal",
+      "acceptance": "Energy residual trend is monotonic under controlled steady-power segments."
+    },
+    {
+      "id": "mechanics-patch-001",
+      "title": "Thermal expansion patch test",
+      "acceptance": "Thermal strain response follows prescribed expansion coefficient in unconstrained limit."
+    },
+    {
+      "id": "diffusion-mms-001",
+      "title": "Hydrogen diffusion manufactured solution",
+      "acceptance": "Hydrogen inventory field converges at expected spatial order."
+    },
+    {
+      "id": "restart-regression-001",
+      "title": "0-900 s restart transient regression",
+      "acceptance": "CSV postprocessor values remain within stored tolerances for parser demo."
+    }
+  ],
+  "validationRoadmap": [
+    {
+      "step": 1,
+      "title": "Pin BISON/MOOSE version",
+      "deliverable": "Container or modulefile recording exact executable, compiler, PETSc/libMesh, and input syntax version."
+    },
+    {
+      "step": 2,
+      "title": "Replace generated mesh",
+      "deliverable": "QA-reviewed Exodus fuel-channel unit-cell mesh with documented blocks, boundaries, units, and element quality."
+    },
+    {
+      "step": 3,
+      "title": "Build MCNP-to-BISON power mapping",
+      "deliverable": "Conservative fission/gamma/depletion heat-source tables with integrated-power checks."
+    },
+    {
+      "step": 4,
+      "title": "Calibrate fuel and coating materials",
+      "deliverable": "Temperature, burnup, hydrogen-exposure, and damage-dependent material-property database."
+    },
+    {
+      "step": 5,
+      "title": "Select benchmark data",
+      "deliverable": "Historical NTP fuel-element or separate-effects data package with measured temperatures, mass loss, strain, damage, or post-test inspection metrics."
+    },
+    {
+      "step": 6,
+      "title": "Perform validation comparisons",
+      "deliverable": "Prediction-versus-measurement plots, acceptance criteria, uncertainty bands, and model-form limitations."
+    }
+  ],
+  "uncertaintyInputs": [
+    "fuel thermal conductivity",
+    "fuel heat capacity",
+    "coolant heat-transfer coefficient",
+    "coolant bulk temperature",
+    "power normalization",
+    "axial and radial peaking",
+    "reflector gamma heating contribution",
+    "hydrogen diffusivity",
+    "coating/barrier conductivity",
+    "thermal expansion coefficient",
+    "creep and swelling coefficients",
+    "mesh density",
+    "time-step control"
+  ],
+  "executionNotes": {
+    "preferredCheckCommand": "bison-opt --check-input -i ntp.bison.i",
+    "preferredRunCommand": "bison-opt -i ntp.bison.i",
+    "expectedFirstFailureMode": "Object or parameter naming mismatch against the installed BISON/MOOSE version; resolve against the pinned syntax manual before changing physics.",
+    "recommendedFirstPatchAfterCheckInput": "If the mechanics action fails on the installed version, temporarily remove the TensorMechanics block and stress materials, then restore mechanics using the version-specific SolidMechanics/TensorMechanics syntax."
+  },
+  "notes": [
+    "The input deck deliberately keeps MCNP/ROCETS mapping data out of BISON top-level syntax.",
+    "The BISON file uses a generated RZ ligament mesh so parser and check-input work can start before ntp_rocket.e is QA-reviewed.",
+    "Ledinegg, gimbal bleed, control drum, iodine/xenon, and criticality fields are represented as imported state variables for visualization and review; they are not validated fuel material physics.",
+    "A validated model requires a bounded validation claim, benchmark data, calibrated materials, mesh QA, code-version pinning, and uncertainty analysis."
+  ]
+}

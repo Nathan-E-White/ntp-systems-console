@@ -1,0 +1,66 @@
+! ====================================================================
+! ROCETS-LIKE COMPONENT MODULE: ORTHO/PARA LH2 FEED LINE
+! FILE: components/ortho_para_feed_line.cmp
+! ====================================================================
+
+DEFINE COMPONENT TYPE: ORTHO_PARA_FEED_LINE
+
+BEGIN_PORTS
+    INLET_PORT  Inlet      TYPE: FLUID_PORT
+    OUTLET_PORT Outlet     TYPE: FLUID_PORT
+    THERMAL_IN  Wall_Heat  TYPE: HEAT_PORT
+END_PORTS
+
+BEGIN_CONSTANTS
+    Length             = 2.10
+    Diameter           = 0.060
+    Roughness          = 8.0E-06
+    Has_Catalyst       = 0
+    Conversion_Heat    = 7.02E+05     ! J/kg proxy
+END_CONSTANTS
+
+BEGIN_VARIABLES
+    Current_Para_Mass  = 0.0
+    Total_Line_Mass    = 1.0
+    Para_Equilibrium   = 0.998
+    Pressure_Drop      = 0.0
+END_VARIABLES
+
+BEGIN_MATH_MODEL
+    P_in    = Inlet.Pressure
+    T_in    = Inlet.Temperature
+    Mdot    = MAX(Inlet.MassFlow, 1.0E-09)
+    Para_in = Inlet.Para_Fraction
+
+    CALL PROP_3D_LOOKUP("hydrogen_spin.fluid", Para_in, P_in, T_in, Density, Enthalpy, Cp, Viscosity)
+
+    Para_Equilibrium = FUNCTION_OF_TEMP_EQUIL(T_in)
+
+    IF (Has_Catalyst == 1) THEN
+        K_rate = 0.80
+    ELSE
+        K_rate = 0.004
+    ENDIF
+
+    Para_Generated_Rate = K_rate * (Para_Equilibrium - Para_in) * Total_Line_Mass
+    DERIV(Current_Para_Mass) = (Mdot * Para_in) - (Mdot * Outlet.Para_Fraction) + Para_Generated_Rate
+
+    Q_conversion = Para_Generated_Rate * Conversion_Heat
+    Q_wall = Wall_Heat.Q
+    T_out = T_in + (Q_conversion + Q_wall) / (Mdot * Cp)
+
+    Pressure_Drop = DARCY_WEISBACH(Length, Diameter, Roughness, Density, Viscosity, Mdot)
+
+    Outlet.MassFlow = Inlet.MassFlow
+    Outlet.Pressure = P_in - Pressure_Drop
+    Outlet.Temperature = T_out
+    Outlet.Para_Fraction = LIMIT(Current_Para_Mass / Total_Line_Mass, 0.0, 1.0)
+END_MATH_MODEL
+
+BEGIN_OUTPUTS
+    TRACK Outlet.Para_Fraction LABEL="PARA HYDROGEN FRACTION" UNITS="MASS_FR"
+    TRACK Pressure_Drop        LABEL="FEED LINE PRESSURE DROP" UNITS="PA"
+    TRACK Q_conversion         LABEL="SPIN CONVERSION HEAT"    UNITS="W"
+END_OUTPUTS
+
+END_COMPONENT_TYPE

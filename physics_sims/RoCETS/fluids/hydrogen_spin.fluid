@@ -1,0 +1,62 @@
+! ====================================================================
+! ROCETS-LIKE MULTI-SPECIES FLUID DATA: ORTHO/PARA HYDROGEN
+! FILE: fluids/hydrogen_spin.fluid
+! ====================================================================
+
+DEFINE FLUID_DATA: HYDROGEN_SPIN_ISOMERS
+
+BEGIN_BOUNDS
+    P_MIN = 1.0E+04
+    P_MAX = 8.0E+06
+    T_MIN = 20.0
+    T_MAX = 600.0
+END_BOUNDS
+
+BEGIN_TABLE_GRID
+    DIMENSION_1: PARA_FRACTION POINTS = 3 VALUES = [0.25, 0.95, 0.998]
+    DIMENSION_2: PRESSURE      POINTS = 2 VALUES = [1.0E+05, 4.0E+06]
+    DIMENSION_3: TEMPERATURE   POINTS = 3 VALUES = [22.0, 90.0, 300.0]
+    OUTPUT_FIELDS = [DENSITY, ENTHALPY, CP, VISCOSITY]
+END_TABLE_GRID
+
+BEGIN_DATA_BLOCK
+  BLOCK_PARA = 0.25
+    BLOCK_P = 1.0E+05
+      22.0  70.4  -3.72E+05  9100.0  1.30E-06
+      90.0   0.27  6.42E+05  13200.0 4.60E-06
+     300.0   0.081 3.96E+06  14050.0 8.90E-06
+    BLOCK_P = 4.0E+06
+      22.0  72.0  -3.50E+05  9250.0  1.36E-06
+      90.0  10.8   6.55E+05  13280.0 4.90E-06
+     300.0   3.23  3.98E+06  14120.0 9.30E-06
+
+  BLOCK_PARA = 0.95
+    BLOCK_P = 1.0E+05
+      22.0  70.5  -4.43E+05  9700.0  1.30E-06
+      90.0   0.27  5.86E+05  14300.0 4.60E-06
+     300.0   0.081 3.91E+06  14320.0 8.90E-06
+    BLOCK_P = 4.0E+06
+      22.0  72.1  -4.22E+05  9850.0  1.36E-06
+      90.0  10.8   5.96E+05  14360.0 4.90E-06
+     300.0   3.23  3.92E+06  14370.0 9.30E-06
+
+  BLOCK_PARA = 0.998
+    BLOCK_P = 1.0E+05
+      22.0  70.5  -4.45E+05  9720.0  1.30E-06
+      90.0   0.27  5.84E+05  14320.0 4.60E-06
+     300.0   0.081 3.90E+06  14330.0 8.90E-06
+    BLOCK_P = 4.0E+06
+      22.0  72.1  -4.21E+05  9850.0  1.36E-06
+      90.0  10.8   5.95E+05  14350.0 4.90E-06
+     300.0   3.23  3.92E+06  14360.0 9.30E-06
+END_DATA_BLOCK
+
+BEGIN_EQUILIBRIUM_CURVE
+  ! T(K) para_equilibrium_fraction
+   20.0  0.999
+   90.0  0.920
+  300.0  0.250
+  600.0  0.250
+END_EQUILIBRIUM_CURVE
+
+END_FLUID_DATA

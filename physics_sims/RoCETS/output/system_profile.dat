@@ -1,0 +1,10 @@
+time_s,mission_phase,engine_power_W,main_mdot_kg_s,thrust_proxy_N,chamber_pressure_Pa,xenon_inventory,controller_valve_command,system_status
+0.0,startup_ramp,0.000E+00,0.000,0.000E+00,2.000E+05,0.000,1.00,initial
+25.0,startup_ramp,6.000E+07,4.600,3.180E+04,2.440E+06,0.020,1.00,startup
+90.0,rated_burn,3.500E+08,8.000,2.120E+05,5.000E+06,0.120,0.94,rated
+210.0,shutdown_soak,3.500E+08,8.000,2.120E+05,5.000E+06,0.450,0.94,shutdown_command
+320.0,shutdown_soak,2.500E+07,1.500,6.000E+03,6.500E+05,0.740,0.55,soak
+520.0,restart_ramp,1.500E+07,0.000,0.000E+00,2.000E+05,0.880,1.00,restart_armed
+560.0,restart_ramp,1.220E+08,5.720,3.850E+04,2.720E+06,0.690,0.82,stability_watch
+650.0,cooldown,2.500E+08,6.450,1.960E+05,4.200E+06,0.580,0.82,restart_peak
+900.0,cooldown,5.000E+07,0.000,0.000E+00,2.150E+05,0.350,0.00,cooldown_complete

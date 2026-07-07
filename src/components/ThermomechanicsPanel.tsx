@@ -141,9 +141,8 @@ export function ThermomechanicsPanel({summary = DEFAULT_THERMOMECHANICS_SUMMARY}
             </div>
 
             <p className="muted-copy">
-                {summary.sourceLabel}: illustrative MOOSE-like thermal-mechanical response for UI and parser
-                development.
-                This is synthetic public fixture data, not a validated finite-element calculation.
+                {summary.sourceLabel}: synthetic MOOSE-like FE fixture for UI/parser.
+                Not a validated finite-element calculation.
             </p>
 
             <div className="analysis-source-grid">

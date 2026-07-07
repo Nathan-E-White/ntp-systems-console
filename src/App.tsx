@@ -1,71 +1,90 @@
-import {DesignReviewPanel} from './components/DesignReviewPanel';
-import {EngineeringReviewChecklist} from './components/EngineeringReviewChecklist';
-import {EngineScene} from './components/EngineScene';
-import {FocusedPanel} from './components/FocusedPanel';
-import {ImportedAnalysisPanel} from './components/ImportedAnalysisPanel';
-import {KpiCards} from './components/KpiCards';
-import {ParameterPanel} from './components/ParameterPanel';
-import {PowerProfilePanel} from './components/PowerProfilePanel';
-import {RawOutputViewer} from './components/RawOutputViewer';
-import {ReactorPhysicsPanel} from './components/ReactorPhysicsPanel';
-import {ThermomechanicsPanel} from './components/ThermomechanicsPanel';
-import {TransientPlots} from './components/TransientPlots';
-import {WorkspaceFocusBar} from './components/WorkspaceFocusBar';
+import {useMemo, useState} from 'react';
+
+import {AppLayout} from './AppLayout';
+import {type AppSectionId} from './AppSections';
+import {ActiveCaseProviders} from './components/analysis/ActiveCaseProviders';
+import {ModelEvidenceSection} from './components/sections/ModelEvidenceSection';
+import {NuclearFuelPerformanceSection} from './components/sections/NuclearFuelPerformanceSection';
+import {OperatingCaseSection} from './components/sections/OperatingCaseSection';
+import {ReviewSection} from './components/sections/ReviewSection';
+import {buildActiveCaseWorkspace} from './demo/activeCaseWorkspace';
 import {useEngineInputs, useEngineOutputs, useEngineTransient} from './state/EngineSelectors';
+import {useEngineStore} from './state/EngineStore';
+import {
+    cancelGuidedDemoSequence,
+} from './theatre/guidedDemoSequence';
+import {
+    type SceneComponentId,
+    useGuidedInvestigation,
+    useScenePresentation,
+    useTheatreDemoDirector,
+} from './components/visualization';
+import {useAnalysisLinkRegistry} from './components/analysis';
 
 export function App() {
     const inputs = useEngineInputs();
     const outputs = useEngineOutputs();
     const transient = useEngineTransient();
+    const selection = useEngineStore((state) => state.selectedPresetId);
+    const workspaceModel = useMemo(() => buildActiveCaseWorkspace({
+        selection,
+        inputs,
+        outputs,
+        transient,
+    }), [inputs, outputs, selection, transient]);
 
     return (
-        <main className="app-shell">
-            <header className="hero-panel">
-                <div>
-                    <p className="eyebrow">Reduced-order portfolio demo · public educational model</p>
-                    <h1>NTP Systems Console</h1>
-                    <p className="hero-copy">
-                        A NERVA/Rover-inspired interactive dashboard for nuclear thermal propulsion trade studies,
-                        transient reasoning, synthetic analysis import, and design-review communication.
-                    </p>
-                </div>
-                <WorkspaceFocusBar/>
-            </header>
+        <ActiveCaseProviders model={workspaceModel}>
+            <Workbench
+                inputs={inputs}
+                outputs={outputs}
+            />
+        </ActiveCaseProviders>
+    );
+}
 
-            <section className="console-grid">
-                <ParameterPanel inputs={inputs}/>
-                <FocusedPanel className="panel engine-panel" workspace="reactor">
-                    <EngineScene inputs={inputs} outputs={outputs}/>
-                </FocusedPanel>
-                <FocusedPanel className="panel kpi-panel" workspace="propulsion">
-                    <KpiCards outputs={outputs}/>
-                </FocusedPanel>
-            </section>
+function Workbench({
+    inputs,
+    outputs,
+}: Readonly<{
+    inputs: ReturnType<typeof useEngineInputs>;
+    outputs: ReturnType<typeof useEngineOutputs>;
+}>) {
+    const [activeSectionId, setActiveSectionId] = useState<AppSectionId>('operating-case');
+    const investigation = useGuidedInvestigation();
+    const links = useAnalysisLinkRegistry();
+    const director = useTheatreDemoDirector();
+    const presentation = useScenePresentation();
+    const resetEngine = useEngineStore((state) => state.resetDemo);
 
-            <section className="analysis-grid">
-                <FocusedPanel className="panel plot-panel" workspace="transients">
-                    <TransientPlots data={transient}/>
-                </FocusedPanel>
-                <FocusedPanel className="panel review-panel" workspace="review">
-                    <DesignReviewPanel inputs={inputs} outputs={outputs}/>
-                </FocusedPanel>
-            </section>
+    const openEvidence = (componentId: SceneComponentId) => {
+        investigation.selectComponent(componentId);
+        setActiveSectionId('model-evidence');
+    };
+    const resetDemo = () => {
+        cancelGuidedDemoSequence();
+        director.stop();
+        investigation.resetSelection();
+        links.activateLink(null);
+        presentation.resetPresentation();
+        resetEngine();
+        setActiveSectionId('operating-case');
+    };
 
-            <section className="analysis-grid">
-                <ReactorPhysicsPanel/>
-                <PowerProfilePanel/>
-            </section>
-
-            <section className="analysis-grid">
-                <ThermomechanicsPanel/>
-                <ImportedAnalysisPanel/>
-            </section>
-
-            <EngineeringReviewChecklist/>
-
-            <RawOutputViewer/>
-
-
-        </main>
+    return (
+        <AppLayout
+            activeSectionId={activeSectionId}
+            onResetDemo={resetDemo}
+            onSectionChange={setActiveSectionId}
+        >
+            {activeSectionId === 'operating-case' && (
+                <OperatingCaseSection inputs={inputs} onOpenModelEvidence={openEvidence} outputs={outputs}/>
+            )}
+            {activeSectionId === 'nuclear-fuel-performance' && <NuclearFuelPerformanceSection/>}
+            {activeSectionId === 'model-evidence' && (
+                <ModelEvidenceSection onReturnToOperatingCase={() => setActiveSectionId('operating-case')}/>
+            )}
+            {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>}
+        </AppLayout>
     );
 }

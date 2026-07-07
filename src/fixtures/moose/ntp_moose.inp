@@ -1,0 +1,1853 @@
+
+
+# ======================================================================
+# NTP-SYS-CONSOLE ADVANCED INPUT: MOOSE MULTIPHYSICS FIXTURE
+# ----------------------------------------------------------------------
+# File:        ntp_moose.inp
+# Case ID:     advanced-moose-ntp-003
+# Family:      ntp-sys-console-advanced
+# Discipline:  thermal structures / reactor transient surrogate /
+#              conjugate heat-transfer metadata
+# Agencies:    DOE/NASA-style review fixture for parser demonstration
+# Pairing:     ntp_rocet.inp, ntr_high_fidelity_system_model.inp
+# ----------------------------------------------------------------------
+# Purpose
+#   MOOSE-inspired, non-operational input deck for the NTP systems console.
+#   The structure intentionally tracks the more advanced ROCETS and MCNP
+#   fixtures so the app can cross-link names, panels, state histories,
+#   instrumentation points, and geometry regions across disciplines.
+#
+# Scope represented
+#   - axisymmetric r-z thrust assembly thermal surrogate
+#   - multi-channel core thermal response and Ledinegg advisory margin
+#   - control-drum and auxiliary-poison reactivity proxy variables
+#   - iodine/xenon and decay-heat state metadata for trend panels
+#   - reflector gamma heating and internal shield heat leak to tank
+#   - para/ortho hydrogen conditioning penalty metadata
+#   - nozzle/chamber/regenerative wall temperature tracking
+#   - optional thrust-vectoring hydraulic bleed penalty cross-link
+#   - thrust-frame load-path and gimbal-pivot thermal isolation metadata
+#   - core support grid plate thermal/pressure-load survivability proxy
+#   - effusion-cooled reflector liner thermal barrier proxy
+#   - pogo accumulator pressure-wave damping metadata
+#   - helium-purged turbine shaft seal and interstage purge metadata
+#   - vibration-neutronic coupling and point-kinetics stability proxy
+#   - fluid-hydraulic core grid pressure-drop equation metadata
+#   - structural-dynamic frequency map for thrust-frame/pogo isolation
+#
+# Verification status
+#   This is not a validated MOOSE input, not a safety analysis, not a
+#   design calculation, and not an executable reactor model.  It is a
+#   parser and visualization fixture with deliberately bounded surrogate
+#   physics.
+# ======================================================================
+
+[Problem]
+  type = FEProblem
+  coord_type = RZ
+[]
+
+[Mesh]
+  type = GeneratedMesh
+  dim = 2
+  nx = 72
+  ny = 160
+  xmin = 0.00
+  xmax = 0.92
+  ymin = -1.35
+  ymax = 5.40
+  elem_type = QUAD4
+[]
+
+[GlobalParams]
+  family = LAGRANGE
+  order = FIRST
+  displacements = ''
+[]
+
+# ----------------------------------------------------------------------
+# Primary thermal variables
+# ----------------------------------------------------------------------
+[Variables]
+  [fuel_temperature]
+    initial_condition = 850.0
+  []
+
+  [moderator_temperature]
+    initial_condition = 700.0
+  []
+
+  [reflector_temperature]
+    initial_condition = 690.0
+  []
+
+  [shield_temperature]
+    initial_condition = 255.0
+  []
+
+  [tank_wall_temperature]
+    initial_condition = 22.5
+  []
+
+  [coolant_temperature]
+    initial_condition = 82.0
+  []
+
+  [regen_wall_temperature]
+    initial_condition = 295.0
+  []
+
+  [chamber_wall_temperature]
+    initial_condition = 315.0
+  []
+
+  [nozzle_wall_temperature]
+    initial_condition = 310.0
+  []
+
+  [gimbal_ring_temperature]
+    initial_condition = 315.0
+  []
+
+  [thrust_frame_temperature]
+    initial_condition = 295.0
+  []
+
+  [core_support_grid_temperature]
+    initial_condition = 1200.0
+  []
+
+  [reflector_liner_temperature]
+    initial_condition = 900.0
+  []
+
+  [pogo_accumulator_temperature]
+    initial_condition = 115.0
+  []
+
+  [shaft_seal_temperature]
+    initial_condition = 310.0
+  []
+[]
+
+# ----------------------------------------------------------------------
+# Parser-friendly state variables and imported system proxies
+# ----------------------------------------------------------------------
+[AuxVariables]
+  [normalized_core_power]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [decay_heat_fraction]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [iodine_inventory_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [xenon_inventory_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [control_drum_angle_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [aux_poison_insertion_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [axial_power_shape]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [radial_peaking_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [rocets_mass_flow_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [turbine_tap_fraction_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [ledinegg_margin_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [ledinegg_status_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [reflector_gamma_heat_fraction]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [tank_shield_heat_leak_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [para_fraction_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.998
+  []
+
+  [ortho_para_enthalpy_penalty_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [gimbal_hydraulic_bleed_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [thermal_margin_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [thrust_load_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [thrust_frame_compression_margin_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [core_support_grid_pressure_drop_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [core_support_grid_creep_margin_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [reflector_liner_effusion_fraction_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [reflector_liner_barrier_margin_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [pogo_accumulator_damping_ratio_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [feedline_pressure_wave_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [helium_purge_flow_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [shaft_seal_leakage_margin_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [grid_flow_area_fraction_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.42
+  []
+
+  [grid_form_loss_coefficient_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [grid_exit_density_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [grid_exit_velocity_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [grid_coupled_pressure_drop_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [point_kinetics_matrix_stability_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 1.0
+  []
+
+  [core_density_oscillation_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [fuel_alignment_shift_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [thrust_frame_resonance_gain_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [pogo_suppressor_attenuation_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [net_coupled_gain_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+
+  [fluid_phase_angle_proxy]
+    family = MONOMIAL
+    order = CONSTANT
+    initial_condition = 0.0
+  []
+[]
+
+# ----------------------------------------------------------------------
+# System profiles aligned to the advanced ROCETS mission timeline
+# ----------------------------------------------------------------------
+[Functions]
+  [core_power_profile]
+    type = PiecewiseLinear
+    x = '0.0 12.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0 0.08 0.55 1.00 1.00 0.08 0.02 0.62 0.82 0.05'
+  []
+
+  [decay_heat_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 210.0 225.0 300.0 520.0 650.0 900.0'
+    y = '0.0 0.012 0.015 0.070 0.034 0.018 0.022 0.010'
+  []
+
+  [iodine_inventory_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 210.0 300.0 520.0 650.0 900.0'
+    y = '0.0 0.35 0.82 0.96 0.72 0.86 0.40'
+  []
+
+  [xenon_inventory_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 210.0 300.0 520.0 650.0 900.0'
+    y = '0.0 0.12 0.35 0.78 1.00 0.86 0.55'
+  []
+
+  [control_drum_angle_profile]
+    type = PiecewiseLinear
+    x = '0.0 12.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0 18.0 64.0 92.0 92.0 8.0 0.0 58.0 80.0 0.0'
+  []
+
+  [aux_poison_insertion_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 900.0'
+    y = '1.00 0.30 0.05 0.05 0.85 0.90 0.25 1.00'
+  []
+
+  [mass_flow_profile]
+    type = PiecewiseLinear
+    x = '0.0 12.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0 1.2 5.6 8.0 8.0 0.4 0.2 5.2 6.9 0.1'
+  []
+
+  [turbine_tap_fraction_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.00 0.06 0.085 0.085 0.02 0.02 0.075 0.080 0.00'
+  []
+
+  [axial_power_shape_function]
+    type = ParsedFunction
+    expression = '0.58 + 0.70 * exp(-pow((y - 1.20) / 1.30, 2))'
+  []
+
+  [radial_peaking_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 520.0 650.0 900.0'
+    y = '1.00 1.08 1.12 1.12 1.06 1.10 1.00'
+  []
+
+  [ledinegg_margin_profile]
+    type = PiecewiseLinear
+    x = '0.0 12.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '1.00 0.92 0.78 0.74 0.76 0.95 0.98 0.81 0.79 1.00'
+  []
+
+  [ledinegg_status_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0 0.0 1.0 1.0 0.0 0.0 0.0 1.0 0.0'
+  []
+
+  [reflector_gamma_heat_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 650.0 900.0'
+    y = '0.000 0.006 0.015 0.015 0.004 0.002 0.010 0.001'
+  []
+
+  [tank_shield_heat_leak_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 210.0 300.0 520.0 650.0 900.0'
+    y = '0.00 0.18 0.30 0.20 0.14 0.22 0.08'
+  []
+
+  [para_fraction_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 210.0 520.0 650.0 900.0'
+    y = '0.998 0.920 0.880 0.900 0.870 0.940'
+  []
+
+  [ortho_para_enthalpy_penalty_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 520.0 650.0 900.0'
+    y = '0.0 0.05 0.11 0.12 0.06 0.09 0.02'
+  []
+
+  [regen_wall_sink_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 650.0 900.0'
+    y = '0.0 0.22 0.48 0.50 0.18 0.06 0.39 0.02'
+  []
+
+  [nozzle_radiation_sink_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 210.0 225.0 520.0 650.0 900.0'
+    y = '0.00 0.34 0.36 0.24 0.16 0.32 0.08'
+  []
+
+  [gimbal_hydraulic_bleed_profile]
+    type = PiecewiseLinear
+    x = '0.0 90.0 130.0 150.0 210.0 520.0 560.0 590.0 650.0 900.0'
+    y = '0.00 0.00 0.018 0.006 0.00 0.00 0.014 0.004 0.00 0.00'
+  []
+
+  [thermal_margin_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 650.0 900.0'
+    y = '1.00 0.88 0.76 0.74 0.91 0.93 0.80 0.98'
+  []
+
+  [thrust_load_profile]
+    type = PiecewiseLinear
+    x = '0.0 12.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0 1.4e5 9.5e5 1.725e6 1.725e6 1.0e5 5.0e4 1.05e6 1.42e6 2.0e4'
+  []
+
+  [thrust_frame_compression_margin_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '1.00 0.88 0.72 0.70 0.93 0.96 0.80 0.76 0.99'
+  []
+
+  [core_support_grid_pressure_drop_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.00 2.10e6 7.00e6 7.00e6 0.55e6 0.20e6 5.40e6 6.40e6 0.10e6'
+  []
+
+  [core_support_grid_creep_margin_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '1.00 0.86 0.63 0.60 0.88 0.93 0.72 0.66 0.98'
+  []
+
+  [reflector_liner_effusion_fraction_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.000 0.010 0.026 0.026 0.006 0.004 0.020 0.023 0.000'
+  []
+
+  [reflector_liner_barrier_margin_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '1.00 0.90 0.74 0.72 0.90 0.94 0.80 0.77 0.98'
+  []
+
+  [pogo_accumulator_damping_ratio_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 120.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.00 0.10 0.22 0.28 0.24 0.08 0.05 0.18 0.22 0.00'
+  []
+
+  [feedline_pressure_wave_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 120.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.00 0.12 0.34 0.22 0.26 0.08 0.06 0.24 0.30 0.02'
+  []
+
+  [helium_purge_flow_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.000 0.006 0.014 0.014 0.010 0.006 0.012 0.013 0.002'
+  []
+
+  [shaft_seal_leakage_margin_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '1.00 0.92 0.78 0.76 0.86 0.94 0.80 0.79 0.98'
+  []
+
+  [grid_flow_area_fraction_profile]
+    type = PiecewiseLinear
+    x = '0.0 900.0'
+    y = '0.42 0.42'
+  []
+
+  [grid_form_loss_coefficient_profile]
+    type = PiecewiseLinear
+    x = '0.0 900.0'
+    y = '2.087 2.087'
+  []
+
+  [grid_exit_density_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.00 0.42 0.94 0.92 0.18 0.08 0.76 0.86 0.04'
+  []
+
+  [grid_exit_velocity_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0 1420.0 2660.0 2700.0 420.0 220.0 2380.0 2580.0 90.0'
+  []
+
+  [grid_coupled_pressure_drop_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.00 0.89e6 6.97e6 7.00e6 0.33e6 0.04e6 4.49e6 5.83e6 0.02e6'
+  []
+
+  [point_kinetics_matrix_stability_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 120.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '1.00 0.98 0.95 0.96 0.95 0.99 0.99 0.97 0.96 1.00'
+  []
+
+  [core_density_oscillation_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 120.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.000 0.008 0.020 0.012 0.014 0.005 0.004 0.013 0.016 0.001'
+  []
+
+  [fuel_alignment_shift_profile]
+    type = PiecewiseLinear
+    x = '0.0 45.0 90.0 120.0 210.0 225.0 520.0 545.0 650.0 900.0'
+    y = '0.0000 0.0002 0.0008 0.0005 0.0007 0.0002 0.0001 0.0006 0.0007 0.0000'
+  []
+
+  [thrust_frame_resonance_gain_profile]
+    type = PiecewiseLinear
+    x = '1.0 10.0 20.0 24.5 35.0 50.0'
+    y = '0.1 1.8 12.4 28.5 3.1 0.2'
+  []
+
+  [pogo_suppressor_attenuation_profile]
+    type = PiecewiseLinear
+    x = '1.0 10.0 20.0 24.5 35.0 50.0'
+    y = '-0.05 -4.10 -28.50 -42.10 -18.20 -12.40'
+  []
+
+  [net_coupled_gain_profile]
+    type = PiecewiseLinear
+    x = '1.0 10.0 20.0 24.5 35.0 50.0'
+    y = '0.05 -2.30 -16.10 -13.60 -15.10 -12.20'
+  []
+
+  [fluid_phase_angle_profile]
+    type = PiecewiseLinear
+    x = '1.0 10.0 20.0 24.5 35.0 50.0'
+    y = '-0.4 -12.5 -68.4 -90.0 -142.1 -174.5'
+  []
+[]
+
+[AuxKernels]
+  [set_normalized_core_power]
+    type = FunctionAux
+    variable = normalized_core_power
+    function = core_power_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_decay_heat_fraction]
+    type = FunctionAux
+    variable = decay_heat_fraction
+    function = decay_heat_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_iodine_inventory_proxy]
+    type = FunctionAux
+    variable = iodine_inventory_proxy
+    function = iodine_inventory_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_xenon_inventory_proxy]
+    type = FunctionAux
+    variable = xenon_inventory_proxy
+    function = xenon_inventory_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_control_drum_angle_proxy]
+    type = FunctionAux
+    variable = control_drum_angle_proxy
+    function = control_drum_angle_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_aux_poison_insertion_proxy]
+    type = FunctionAux
+    variable = aux_poison_insertion_proxy
+    function = aux_poison_insertion_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_axial_power_shape]
+    type = FunctionAux
+    variable = axial_power_shape
+    function = axial_power_shape_function
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_radial_peaking_proxy]
+    type = FunctionAux
+    variable = radial_peaking_proxy
+    function = radial_peaking_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_rocets_mass_flow_proxy]
+    type = FunctionAux
+    variable = rocets_mass_flow_proxy
+    function = mass_flow_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_turbine_tap_fraction_proxy]
+    type = FunctionAux
+    variable = turbine_tap_fraction_proxy
+    function = turbine_tap_fraction_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_ledinegg_margin_proxy]
+    type = FunctionAux
+    variable = ledinegg_margin_proxy
+    function = ledinegg_margin_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_ledinegg_status_proxy]
+    type = FunctionAux
+    variable = ledinegg_status_proxy
+    function = ledinegg_status_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_reflector_gamma_heat_fraction]
+    type = FunctionAux
+    variable = reflector_gamma_heat_fraction
+    function = reflector_gamma_heat_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_tank_shield_heat_leak_proxy]
+    type = FunctionAux
+    variable = tank_shield_heat_leak_proxy
+    function = tank_shield_heat_leak_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_para_fraction_proxy]
+    type = FunctionAux
+    variable = para_fraction_proxy
+    function = para_fraction_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_ortho_para_enthalpy_penalty_proxy]
+    type = FunctionAux
+    variable = ortho_para_enthalpy_penalty_proxy
+    function = ortho_para_enthalpy_penalty_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_gimbal_hydraulic_bleed_proxy]
+    type = FunctionAux
+    variable = gimbal_hydraulic_bleed_proxy
+    function = gimbal_hydraulic_bleed_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_thermal_margin_proxy]
+    type = FunctionAux
+    variable = thermal_margin_proxy
+    function = thermal_margin_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_thrust_load_proxy]
+    type = FunctionAux
+    variable = thrust_load_proxy
+    function = thrust_load_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_thrust_frame_compression_margin_proxy]
+    type = FunctionAux
+    variable = thrust_frame_compression_margin_proxy
+    function = thrust_frame_compression_margin_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_core_support_grid_pressure_drop_proxy]
+    type = FunctionAux
+    variable = core_support_grid_pressure_drop_proxy
+    function = core_support_grid_pressure_drop_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_core_support_grid_creep_margin_proxy]
+    type = FunctionAux
+    variable = core_support_grid_creep_margin_proxy
+    function = core_support_grid_creep_margin_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_reflector_liner_effusion_fraction_proxy]
+    type = FunctionAux
+    variable = reflector_liner_effusion_fraction_proxy
+    function = reflector_liner_effusion_fraction_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_reflector_liner_barrier_margin_proxy]
+    type = FunctionAux
+    variable = reflector_liner_barrier_margin_proxy
+    function = reflector_liner_barrier_margin_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_pogo_accumulator_damping_ratio_proxy]
+    type = FunctionAux
+    variable = pogo_accumulator_damping_ratio_proxy
+    function = pogo_accumulator_damping_ratio_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_feedline_pressure_wave_proxy]
+    type = FunctionAux
+    variable = feedline_pressure_wave_proxy
+    function = feedline_pressure_wave_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_helium_purge_flow_proxy]
+    type = FunctionAux
+    variable = helium_purge_flow_proxy
+    function = helium_purge_flow_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_shaft_seal_leakage_margin_proxy]
+    type = FunctionAux
+    variable = shaft_seal_leakage_margin_proxy
+    function = shaft_seal_leakage_margin_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_grid_flow_area_fraction_proxy]
+    type = FunctionAux
+    variable = grid_flow_area_fraction_proxy
+    function = grid_flow_area_fraction_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_grid_form_loss_coefficient_proxy]
+    type = FunctionAux
+    variable = grid_form_loss_coefficient_proxy
+    function = grid_form_loss_coefficient_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_grid_exit_density_proxy]
+    type = FunctionAux
+    variable = grid_exit_density_proxy
+    function = grid_exit_density_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_grid_exit_velocity_proxy]
+    type = FunctionAux
+    variable = grid_exit_velocity_proxy
+    function = grid_exit_velocity_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_grid_coupled_pressure_drop_proxy]
+    type = FunctionAux
+    variable = grid_coupled_pressure_drop_proxy
+    function = grid_coupled_pressure_drop_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_point_kinetics_matrix_stability_proxy]
+    type = FunctionAux
+    variable = point_kinetics_matrix_stability_proxy
+    function = point_kinetics_matrix_stability_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_core_density_oscillation_proxy]
+    type = FunctionAux
+    variable = core_density_oscillation_proxy
+    function = core_density_oscillation_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_fuel_alignment_shift_proxy]
+    type = FunctionAux
+    variable = fuel_alignment_shift_proxy
+    function = fuel_alignment_shift_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_thrust_frame_resonance_gain_proxy]
+    type = FunctionAux
+    variable = thrust_frame_resonance_gain_proxy
+    function = thrust_frame_resonance_gain_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_pogo_suppressor_attenuation_proxy]
+    type = FunctionAux
+    variable = pogo_suppressor_attenuation_proxy
+    function = pogo_suppressor_attenuation_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_net_coupled_gain_proxy]
+    type = FunctionAux
+    variable = net_coupled_gain_proxy
+    function = net_coupled_gain_profile
+    execute_on = 'initial timestep_begin'
+  []
+
+  [set_fluid_phase_angle_proxy]
+    type = FunctionAux
+    variable = fluid_phase_angle_proxy
+    function = fluid_phase_angle_profile
+    execute_on = 'initial timestep_begin'
+  []
+[]
+
+# ----------------------------------------------------------------------
+# Surrogate thermal equations.  These are intentionally lightweight and
+# parser-oriented, but they preserve the component vocabulary used by the
+# companion MCNP and ROCETS fixtures.
+# ----------------------------------------------------------------------
+[Kernels]
+  [fuel_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = fuel_temperature
+  []
+
+  [fuel_radial_axial_conduction]
+    type = HeatConduction
+    variable = fuel_temperature
+  []
+
+  [fuel_prompt_power_source]
+    type = BodyForce
+    variable = fuel_temperature
+    value = 1.0
+    function = core_power_profile
+  []
+
+  [fuel_decay_heat_source]
+    type = BodyForce
+    variable = fuel_temperature
+    value = 0.18
+    function = decay_heat_profile
+  []
+
+  [moderator_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = moderator_temperature
+  []
+
+  [moderator_conduction]
+    type = HeatConduction
+    variable = moderator_temperature
+  []
+
+  [reflector_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = reflector_temperature
+  []
+
+  [reflector_conduction]
+    type = HeatConduction
+    variable = reflector_temperature
+  []
+
+  [reflector_gamma_heat_source]
+    type = BodyForce
+    variable = reflector_temperature
+    value = 0.45
+    function = reflector_gamma_heat_profile
+  []
+
+  [shield_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = shield_temperature
+  []
+
+  [shield_conduction]
+    type = HeatConduction
+    variable = shield_temperature
+  []
+
+  [shield_radiation_deposition_proxy]
+    type = BodyForce
+    variable = shield_temperature
+    value = 0.20
+    function = tank_shield_heat_leak_profile
+  []
+
+  [tank_wall_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = tank_wall_temperature
+  []
+
+  [tank_wall_conduction]
+    type = HeatConduction
+    variable = tank_wall_temperature
+  []
+
+  [tank_wall_shield_heat_pickup]
+    type = BodyForce
+    variable = tank_wall_temperature
+    value = 0.05
+    function = tank_shield_heat_leak_profile
+  []
+
+  [coolant_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = coolant_temperature
+  []
+
+  [coolant_axial_transport_proxy]
+    type = BodyForce
+    variable = coolant_temperature
+    value = 1.0
+    function = mass_flow_profile
+  []
+
+  [coolant_ortho_para_penalty_proxy]
+    type = BodyForce
+    variable = coolant_temperature
+    value = -0.15
+    function = ortho_para_enthalpy_penalty_profile
+  []
+
+  [regen_wall_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = regen_wall_temperature
+  []
+
+  [regen_wall_conduction]
+    type = HeatConduction
+    variable = regen_wall_temperature
+  []
+
+  [chamber_wall_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = chamber_wall_temperature
+  []
+
+  [chamber_wall_conduction]
+    type = HeatConduction
+    variable = chamber_wall_temperature
+  []
+
+  [nozzle_wall_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = nozzle_wall_temperature
+  []
+
+  [nozzle_wall_conduction]
+    type = HeatConduction
+    variable = nozzle_wall_temperature
+  []
+
+  [gimbal_ring_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = gimbal_ring_temperature
+  []
+
+  [gimbal_ring_conduction]
+    type = HeatConduction
+    variable = gimbal_ring_temperature
+  []
+
+  [gimbal_bleed_heating_proxy]
+    type = BodyForce
+    variable = gimbal_ring_temperature
+    value = 0.12
+    function = gimbal_hydraulic_bleed_profile
+  []
+
+  [thrust_frame_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = thrust_frame_temperature
+  []
+
+  [thrust_frame_conduction]
+    type = HeatConduction
+    variable = thrust_frame_temperature
+  []
+
+  [thrust_frame_load_heating_proxy]
+    type = BodyForce
+    variable = thrust_frame_temperature
+    value = 2.5e-8
+    function = thrust_load_profile
+  []
+
+  [core_support_grid_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = core_support_grid_temperature
+  []
+
+  [core_support_grid_conduction]
+    type = HeatConduction
+    variable = core_support_grid_temperature
+  []
+
+  [core_support_grid_pressure_heating_proxy]
+    type = BodyForce
+    variable = core_support_grid_temperature
+    value = 4.0e-8
+    function = core_support_grid_pressure_drop_profile
+  []
+
+  [core_support_grid_coupled_loss_feedback_proxy]
+    type = BodyForce
+    variable = coolant_temperature
+    value = -2.0e-8
+    function = grid_coupled_pressure_drop_profile
+  []
+
+  [reflector_liner_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = reflector_liner_temperature
+  []
+
+  [reflector_liner_conduction]
+    type = HeatConduction
+    variable = reflector_liner_temperature
+  []
+
+  [reflector_liner_effusion_cooling_proxy]
+    type = BodyForce
+    variable = reflector_liner_temperature
+    value = -18.0
+    function = reflector_liner_effusion_fraction_profile
+  []
+
+  [pogo_accumulator_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = pogo_accumulator_temperature
+  []
+
+  [pogo_accumulator_damping_heat_proxy]
+    type = BodyForce
+    variable = pogo_accumulator_temperature
+    value = 0.35
+    function = feedline_pressure_wave_profile
+  []
+
+  [shaft_seal_energy_storage]
+    type = HeatConductionTimeDerivative
+    variable = shaft_seal_temperature
+  []
+
+  [shaft_seal_purge_cooling_proxy]
+    type = BodyForce
+    variable = shaft_seal_temperature
+    value = -6.0
+    function = helium_purge_flow_profile
+  []
+[]
+
+[Materials]
+  [cermet_fuel_compact_surrogate]
+    type = ParsedMaterial
+    block = 'reactor_core_inner_zone reactor_core_mid_zone reactor_core_outer_zone reactor_core_axial_segment_A reactor_core_axial_segment_B reactor_core_axial_segment_C'
+    property_name = thermal_conductivity
+    expression = '22.0 + 0.0016 * fuel_temperature'
+    coupled_variables = 'fuel_temperature'
+  []
+
+  [graphite_moderator_surrogate]
+    type = ParsedMaterial
+    block = 'moderator_matrix tie_tube_lattice_proxy core_periphery_graphite'
+    property_name = thermal_conductivity
+    expression = '48.0 - 0.0075 * moderator_temperature'
+    coupled_variables = 'moderator_temperature'
+  []
+
+  [beryllium_reflector_surrogate]
+    type = ParsedMaterial
+    block = 'reactor_reflector_annulus radial_reflector_outer_ring control_drum_bank'
+    property_name = thermal_conductivity
+    expression = '175.0 - 0.045 * reflector_temperature'
+    coupled_variables = 'reflector_temperature'
+  []
+
+  [internal_shadow_shield_surrogate]
+    type = ParsedMaterial
+    block = 'internal_shield_bath internal_shield_gamma_layer forward_shadow_shield_face'
+    property_name = thermal_conductivity
+    expression = '12.5 + 0.004 * shield_temperature'
+    coupled_variables = 'shield_temperature'
+  []
+
+  [cryogenic_tank_wall_surrogate]
+    type = ParsedMaterial
+    block = 'lh2_tank_forward_dome lh2_tank_wall_proxy tank_heat_leak_path'
+    property_name = thermal_conductivity
+    expression = '9.0 + 0.010 * tank_wall_temperature'
+    coupled_variables = 'tank_wall_temperature'
+  []
+
+  [hydrogen_flowpath_surrogate]
+    type = ParsedMaterial
+    block = 'n_regen_inlet regen_cooler_cold_hydrogen n_core_inlet_plenum n_core_midplane n_core_exit_plenum chamber_hot_hydrogen nozzle_throat_hydrogen nozzle_divergent_hydrogen turbine_tap_hot_hydrogen turbine_exhaust_mixer'
+    property_name = thermal_conductivity
+    expression = '0.18 + 1.0e-4 * coolant_temperature'
+    coupled_variables = 'coolant_temperature'
+  []
+
+  [regen_channel_wall_surrogate]
+    type = ParsedMaterial
+    block = 'regen_cooler_wall nozzle_regen_jacket nozzle_regen_cooler'
+    property_name = thermal_conductivity
+    expression = '13.6 + 0.011 * regen_wall_temperature'
+    coupled_variables = 'regen_wall_temperature'
+  []
+
+  [chamber_liner_wall_surrogate]
+    type = ParsedMaterial
+    block = 'thrust_chamber_liner chamber_liner_wall chamber_pressure_shell'
+    property_name = thermal_conductivity
+    expression = '14.4 + 0.010 * chamber_wall_temperature'
+    coupled_variables = 'chamber_wall_temperature'
+  []
+
+  [nozzle_wall_surrogate]
+    type = ParsedMaterial
+    block = 'bell_nozzle_wall nozzle_wall_proxy_structure nozzle_throat_wall deep_space_nozzle_preset_wall'
+    property_name = thermal_conductivity
+    expression = '15.2 + 0.012 * nozzle_wall_temperature'
+    coupled_variables = 'nozzle_wall_temperature'
+  []
+
+  [hydraulic_gimbal_ring_surrogate]
+    type = ParsedMaterial
+    block = 'dual_axis_hydraulic_actuator_ring gimbal_bearing_carrier hot_gas_bleed_hydraulic_loop'
+    property_name = thermal_conductivity
+    expression = '21.0 + 0.006 * gimbal_ring_temperature'
+    coupled_variables = 'gimbal_ring_temperature'
+  []
+
+  [thrust_frame_composite_surrogate]
+    type = ParsedMaterial
+    block = 'thrust_structure_alignment_cone primary_load_ring aft_load_ring gimbal_pivot_mount thrust_frame_truss_members'
+    property_name = thermal_conductivity
+    expression = '7.5 + 0.003 * thrust_frame_temperature'
+    coupled_variables = 'thrust_frame_temperature'
+  []
+
+  [core_support_grid_refractory_surrogate]
+    type = ParsedMaterial
+    block = 'uncooled_core_support_grid grid_plate_webs grid_plate_perforations exit_end_fuel_element_seats'
+    property_name = thermal_conductivity
+    expression = '95.0 - 0.010 * core_support_grid_temperature'
+    coupled_variables = 'core_support_grid_temperature'
+  []
+
+  [effusion_liner_refractory_surrogate]
+    type = ParsedMaterial
+    block = 'porous_reflector_core_liner effusion_cooling_plenum liner_hydrogen_boundary_layer'
+    property_name = thermal_conductivity
+    expression = '48.0 + 0.006 * reflector_liner_temperature'
+    coupled_variables = 'reflector_liner_temperature'
+  []
+
+  [pogo_accumulator_shell_surrogate]
+    type = ParsedMaterial
+    block = 'pogo_accumulator_volume accumulator_bellows accumulator_discharge_manifold'
+    property_name = thermal_conductivity
+    expression = '11.5 + 0.006 * pogo_accumulator_temperature'
+    coupled_variables = 'pogo_accumulator_temperature'
+  []
+
+  [shaft_seal_carbon_ring_surrogate]
+    type = ParsedMaterial
+    block = 'floating_carbon_ring_seals helium_interstage_purge_block turbine_shaft_seal_cavity bearing_purge_annulus'
+    property_name = thermal_conductivity
+    expression = '18.0 + 0.004 * shaft_seal_temperature'
+    coupled_variables = 'shaft_seal_temperature'
+  []
+[]
+
+[BCs]
+  [cold_propellant_inlet]
+    type = DirichletBC
+    variable = coolant_temperature
+    boundary = n_regen_inlet
+    value = 82.0
+  []
+
+  [core_exit_heat_pickup_proxy]
+    type = ConvectiveFluxBC
+    variable = fuel_temperature
+    boundary = n_core_exit_plenum
+    T_infinity = 2550.0
+    heat_transfer_coefficient = 1.5e4
+  []
+
+  [core_channel_wall_cooling_proxy]
+    type = ConvectiveFluxBC
+    variable = fuel_temperature
+    boundary = core_cooling_channel_walls
+    T_infinity = 1250.0
+    heat_transfer_coefficient = 2.2e4
+  []
+
+  [regen_outer_wall_sink]
+    type = FunctionNeumannBC
+    variable = regen_wall_temperature
+    boundary = regen_outer_wall
+    function = regen_wall_sink_profile
+  []
+
+  [chamber_outer_wall_adiabatic]
+    type = NeumannBC
+    variable = chamber_wall_temperature
+    boundary = chamber_outer_wall
+    value = 0.0
+  []
+
+  [nozzle_outer_radiation_proxy]
+    type = FunctionNeumannBC
+    variable = nozzle_wall_temperature
+    boundary = nozzle_outer_wall
+    function = nozzle_radiation_sink_profile
+  []
+
+  [forward_shield_thermal_isolation]
+    type = NeumannBC
+    variable = shield_temperature
+    boundary = forward_shadow_shield_face
+    value = 0.0
+  []
+
+  [tank_dome_cryogenic_sink]
+    type = DirichletBC
+    variable = tank_wall_temperature
+    boundary = lh2_tank_forward_dome
+    value = 22.5
+  []
+
+  [gimbal_actuator_external_sink]
+    type = NeumannBC
+    variable = gimbal_ring_temperature
+    boundary = gimbal_bearing_outer_case
+    value = 0.0
+  []
+
+  [thrust_frame_upper_stage_thermal_isolation]
+    type = NeumannBC
+    variable = thrust_frame_temperature
+    boundary = primary_load_ring
+    value = 0.0
+  []
+
+  [thrust_frame_gimbal_pivot_heat_pickup]
+    type = ConvectiveFluxBC
+    variable = thrust_frame_temperature
+    boundary = gimbal_pivot_mount
+    T_infinity = 620.0
+    heat_transfer_coefficient = 120.0
+  []
+
+  [core_support_grid_hot_hydrogen_exposure]
+    type = ConvectiveFluxBC
+    variable = core_support_grid_temperature
+    boundary = exit_end_fuel_element_seats
+    T_infinity = 2700.0
+    heat_transfer_coefficient = 1.1e4
+  []
+
+  [reflector_liner_effusion_cold_side]
+    type = ConvectiveFluxBC
+    variable = reflector_liner_temperature
+    boundary = effusion_cooling_plenum
+    T_infinity = 160.0
+    heat_transfer_coefficient = 8.0e3
+  []
+
+  [pogo_accumulator_cryogenic_manifold_sink]
+    type = ConvectiveFluxBC
+    variable = pogo_accumulator_temperature
+    boundary = accumulator_discharge_manifold
+    T_infinity = 95.0
+    heat_transfer_coefficient = 5.0e2
+  []
+
+  [shaft_seal_helium_purge_sink]
+    type = ConvectiveFluxBC
+    variable = shaft_seal_temperature
+    boundary = helium_interstage_purge_block
+    T_infinity = 290.0
+    heat_transfer_coefficient = 9.0e2
+  []
+[]
+
+[Postprocessors]
+  [peak_fuel_temperature]
+    type = NodalExtremeValue
+    variable = fuel_temperature
+    value_type = max
+    execute_on = 'initial timestep_end'
+  []
+
+  [average_core_fuel_temperature]
+    type = ElementAverageValue
+    variable = fuel_temperature
+    block = 'reactor_core_inner_zone reactor_core_mid_zone reactor_core_outer_zone'
+    execute_on = 'initial timestep_end'
+  []
+
+  [average_core_coolant_temperature]
+    type = ElementAverageValue
+    variable = coolant_temperature
+    block = 'n_core_inlet_plenum n_core_midplane n_core_exit_plenum'
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_reflector_temperature]
+    type = NodalExtremeValue
+    variable = reflector_temperature
+    value_type = max
+    boundary = radial_reflector_outer_ring
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_shield_temperature]
+    type = NodalExtremeValue
+    variable = shield_temperature
+    value_type = max
+    boundary = forward_shadow_shield_face
+    execute_on = 'initial timestep_end'
+  []
+
+  [tank_wall_average_temperature]
+    type = ElementAverageValue
+    variable = tank_wall_temperature
+    block = 'lh2_tank_forward_dome lh2_tank_wall_proxy'
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_regen_wall_temperature]
+    type = NodalExtremeValue
+    variable = regen_wall_temperature
+    value_type = max
+    boundary = regen_outer_wall
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_chamber_wall_temperature]
+    type = NodalExtremeValue
+    variable = chamber_wall_temperature
+    value_type = max
+    boundary = chamber_outer_wall
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_nozzle_wall_temperature]
+    type = NodalExtremeValue
+    variable = nozzle_wall_temperature
+    value_type = max
+    boundary = nozzle_outer_wall
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_gimbal_ring_temperature]
+    type = NodalExtremeValue
+    variable = gimbal_ring_temperature
+    value_type = max
+    boundary = gimbal_bearing_outer_case
+    execute_on = 'initial timestep_end'
+  []
+
+  [normalized_reactor_power]
+    type = ElementAverageValue
+    variable = normalized_core_power
+    block = 'reactor_core_inner_zone reactor_core_mid_zone reactor_core_outer_zone'
+    execute_on = 'initial timestep_end'
+  []
+
+  [decay_heat_fraction_report]
+    type = ElementAverageValue
+    variable = decay_heat_fraction
+    block = 'reactor_core_inner_zone reactor_core_mid_zone reactor_core_outer_zone'
+    execute_on = 'initial timestep_end'
+  []
+
+  [iodine_inventory_report]
+    type = ElementAverageValue
+    variable = iodine_inventory_proxy
+    execute_on = 'initial timestep_end'
+  []
+
+  [xenon_inventory_report]
+    type = ElementAverageValue
+    variable = xenon_inventory_proxy
+    execute_on = 'initial timestep_end'
+  []
+
+  [control_drum_angle_report]
+    type = ElementAverageValue
+    variable = control_drum_angle_proxy
+    block = 'control_drum_bank radial_reflector_outer_ring'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_ledinegg_margin_proxy]
+    type = ElementExtremeValue
+    variable = ledinegg_margin_proxy
+    value_type = min
+    execute_on = 'initial timestep_end'
+  []
+
+  [ledinegg_status_report]
+    type = ElementAverageValue
+    variable = ledinegg_status_proxy
+    execute_on = 'initial timestep_end'
+  []
+
+  [reflector_gamma_heat_fraction_report]
+    type = ElementAverageValue
+    variable = reflector_gamma_heat_fraction
+    block = 'reactor_reflector_annulus radial_reflector_outer_ring'
+    execute_on = 'initial timestep_end'
+  []
+
+  [tank_shield_heat_leak_report]
+    type = ElementAverageValue
+    variable = tank_shield_heat_leak_proxy
+    block = 'lh2_tank_forward_dome tank_heat_leak_path'
+    execute_on = 'initial timestep_end'
+  []
+
+  [para_fraction_report]
+    type = ElementAverageValue
+    variable = para_fraction_proxy
+    block = 'regen_cooler_cold_hydrogen n_core_inlet_plenum'
+    execute_on = 'initial timestep_end'
+  []
+
+  [gimbal_hydraulic_bleed_report]
+    type = ElementAverageValue
+    variable = gimbal_hydraulic_bleed_proxy
+    block = 'dual_axis_hydraulic_actuator_ring hot_gas_bleed_hydraulic_loop'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_thermal_margin_proxy]
+    type = ElementExtremeValue
+    variable = thermal_margin_proxy
+    value_type = min
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_thrust_frame_temperature]
+    type = NodalExtremeValue
+    variable = thrust_frame_temperature
+    value_type = max
+    boundary = 'thrust_structure_alignment_cone gimbal_pivot_mount primary_load_ring'
+    execute_on = 'initial timestep_end'
+  []
+
+  [thrust_load_report]
+    type = ElementAverageValue
+    variable = thrust_load_proxy
+    block = 'thrust_structure_alignment_cone gimbal_pivot_mount primary_load_ring'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_thrust_frame_compression_margin]
+    type = ElementExtremeValue
+    variable = thrust_frame_compression_margin_proxy
+    value_type = min
+    block = 'thrust_structure_alignment_cone thrust_frame_truss_members'
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_core_support_grid_temperature]
+    type = NodalExtremeValue
+    variable = core_support_grid_temperature
+    value_type = max
+    boundary = 'uncooled_core_support_grid exit_end_fuel_element_seats'
+    execute_on = 'initial timestep_end'
+  []
+
+  [core_support_grid_pressure_drop_report]
+    type = ElementAverageValue
+    variable = core_support_grid_pressure_drop_proxy
+    block = 'uncooled_core_support_grid grid_plate_webs grid_plate_perforations'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_core_support_grid_creep_margin]
+    type = ElementExtremeValue
+    variable = core_support_grid_creep_margin_proxy
+    value_type = min
+    block = 'uncooled_core_support_grid grid_plate_webs'
+    execute_on = 'initial timestep_end'
+  []
+
+  [peak_reflector_liner_temperature]
+    type = NodalExtremeValue
+    variable = reflector_liner_temperature
+    value_type = max
+    boundary = 'porous_reflector_core_liner liner_hydrogen_boundary_layer'
+    execute_on = 'initial timestep_end'
+  []
+
+  [reflector_liner_effusion_fraction_report]
+    type = ElementAverageValue
+    variable = reflector_liner_effusion_fraction_proxy
+    block = 'porous_reflector_core_liner effusion_cooling_plenum'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_reflector_liner_barrier_margin]
+    type = ElementExtremeValue
+    variable = reflector_liner_barrier_margin_proxy
+    value_type = min
+    block = 'porous_reflector_core_liner liner_hydrogen_boundary_layer'
+    execute_on = 'initial timestep_end'
+  []
+
+  [pogo_accumulator_damping_ratio_report]
+    type = ElementAverageValue
+    variable = pogo_accumulator_damping_ratio_proxy
+    block = 'pogo_accumulator_volume accumulator_bellows accumulator_discharge_manifold'
+    execute_on = 'initial timestep_end'
+  []
+
+  [feedline_pressure_wave_report]
+    type = ElementAverageValue
+    variable = feedline_pressure_wave_proxy
+    block = 'pogo_accumulator_volume accumulator_discharge_manifold'
+    execute_on = 'initial timestep_end'
+  []
+
+  [helium_purge_flow_report]
+    type = ElementAverageValue
+    variable = helium_purge_flow_proxy
+    block = 'helium_interstage_purge_block turbine_shaft_seal_cavity bearing_purge_annulus'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_shaft_seal_leakage_margin]
+    type = ElementExtremeValue
+    variable = shaft_seal_leakage_margin_proxy
+    value_type = min
+    block = 'floating_carbon_ring_seals helium_interstage_purge_block'
+    execute_on = 'initial timestep_end'
+  []
+
+  [grid_flow_area_fraction_report]
+    type = ElementAverageValue
+    variable = grid_flow_area_fraction_proxy
+    block = 'uncooled_core_support_grid grid_plate_perforations'
+    execute_on = 'initial timestep_end'
+  []
+
+  [grid_form_loss_coefficient_report]
+    type = ElementAverageValue
+    variable = grid_form_loss_coefficient_proxy
+    block = 'uncooled_core_support_grid grid_plate_perforations'
+    execute_on = 'initial timestep_end'
+  []
+
+  [grid_exit_density_report]
+    type = ElementAverageValue
+    variable = grid_exit_density_proxy
+    block = 'n_core_exit_plenum uncooled_core_support_grid'
+    execute_on = 'initial timestep_end'
+  []
+
+  [grid_exit_velocity_report]
+    type = ElementAverageValue
+    variable = grid_exit_velocity_proxy
+    block = 'n_core_exit_plenum uncooled_core_support_grid'
+    execute_on = 'initial timestep_end'
+  []
+
+  [grid_coupled_pressure_drop_report]
+    type = ElementAverageValue
+    variable = grid_coupled_pressure_drop_proxy
+    block = 'n_core_exit_plenum uncooled_core_support_grid grid_plate_perforations'
+    execute_on = 'initial timestep_end'
+  []
+
+  [minimum_point_kinetics_matrix_stability]
+    type = ElementExtremeValue
+    variable = point_kinetics_matrix_stability_proxy
+    value_type = min
+    block = 'reactor_core_inner_zone reactor_core_mid_zone reactor_core_outer_zone'
+    execute_on = 'initial timestep_end'
+  []
+
+  [core_density_oscillation_report]
+    type = ElementAverageValue
+    variable = core_density_oscillation_proxy
+    block = 'n_core_inlet_plenum n_core_midplane n_core_exit_plenum'
+    execute_on = 'initial timestep_end'
+  []
+
+  [fuel_alignment_shift_report]
+    type = ElementAverageValue
+    variable = fuel_alignment_shift_proxy
+    block = 'reactor_core_inner_zone reactor_core_mid_zone reactor_core_outer_zone uncooled_core_support_grid'
+    execute_on = 'initial timestep_end'
+  []
+
+  [thrust_frame_resonance_gain_report]
+    type = ElementAverageValue
+    variable = thrust_frame_resonance_gain_proxy
+    block = 'thrust_structure_alignment_cone thrust_frame_truss_members primary_load_ring'
+    execute_on = 'initial timestep_end'
+  []
+
+  [pogo_suppressor_attenuation_report]
+    type = ElementAverageValue
+    variable = pogo_suppressor_attenuation_proxy
+    block = 'pogo_accumulator_volume accumulator_bellows accumulator_discharge_manifold'
+    execute_on = 'initial timestep_end'
+  []
+
+  [net_coupled_gain_report]
+    type = ElementAverageValue
+    variable = net_coupled_gain_proxy
+    block = 'pogo_accumulator_volume thrust_structure_alignment_cone reactor_core_mid_zone'
+    execute_on = 'initial timestep_end'
+  []
+
+  [fluid_phase_angle_report]
+    type = ElementAverageValue
+    variable = fluid_phase_angle_proxy
+    block = 'pogo_accumulator_volume accumulator_discharge_manifold n_core_inlet_plenum'
+    execute_on = 'initial timestep_end'
+  []
+[]
+
+[Executioner]
+  type = Transient
+  solve_type = NEWTON
+  scheme = bdf2
+  start_time = 0.0
+  end_time = 900.0
+  dt = 0.25
+  dtmin = 1.0e-6
+  dtmax = 1.0
+  nl_rel_tol = 1.0e-7
+  nl_abs_tol = 1.0e-9
+  nl_max_its = 35
+  l_tol = 1.0e-6
+  l_max_its = 150
+[]
+
+[Outputs]
+  exodus = false
+  csv = true
+  perf_graph = true
+  interval = 4
+[]
+
+# ----------------------------------------------------------------------
+# Metadata consumed by ntp-sys-console parser and review UI
+# ----------------------------------------------------------------------
+[ParserMetadata]
+  case_id = advanced-moose-ntp-003
+  paired_mcnp_case = ntr-high-fidelity-system-model
+  paired_rocets_case = baseline-ntp-rocets-002
+  fixture_family = ntp-sys-console-advanced
+  owning_domain = thermal_structures_reactor_transient_surrogate
+  review_posture = doe_nasa_conceptual_design_fixture
+  coordinate_frame = axisymmetric_rz_tank_to_nozzle
+  mission_profile = deep_space_restart_demo_900s
+  expected_blocks = 'Problem Mesh GlobalParams Variables AuxVariables Functions AuxKernels Kernels Materials BCs Postprocessors Executioner Outputs ParserMetadata CrossLinks ReviewNotes'
+  ui_panels = 'overview thermal propulsion neutronics materials controls file_view'
+  crosslink_terms = 'lh2_supply_tank internal_shield reactor_neutronics fission_product_poisoning control_drum_bank auxiliary_poison_bank reactor_core ledinegg_instability_switch reactor_reflector n_core_inlet_plenum n_core_midplane n_core_exit_plenum turbine_tap thrust_chamber bell_nozzle dual_axis_hydraulic_actuator_ring gimbal_hydraulic_bleed_proxy thrust_structure_alignment_cone primary_load_ring uncooled_core_support_grid porous_reflector_core_liner effusion_cooling_plenum pogo_accumulator_volume floating_carbon_ring_seals helium_interstage_purge_block point_kinetics_matrix_stability_proxy grid_coupled_pressure_drop_proxy thrust_frame_resonance_gain_proxy pogo_suppressor_attenuation_proxy net_coupled_gain_proxy fluid_phase_angle_proxy'
+  parser_features = 'nested_blocks assignments quoted_vectors parsed_functions function_aux postprocessors crosslinks long_wrapped_comments restart_transient_metadata equation_metadata frequency_response_vectors coupled_hydraulic_loss_map'
+  validation_status = parser_fixture_only_not_validated_for_design_or_safety
+[]
+
+[CrossLinks]
+  [mcnp_geometry]
+    reactor_core = 'MCNP cells: fuel compact, coolant channel, tie-tube lattice proxy, axial core zones'
+    reflector = 'MCNP cells: beryllium reflector annulus and control-drum region'
+    shield = 'MCNP cells: internal BATH/gamma shield and forward shadow-shield face'
+    nozzle = 'MCNP cells: chamber, throat, bell nozzle, divergent wall proxy'
+    tank = 'MCNP cells: forward LH2 tank dome and shield heat-leak path'
+    thrust_frame = 'MCNP cells: gimbal-pivot mount, thrust cone, and primary structural load ring proxies'
+    core_support_grid = 'MCNP cells: perforated refractory grid plate at core exit plane'
+    reflector_liner = 'MCNP cells: porous W/HfC liner between fuel matrix and Be reflector'
+    pogo_accumulator = 'MCNP cells: accumulator volume and discharge manifold shielding adjacency proxy'
+    shaft_seals = 'MCNP cells: turbomachinery seal cavity and helium purge block proxy'
+  []
+
+  [rocets_system]
+    reactor_power = core_power_profile
+    mass_flow = mass_flow_profile
+    turbine_tap = turbine_tap_fraction_profile
+    drums = control_drum_angle_profile
+    fission_products = 'iodine_inventory_profile xenon_inventory_profile decay_heat_profile'
+    channel_stability = 'ledinegg_margin_profile ledinegg_status_profile'
+    thrust_vectoring = gimbal_hydraulic_bleed_profile
+    thrust_structure = 'thrust_load_profile thrust_frame_compression_margin_profile'
+    support_grid = 'core_support_grid_pressure_drop_profile core_support_grid_creep_margin_profile'
+    effusion_liner = 'reflector_liner_effusion_fraction_profile reflector_liner_barrier_margin_profile'
+    pogo_suppression = 'pogo_accumulator_damping_ratio_profile feedline_pressure_wave_profile'
+    turbine_seals = 'helium_purge_flow_profile shaft_seal_leakage_margin_profile'
+  []
+
+  [coupled_stability_architecture]
+    vibration_neutronic_coupling = 'pogo accumulator attenuation reduces core density oscillation before point kinetics feedback receives it'
+    thermal_mechanical_integrity = 'core support grid and thrust frame constrain fuel alignment during full-power thrust vectoring'
+    fluid_hydraulic_node_coupling = 'grid_coupled_pressure_drop_profile is evaluated at the reactor core exit node and reported with exit density and velocity proxies'
+    structural_dynamic_frequency_mapping = 'frequency vectors map thrust-frame resonance at 24.5 Hz against pogo attenuation and net coupled gain'
+  []
+
+  [grid_pressure_drop_equation]
+    equation = 'DeltaP_grid = [(1 / sigma^2) * (1 - sigma)^2 + K_fric] * rho_exit * v_exit^2 / 2'
+    sigma = 0.42
+    grid_thickness_m = 0.085
+    hole_diameter_m = 0.0042
+    k_loss_fric = 0.18
+    effective_form_loss_coefficient = 2.087
+    source_component = COMP_REACTOR_CORE
+    dynamic_feedback_flag = ACTIVE_NODE_EVAL
+  []
+
+  [frequency_response_map]
+    frequency_hz = '1.0 10.0 20.0 24.5 35.0 50.0'
+    thrust_frame_gain_db = '0.1 1.8 12.4 28.5 3.1 0.2'
+    suppressor_attenuation_db = '-0.05 -4.10 -28.50 -42.10 -18.20 -12.40'
+    net_coupled_gain_db = '0.05 -2.30 -16.10 -13.60 -15.10 -12.20'
+    fluid_phase_angle_deg = '-0.4 -12.5 -68.4 -90.0 -142.1 -174.5'
+    hazard_state = 'completely_stable stable suppressed_zone damped_target_achieved stable stable'
+  []
+[]
+
+[ReviewNotes]
+  source_posture = synthetic_non_operational_fixture
+  neutronics_coupling = point_kinetics_metadata_only
+  fission_product_terms = iodine_xenon_parser_proxy_not_reactivity_model
+  decay_heat_terms = post_shutdown_thermal_trend_proxy
+  ledinegg_terms = advisory_channel_stability_proxy
+  reflector_gamma_heating = bounded_fractional_deposition_proxy
+  shield_tank_coupling = tank_heat_leak_visualization_proxy
+  thrust_vectoring_coupling = parasitic_hot_gas_bleed_visualization_proxy
+  hydrogen_spin_state = para_ortho_schedule_and_enthalpy_penalty_proxy
+  thrust_frame = axial_load_path_and_gimbal_pivot_thermal_isolation_proxy
+  core_support_grid = uncooled_refractory_grid_plate_pressure_and_creep_proxy
+  reflector_liner = effusion_cooled_thermal_barrier_proxy_for_beryllium_reflector
+  pogo_accumulator = feedline_pressure_wave_damping_proxy
+  turbine_shaft_seals = helium_purged_floating_carbon_ring_seal_proxy
+  vibration_neutronic_coupling = pogo_suppression_keeps_core_density_oscillation_out_of_point_kinetics_feedback
+  thermal_mechanical_integrity = support_grid_and_thrust_frame_limit_fuel_alignment_shift_under_tvc_load
+  grid_pressure_drop_model = darcy_weisbach_form_loss_expansion_with_sigma_0p42_and_kfric_0p18
+  structural_frequency_map = thrust_frame_24p5_hz_resonance_isolated_by_pogo_attenuation_notch
+  critical_frequency_phase_shift = minus_90_deg_at_24p5_hz_counter_pulse_proxy
+[]

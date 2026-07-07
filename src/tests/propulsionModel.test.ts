@@ -11,13 +11,18 @@ describe('computeEngineOutputs', () => {
     expect(outputs.outletTemperatureK).toBeGreaterThan(defaultInputs.inletTemperatureK);
     expect(outputs.specificImpulseSec).toBeGreaterThan(300);
     expect(outputs.thrustKn).toBeGreaterThan(0);
-    expect(outputs.stabilityScore).toBeGreaterThanOrEqual(0);
-    expect(outputs.stabilityScore).toBeLessThanOrEqual(100);
+    expect(outputs.basisCompletenessPercent).toBeGreaterThanOrEqual(0);
+    expect(outputs.basisCompletenessPercent).toBeLessThanOrEqual(100);
   });
 
   it('increases thrust when mass flow is increased for the same case', () => {
     const baseline = computeEngineOutputs(defaultInputs);
-    const higherFlow = computeEngineOutputs({ ...defaultInputs, massFlowKgPerSec: defaultInputs.massFlowKgPerSec + 4 });
+    const higherFlow = computeEngineOutputs({
+      ...defaultInputs,
+      thermalCouplingMode: 'fixedEfficiency',
+      thermalCouplingEfficiency: 0.9295175369895565,
+      massFlowKgPerSec: defaultInputs.massFlowKgPerSec + 4,
+    });
 
     expect(round(higherFlow.thrustKn)).toBeGreaterThan(round(baseline.thrustKn));
   });
