@@ -9,6 +9,7 @@ import {EvidenceInspector, InvestigationThread, type SceneComponentId} from '../
 import {CalculationBasisInspector} from '../CalculationBasisInspector';
 import {ModelBasisPanel} from '../ModelBasisPanel';
 import {ChannelAnalysisPanel} from '../ChannelAnalysisPanel';
+import {OperatingCaseDecisionRecordPanel} from '../ReviewCapabilityPanels';
 
 const EngineScene = lazy(async () => {
     const module = await import('../EngineScene');
@@ -45,6 +46,7 @@ export function OperatingCaseSection({
             <ModelBasisPanel inputs={inputs}/>
             <ChannelAnalysisPanel inputs={inputs}/>
             <CalculationBasisInspector inputs={inputs}/>
+            <OperatingCaseDecisionRecordPanel inputs={inputs}/>
             <EvidenceInspector onOpenModelEvidence={onOpenModelEvidence}/>
             <SectionGrid>
                 <DesignReviewPanel inputs={inputs} outputs={outputs}/>

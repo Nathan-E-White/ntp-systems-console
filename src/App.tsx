@@ -7,6 +7,7 @@ import {ModelEvidenceSection} from './components/sections/ModelEvidenceSection';
 import {NuclearFuelPerformanceSection} from './components/sections/NuclearFuelPerformanceSection';
 import {OperatingCaseSection} from './components/sections/OperatingCaseSection';
 import {ReviewSection} from './components/sections/ReviewSection';
+import {ReviewPacketSection} from './components/sections/ReviewPacketSection';
 import {buildActiveCaseWorkspace} from './demo/activeCaseWorkspace';
 import {useEngineInputs, useEngineOutputs, useEngineTransient} from './state/EngineSelectors';
 import {useEngineStore} from './state/EngineStore';
@@ -84,7 +85,8 @@ function Workbench({
             {activeSectionId === 'model-evidence' && (
                 <ModelEvidenceSection onReturnToOperatingCase={() => setActiveSectionId('operating-case')}/>
             )}
-            {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>}
+            {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>} 
+            {activeSectionId === 'review-packet' && <ReviewPacketSection/>}
         </AppLayout>
     );
 }

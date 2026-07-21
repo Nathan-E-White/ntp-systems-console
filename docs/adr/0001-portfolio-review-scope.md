@@ -10,12 +10,13 @@ The workbench already presents itself as a public portfolio demonstration using 
 
 ## Decision
 
-Treat the current product as a portfolio review workflow. The browser may calculate a Custom What-If and parse a locally supplied file, but neither action creates a durable analytical record or represents solver execution.
+Treat the current product as a portfolio review workflow. The browser may calculate a Custom What-If, parse a locally supplied file, and export an in-memory Review Packet, but none of these actions creates a durable analytical record or represents solver execution.
 
 Any move to a durable analyst workflow must begin with a new ADR covering storage, retention, provenance hashes, access control, sharing, and MongoDB's role.
 
 ## Consequences
 
 - UI language must distinguish the current Operating Case from a saved campaign.
-- Campaign Artifact and Review Packet work remains a later milestone.
+- A Review Packet may be exported as a browser-session artifact, provided it states that it is not persisted, shared, access-controlled, or stored in MongoDB.
+- Durable Campaign Artifact work remains a later milestone.
 - The existing browser-local interaction model is intentional rather than an incomplete persistence feature.

@@ -25,7 +25,7 @@ Before a demo-ready release, follow `docs/demo-release-checklist.md` and `docs/d
 
 The current production build baseline is a 2.09 MB primary JavaScript asset (561.70 kB gzip). Vite reports it as above the default 500 kB warning threshold.
 
-Until the baseline is reduced, new UI work must not increase the primary gzip asset by more than 10 kB without an explicit explanation in its pull request. Before M5 (state and narrative consolidation) completes, reduce the primary asset to 500 kB gzip or less, or record an ADR for a deliberately different budget.
+Until the baseline is reduced, new UI work must not increase the primary gzip asset by more than 10 kB without an explicit explanation in its pull request. ADR-0003 permits the portfolio workflow's primary asset to remain at or below 575 kB gzip until a dedicated performance milestone replaces that budget.
 
 ## Evidence-language gate
 

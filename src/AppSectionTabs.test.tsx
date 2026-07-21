@@ -6,7 +6,7 @@ import {appSections} from './AppSections';
 import {AppSectionTabs} from './AppSectionTabs';
 
 describe('AppSectionTabs', () => {
-    it('uses the v3 nuclear-first primary flow without a standalone stability tab', () => {
+    it('uses the nuclear-first primary flow with an explicit review-packet export tab', () => {
         const onSectionChange = vi.fn();
 
         render(<AppSectionTabs activeSectionId="operating-case" onSectionChange={onSectionChange}/>);
@@ -16,11 +16,15 @@ describe('AppSectionTabs', () => {
             'nuclear-fuel-performance',
             'model-evidence',
             'review',
+            'review-packet',
         ]);
         expect(screen.getByRole('button', {name: /Nuclear Fuel Performance/i})).toBeInTheDocument();
         expect(screen.queryByRole('button', {name: /^Stability/i})).not.toBeInTheDocument();
 
         fireEvent.click(screen.getByRole('button', {name: /Nuclear Fuel Performance/i}));
         expect(onSectionChange).toHaveBeenCalledWith('nuclear-fuel-performance');
+
+        fireEvent.click(screen.getByRole('button', {name: /Review Packet/i}));
+        expect(onSectionChange).toHaveBeenCalledWith('review-packet');
     });
 });

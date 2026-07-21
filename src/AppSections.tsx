@@ -1,4 +1,4 @@
-export type AppSectionId = 'operating-case' | 'nuclear-fuel-performance' | 'model-evidence' | 'review';
+export type AppSectionId = 'operating-case' | 'nuclear-fuel-performance' | 'model-evidence' | 'review' | 'review-packet';
 
 export interface AppSectionDefinition {
     id: AppSectionId;
@@ -31,5 +31,11 @@ export const appSections: AppSectionDefinition[] = [
         label: 'Review',
         eyebrow: 'Milestone review',
         description: 'Resolve the case into an engineering recommendation.',
+    },
+    {
+        id: 'review-packet',
+        label: 'Review Packet',
+        eyebrow: 'Portfolio export',
+        description: 'Export a browser-session review packet with its stated evidence boundary.',
     },
 ];

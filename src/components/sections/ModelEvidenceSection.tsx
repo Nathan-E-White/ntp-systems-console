@@ -27,6 +27,8 @@ import {
     useGuidedInvestigation,
 } from '../visualization';
 import {ParsedDomainStructuredView} from '../ParsedDomainStructuredView';
+import {ChannelWallEvidenceInterpretationPanel} from '../ReviewCapabilityPanels';
+import {useEngineStore} from '../../state/EngineStore';
 
 type DirectionFilter = 'all' | ParserDirection;
 type FamilyFilter = 'all' | ParserFamily;
@@ -128,6 +130,7 @@ export function ModelEvidenceSection({
     const [selectedFamily, setSelectedFamily] = useState<FamilyFilter>('all');
     const [focusedEvidenceId, setFocusedEvidenceId] = useState<string>();
     const walkthrough = useEvidenceWalkthrough();
+    const inputs = useEngineStore((state) => state.inputs);
     const investigation = useGuidedInvestigation();
     const component = investigation.model.components.find(
         (candidate) => candidate.id === investigation.state.selectedComponentId,
@@ -165,6 +168,8 @@ export function ModelEvidenceSection({
                 <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
                 <div><dt>Excludes</dt><dd>Solver execution and validation claims</dd></div>
             </div>
+
+            <ChannelWallEvidenceInterpretationPanel inputs={inputs}/>
 
             <EvidenceWalkthroughControls reducedMotion={reducedMotion}/>
 
