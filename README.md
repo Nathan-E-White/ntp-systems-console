@@ -62,6 +62,9 @@ Run the complete pre-demo gate with:
 bun run demo:check
 ```
 
+See [Quality Gates](docs/quality-gates.md) for the automated, manual, accessibility, and
+performance acceptance criteria.
+
 ## Fixture Provenance
 
 Files under `src/fixtures` and the bundled fixture strings in `src/parser/file_inputs.ts` are
@@ -74,6 +77,8 @@ See [Demo Release Checklist](docs/demo-release-checklist.md) for the final machi
 See [Reference-Controlled Engine Model Data Handbook](docs/reduced-order-model-basis.html) for the
 Pewee-inspired benchmark, NIST hydrogen thermochemistry, representative ELM-style channel model,
 standard nozzle relations, source locators, user overrides, and legacy-coefficient disposition.
+See [Project Context](CONTEXT.md) for the domain terms and evidence-claim vocabulary.
+See [Architecture Decisions](docs/adr/README.md) for the decisions that govern review scope and evidence claims.
 
 ## Explicit Claim Boundary
 
