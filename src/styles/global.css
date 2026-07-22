@@ -4721,6 +4721,32 @@ details summary {
     font-size: .85rem;
 }
 
+.decision-cockpit {
+    display: grid;
+    grid-template-columns: minmax(190px, .7fr) minmax(130px, .35fr) minmax(0, 1.7fr);
+    gap: 16px;
+    align-items: start;
+    margin: 0 0 18px;
+    border: 1px solid var(--border-strong);
+    border-left: 4px solid var(--accent);
+    padding: 18px;
+    background: linear-gradient(100deg, var(--surface-raised), var(--surface-inset));
+}
+.decision-cockpit h2 { margin: 0; font-family: var(--font-display); }
+.decision-cockpit__result { display: grid; gap: 4px; }
+.decision-cockpit__result strong { font-size: 2rem; font-variant-numeric: tabular-nums; }
+.decision-cockpit__result span { color: var(--warning); font-family: var(--font-instrument); text-transform: uppercase; }
+.decision-cockpit dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; margin: 0; }
+.decision-cockpit dl div { display: grid; gap: 3px; }
+.decision-cockpit dt { color: var(--muted); font-family: var(--font-instrument); font-size: .68rem; text-transform: uppercase; }
+.decision-cockpit dd { margin: 0; color: var(--text-soft); font-size: .82rem; line-height: 1.4; }
+.decision-cockpit button { grid-column: 1 / -1; width: fit-content; }
+
+@media (max-width: 720px) {
+    .decision-cockpit, .decision-cockpit dl { grid-template-columns: 1fr; }
+    .decision-cockpit { padding: 14px; }
+}
+
 .comparison-card ul, .review-panel ul {
     padding-left: 20px;
     margin-bottom: 0;
