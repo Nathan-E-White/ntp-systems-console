@@ -71,6 +71,7 @@ synthetic public parser inputs. They resemble engineering file structures for UI
 testing but are not solver records or validated technical results.
 
 See [Model Evidence Review Work Instruction](docs/model-evidence-work-instruction.md).
+See [project context](CONTEXT.md) and [ADR-0001](docs/adr/0001-portfolio-storage-boundary.md) for the domain vocabulary and storage boundary.
 See [Demo Runbook](docs/demo-runbook.md) for the presenter script, rehearsal checks, and fallback path.
 See [Demo Release Checklist](docs/demo-release-checklist.md) for the final machine and projector audit.
 See [Reference-Controlled Engine Model Data Handbook](docs/reduced-order-model-basis.html) for the
