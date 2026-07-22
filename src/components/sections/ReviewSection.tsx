@@ -28,7 +28,7 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
                       titleId="review-title"
                       description="Decision posture, evidence basis, and resolution path.">
             <InvestigationThread/>
-            <article className="panel review-summary print-review">
+            <article aria-label="Integrated engineering review" className="panel review-summary print-review">
                 <div className="review-summary__header">
                     <div><p className="eyebrow">review recommendation</p><h2>{review.customerObjective}</h2></div>
                     <div className="review-summary__actions">

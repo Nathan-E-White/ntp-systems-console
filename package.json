@@ -10,6 +10,8 @@
     "preview": "bunx --bun vite preview --host 0.0.0.0",
     "test": "bunx --bun vitest run",
     "test:watch": "bunx --bun vitest",
+    "proof:browser": "node src/tests/ntp-cdp-smoke.mjs",
+    "proof:ci": "bun run typecheck && bun run lint && bun run proof:browser",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "demo:check": "bun run typecheck && bun run lint && bun run test && bun run build"
