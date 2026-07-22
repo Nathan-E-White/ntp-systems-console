@@ -128,6 +128,7 @@ export function ModelEvidenceSection({
     const [selectedDirection, setSelectedDirection] = useState<DirectionFilter>('all');
     const [selectedFamily, setSelectedFamily] = useState<FamilyFilter>('all');
     const [focusedEvidenceId, setFocusedEvidenceId] = useState<string>();
+    const [showInventory, setShowInventory] = useState(false);
     const walkthrough = useEvidenceWalkthrough();
     const investigation = useGuidedInvestigation();
     const component = investigation.model.components.find(
@@ -151,6 +152,7 @@ export function ModelEvidenceSection({
         if (!walkthrough.activeStep || walkthrough.state.status !== 'active') return;
         setSelectedDirection('all');
         setSelectedFamily('all');
+        setShowInventory(false);
         setFocusedEvidenceId(walkthrough.activeStep.evidenceId);
     }, [walkthrough.activeStep, walkthrough.state.status]);
 
@@ -161,7 +163,7 @@ export function ModelEvidenceSection({
             titleId="model-evidence-title"
             description="Read-only synthetic fixture explorer."
         >
-            <EvidenceStory onOpenEvidence={setFocusedEvidenceId}/>
+            <EvidenceStory onOpenEvidence={(id) => { setFocusedEvidenceId(id); setShowInventory(false); }}/>
             <div className="evidence-set-provenance">
                 <div><dt>Source set</dt><dd>Repository-bundled public fixtures</dd></div>
                 <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
@@ -182,6 +184,7 @@ export function ModelEvidenceSection({
                                 onClick={() => {
                                     setSelectedDirection(direction);
                                     setFocusedEvidenceId(undefined);
+                                    setShowInventory(true);
                                 }}
                                 type="button"
                             >
@@ -201,6 +204,7 @@ export function ModelEvidenceSection({
                                 onClick={() => {
                                     setSelectedFamily(family);
                                     setFocusedEvidenceId(undefined);
+                                    setShowInventory(true);
                                 }}
                                 type="button"
                             >
@@ -216,7 +220,7 @@ export function ModelEvidenceSection({
             <div className={focusedEvidence ? 'evidence-inspection-workspace' : undefined}>
                 {focusedEvidence ? (
                     <div className="evidence-focus-toolbar">
-                        <button onClick={() => setFocusedEvidenceId(undefined)} type="button">Show all cards</button>
+                        <button onClick={() => { setFocusedEvidenceId(undefined); setShowInventory(true); }} type="button">Show all cards</button>
                         <span>{focusedEvidence.label} in inspection view</span>
                     </div>
                 ) : null}
@@ -229,12 +233,18 @@ export function ModelEvidenceSection({
                             onSelect={() => setFocusedEvidenceId(focusedEvidence.id)}
                         />
                     </div>
-                ) : (
+                ) : showInventory ? (
                     <EvidencePairingSections
                         componentFixtureIds={component.fixtureIds}
                         evidence={evidence}
                         onSelectEvidence={setFocusedEvidenceId}
                     />
+                ) : (
+                    <section className="evidence-inventory-gate" aria-label="Expert evidence drill-down">
+                        <h2>Need the full artifact inventory?</h2>
+                        <p>Start the guided claim, open a cited artifact above, or inspect the complete parser inventory.</p>
+                        <button onClick={() => setShowInventory(true)} type="button">Open full evidence inventory</button>
+                    </section>
                 )}
             </div>
         </SectionShell>
