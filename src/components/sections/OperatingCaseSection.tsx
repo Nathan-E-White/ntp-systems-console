@@ -9,6 +9,7 @@ import {EvidenceInspector, InvestigationThread, type SceneComponentId} from '../
 import {CalculationBasisInspector} from '../CalculationBasisInspector';
 import {ModelBasisPanel} from '../ModelBasisPanel';
 import {ChannelAnalysisPanel} from '../ChannelAnalysisPanel';
+import {DecisionCockpit} from '../DecisionCockpit';
 
 const EngineScene = lazy(async () => {
     const module = await import('../EngineScene');
@@ -28,6 +29,7 @@ export function OperatingCaseSection({
         <SectionShell eyebrow="engine operations" title="Operating Case"
                       titleId="operating-case-title"
                       description="Set the operating point and identify the controlling condition.">
+            <DecisionCockpit inputs={inputs} outputs={outputs}/>
             <SectionGrid variant="console">
                 <div className="operating-workspace">
                     <section className="panel engine-panel">
