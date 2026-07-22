@@ -7,3 +7,4 @@ describe('RecoveryState', () => {
         it(`gives ${kind} an actionable recovery path`, () => { render(<RecoveryState kind={kind}/>); expect(screen.getByRole('status')).toHaveTextContent('recovery'); });
     });
 });
+import '@testing-library/jest-dom/vitest';
