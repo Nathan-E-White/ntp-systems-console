@@ -53,6 +53,7 @@ function Workbench({
     outputs: ReturnType<typeof useEngineOutputs>;
 }>) {
     const [activeSectionId, setActiveSectionId] = useState<AppSectionId>(() => parseReviewRoute(window.location.search).section);
+    const [showKeyboardMap, setShowKeyboardMap] = useState(false);
     const investigation = useGuidedInvestigation();
     const links = useAnalysisLinkRegistry();
     const director = useTheatreDemoDirector();
@@ -98,12 +99,22 @@ function Workbench({
         updateRoute('operating-case', null, true);
     }, [activeCase.state.resetVersion, director, investigation, links, presentation, resetEngine]);
     const resetDemo = () => activeCase.reset();
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === '?' && !event.metaKey && !event.ctrlKey) setShowKeyboardMap(true);
+            if (event.key === 'Escape') setShowKeyboardMap(false);
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, []);
 
     return (
         <AppLayout
             activeSectionId={activeSectionId}
             onResetDemo={resetDemo}
             onSectionChange={(section) => updateRoute(section)}
+            onReturnToEvidence={() => updateRoute('model-evidence', activeCase.state.evidenceFocus)}
+            onShowKeyboardMap={() => setShowKeyboardMap(true)}
         >
             {activeSectionId === 'operating-case' && (
                 <OperatingCaseSection inputs={inputs} onOpenModelEvidence={openEvidence} outputs={outputs}/>
@@ -113,6 +124,7 @@ function Workbench({
                 <ModelEvidenceSection onReturnToOperatingCase={() => updateRoute('operating-case')}/>
             )}
             {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>}
+            {showKeyboardMap && <aside className="keyboard-map" role="dialog" aria-label="Keyboard map"><button onClick={() => setShowKeyboardMap(false)} type="button">Close</button><h2>Keyboard map</h2><p><kbd>?</kbd> open this map · <kbd>Esc</kbd> close it</p><p>Use visible section tabs and scene controls with standard keyboard focus.</p></aside>}
         </AppLayout>
     );
 }

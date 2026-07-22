@@ -4753,6 +4753,9 @@ details summary {
 .campaign-artifact-workspace { display: grid; gap: 5px; margin-top: 12px; border-left: 3px solid var(--status-fixture); padding: 8px 10px; background: rgba(139, 96, 170, .1); }
 .campaign-artifact-workspace span, .campaign-artifact-workspace small { color: var(--muted); font-size: .78rem; }
 .campaign-artifact-workspace pre { max-height: 180px; overflow: auto; white-space: pre-wrap; color: var(--text-soft); font-size: .72rem; }
+.keyboard-map { position: fixed; z-index: 20; right: 24px; bottom: 24px; width: min(360px, calc(100vw - 32px)); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); padding: 16px; background: var(--surface-raised); box-shadow: var(--elevation-panel); }
+.keyboard-map button { float: right; }
+.keyboard-map kbd { padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--font-instrument); }
 .decision-cockpit h2 { margin: 0; font-family: var(--font-display); }
 .decision-cockpit__result { display: grid; gap: 4px; }
 .decision-cockpit__result strong { font-size: 2rem; font-variant-numeric: tabular-nums; }
