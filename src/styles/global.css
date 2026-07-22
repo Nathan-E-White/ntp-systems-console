@@ -4756,6 +4756,9 @@ details summary {
 .keyboard-map { position: fixed; z-index: 20; right: 24px; bottom: 24px; width: min(360px, calc(100vw - 32px)); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); padding: 16px; background: var(--surface-raised); box-shadow: var(--elevation-panel); }
 .keyboard-map button { float: right; }
 .keyboard-map kbd { padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--font-instrument); }
+.recovery-state { display: grid; place-content: center; gap: 8px; min-height: 160px; padding: 20px; border-left: 3px solid var(--status-watch); color: var(--text-soft); text-align: left; }
+.recovery-state strong { color: var(--text); font-family: var(--font-display); font-size: 1.25rem; }
+.recovery-state p:last-child { margin: 0; max-width: 52ch; line-height: 1.45; }
 .decision-cockpit h2 { margin: 0; font-family: var(--font-display); }
 .decision-cockpit__result { display: grid; gap: 4px; }
 .decision-cockpit__result strong { font-size: 2rem; font-variant-numeric: tabular-nums; }

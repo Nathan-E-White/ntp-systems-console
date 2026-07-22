@@ -9,6 +9,7 @@ import {EvidenceInspector, InvestigationThread, type SceneComponentId} from '../
 import {CalculationBasisInspector} from '../CalculationBasisInspector';
 import {ModelBasisPanel} from '../ModelBasisPanel';
 import {ChannelAnalysisPanel} from '../ChannelAnalysisPanel';
+import {RecoveryState} from '../RecoveryState';
 import {DecisionCockpit} from '../DecisionCockpit';
 
 const EngineScene = lazy(async () => {
@@ -33,7 +34,7 @@ export function OperatingCaseSection({
             <SectionGrid variant="console">
                 <div className="operating-workspace">
                     <section className="panel engine-panel">
-                        <Suspense fallback={<div className="scene-loading">Loading interactive engine schematic…</div>}>
+                        <Suspense fallback={<RecoveryState kind="loading" detail="Loading interactive engine schematic…"/>}>
                             <EngineScene inputs={inputs} outputs={outputs}/>
                         </Suspense>
                     </section>
