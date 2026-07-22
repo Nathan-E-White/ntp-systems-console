@@ -64,9 +64,9 @@ bun run demo:check
 
 ## Fixture Provenance
 
-Files under `src/fixtures` and the bundled fixture strings in `src/parser/file_inputs.ts` are
-synthetic public parser inputs. They resemble engineering file structures for UI and integration
-testing but are not solver records or validated technical results.
+Files under `src/fixtures`, exposed through the canonical fixture catalog, are synthetic public parser
+inputs. They resemble engineering file structures for UI and integration testing but are not solver
+records or validated technical results.
 
 See [Model Evidence Review Work Instruction](docs/model-evidence-work-instruction.md).
 See [Demo Runbook](docs/demo-runbook.md) for the presenter script, rehearsal checks, and fallback path.
