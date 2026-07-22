@@ -10,6 +10,7 @@ import {
     ParameterWorkspaceProvider,
 } from './index';
 import {EvidenceWalkthroughBridge} from './EvidenceWalkthrough/EvidenceWalkthroughBridge';
+import {ActiveCaseProvider} from '../activeCase/ActiveCase';
 import type {EngineeringDataWorkspaceModel} from './EngineeringDataWorkspace/EngineeringDataWorkspace.model';
 import {
     buildTheatreDemoDirectorModel,
@@ -41,8 +42,10 @@ export function ActiveCaseProviders({model, children}: Readonly<ActiveCaseProvid
                                         <EvidenceWalkthroughProvider>
                                             <TheatreDemoDirectorProvider model={buildTheatreDemoDirectorModel()}>
                                                 <TheatreDemoDirectorView/>
-                                                <EvidenceWalkthroughBridge/>
-                                                {children}
+                                                <ActiveCaseProvider>
+                                                    <EvidenceWalkthroughBridge/>
+                                                    {children}
+                                                </ActiveCaseProvider>
                                             </TheatreDemoDirectorProvider>
                                         </EvidenceWalkthroughProvider>
                                     </ScenePresentationProvider>

@@ -13,13 +13,8 @@ import {useEngineStore} from './state/EngineStore';
 import {
     cancelGuidedDemoSequence,
 } from './theatre/guidedDemoSequence';
-import {
-    type SceneComponentId,
-    useGuidedInvestigation,
-    useScenePresentation,
-    useTheatreDemoDirector,
-} from './components/visualization';
-import {useAnalysisLinkRegistry} from './components/analysis';
+import {type SceneComponentId} from './components/visualization';
+import {ActiveCaseTimeline, useActiveCase} from './components/activeCase/ActiveCase';
 
 export function App() {
     const inputs = useEngineInputs();
@@ -51,23 +46,15 @@ function Workbench({
     outputs: ReturnType<typeof useEngineOutputs>;
 }>) {
     const [activeSectionId, setActiveSectionId] = useState<AppSectionId>('operating-case');
-    const investigation = useGuidedInvestigation();
-    const links = useAnalysisLinkRegistry();
-    const director = useTheatreDemoDirector();
-    const presentation = useScenePresentation();
-    const resetEngine = useEngineStore((state) => state.resetDemo);
+    const activeCase = useActiveCase();
 
     const openEvidence = (componentId: SceneComponentId) => {
-        investigation.selectComponent(componentId);
+        activeCase.openEvidence(componentId);
         setActiveSectionId('model-evidence');
     };
     const resetDemo = () => {
         cancelGuidedDemoSequence();
-        director.stop();
-        investigation.resetSelection();
-        links.activateLink(null);
-        presentation.resetPresentation();
-        resetEngine();
+        activeCase.reset();
         setActiveSectionId('operating-case');
     };
 
@@ -77,6 +64,7 @@ function Workbench({
             onResetDemo={resetDemo}
             onSectionChange={setActiveSectionId}
         >
+            <ActiveCaseTimeline/>
             {activeSectionId === 'operating-case' && (
                 <OperatingCaseSection inputs={inputs} onOpenModelEvidence={openEvidence} outputs={outputs}/>
             )}

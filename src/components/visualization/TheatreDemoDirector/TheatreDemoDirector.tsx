@@ -27,6 +27,7 @@ export interface TheatreDemoDirectorContextValue {
     readonly model: TheatreDemoDirectorModel;
     readonly state: TheatreDemoDirectorState;
     readonly replay: () => void;
+    readonly activateCue: (cueId: string) => void;
     readonly advanceCue: () => void;
     readonly previousCue: () => void;
     readonly pause: () => void;
@@ -64,6 +65,10 @@ export function TheatreDemoDirectorProvider({
         setPlaybackStatus('animating');
     }, []);
     const replay = useCallback(() => animateCue(0), [animateCue]);
+    const activateCue = useCallback((cueId: string) => {
+        const cueIndex = model.cues.findIndex((cue) => cue.id === cueId);
+        if (cueIndex >= 0) animateCue(cueIndex);
+    }, [animateCue, model.cues]);
     const advanceCue = useCallback(() => {
         if (activeCueIndex === null) return animateCue(0);
         if (activeCueIndex >= model.cues.length - 1) {
@@ -99,6 +104,7 @@ export function TheatreDemoDirectorProvider({
         model,
         state: {activeCueId, activeCueIndex, playbackStatus, cueProgress},
         replay,
+        activateCue,
         advanceCue,
         previousCue,
         pause,
@@ -110,6 +116,7 @@ export function TheatreDemoDirectorProvider({
     }), [
         activeCueId,
         activeCueIndex,
+        activateCue,
         advanceCue,
         completeCueAnimation,
         cueProgress,

@@ -43,6 +43,7 @@ import {
     useScenePresentation,
     useTheatreDemoDirector,
 } from './visualization';
+import {useActiveCase} from './activeCase/ActiveCase';
 import {type EngineVisualizationMode, useEngineStore} from '../state/EngineStore';
 import {
     getGuidedDemoYaw,
@@ -79,20 +80,17 @@ const cutawayModes: ReadonlyArray<{
 
 export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const visualizationMode = useEngineStore((state) => state.visualizationMode);
-    const setVisualizationMode = useEngineStore((state) => state.setVisualizationMode);
     const selectedChannelStationIndex = useEngineStore((state) => state.selectedChannelStationIndex);
     const setSelectedChannelStationIndex = useEngineStore((state) => state.setSelectedChannelStationIndex);
     const links = useAnalysisLinkRegistry();
     const workspace = useEngineeringDataWorkspace();
     const walkthrough = useEvidenceWalkthrough();
+    const activeCase = useActiveCase();
     const director = useTheatreDemoDirector();
     const investigation = useGuidedInvestigation();
     const sceneWorkspace = useScenePresentation();
-    const {activateLink} = links;
     const {
         model: investigationModel,
-        restoreSelection: restoreInvestigationSelection,
-        selectComponent: selectInvestigationComponent,
         state: investigationState,
     } = investigation;
     const priorSelection = useRef<SceneSelectionState | null>(null);
@@ -107,9 +105,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const {
         captureManualPose,
         completeTransition,
-        requestTheatrePose,
-        restoreTourSnapshot,
-        saveTourSnapshot,
         selectCutawayMode,
         selectPreset,
         setDetailsVisible,
@@ -150,13 +145,12 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     useEffect(() => {
         const clearSelection = (event: KeyboardEvent) => {
             if (event.key === 'Escape' && !isTourActive(director.state.playbackStatus)) {
-                selectInvestigationComponent('engine-overview');
-                activateLink(null);
+                activeCase.openEvidence('engine-overview');
             }
         };
         window.addEventListener('keydown', clearSelection);
         return () => window.removeEventListener('keydown', clearSelection);
-    }, [activateLink, director.state.playbackStatus, selectInvestigationComponent]);
+    }, [activeCase, director.state.playbackStatus]);
 
     const presentation = useMemo<ScenePresentationState>(() => ({
         mode: effectiveMode,
@@ -207,32 +201,17 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         mode: effectiveMode,
     }), [effectiveMode, workspace.model.caseLabel]);
     const visibleCalloutIds = getVisibleCalloutIds(effectiveMode);
-    const selectComponent = useCallback((componentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') => {
-        const descriptor = investigationModel.components.find((component) => component.id === componentId);
-        selectInvestigationComponent(componentId, owner);
-        activateLink(descriptor?.analysisLinkId ?? null);
-        if (descriptor?.analysisLinkId === 'thermal-margin') setVisualizationMode('thermal');
-        if (descriptor?.analysisLinkId === 'propulsion-stability') setVisualizationMode('flow');
-        if (owner === 'user') selectPreset(getComponentViewPreset(componentId));
-    }, [activateLink, investigationModel.components, selectInvestigationComponent, selectPreset, setVisualizationMode]);
-
     const restoreManualSelection = useCallback(() => {
         if (!priorSelection.current) return;
-        restoreInvestigationSelection(priorSelection.current);
-        const descriptor = investigationModel.components.find(
-            (component) => component.id === priorSelection.current?.selectedComponentId,
-        );
-        activateLink(descriptor?.analysisLinkId ?? null);
-        restoreTourSnapshot();
+        activeCase.restoreGuidedPresentation(priorSelection.current);
         priorSelection.current = null;
-    }, [activateLink, investigationModel.components, restoreInvestigationSelection, restoreTourSnapshot]);
+    }, [activeCase]);
 
     useEffect(() => {
         if (director.state.activeCueIndex === null
             || !activeCue
             || director.state.playbackStatus !== 'animating') return;
-        setVisualizationMode(activeCue.mode);
-        selectComponent(getAdaptiveCueFocus(activeCue.id, caseIdRef.current, outputsRef.current), 'theatre');
+        activeCase.applySceneCue(activeCue.id, getAdaptiveCueFocus(activeCue.id, caseIdRef.current, outputsRef.current));
         if (activeCue.id === 'inspect-channel' || activeCue.id === 'inspect-core') {
             const peakStation = channelEvaluation?.stations.length
                 ? channelEvaluation.stations.reduce((peak, station) =>
@@ -240,11 +219,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                 : undefined;
             setSelectedChannelStationIndex(peakStation?.index ?? null);
         }
-        requestTheatrePose(
-            {position: activeCue.cameraPosition, target: activeCue.cameraTarget},
-            activeCue.explodedViewProgress,
-            getCutawayModeForCue(activeCue.id),
-        );
         if (reducedMotion) {
             director.setCueProgress(1);
             director.completeCueAnimation();
@@ -270,9 +244,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         director.state.activeCueIndex,
         director.state.playbackStatus,
         reducedMotion,
-        selectComponent,
-        requestTheatrePose,
-        setVisualizationMode,
+        activeCase,
         channelEvaluation,
         setSelectedChannelStationIndex,
     ]);
@@ -283,8 +255,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
 
     const startTour = () => {
         if (!priorSelection.current) priorSelection.current = investigationState;
-        saveTourSnapshot();
-        director.replay();
+        activeCase.startGuidedPresentation();
     };
 
     const pausePlayback = () => {
@@ -305,7 +276,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
 
     const clearSelection = () => {
         if (isTourActive(director.state.playbackStatus)) return;
-        selectComponent('engine-overview');
+        activeCase.openEvidence('engine-overview');
     };
     const cueInterpretation = activeCue
         ? getCueInterpretation(activeCue.interpretation, workspace.model.caseId)
@@ -335,7 +306,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                         <select
                             aria-label="Engineering focus"
                             disabled={isTourActive(director.state.playbackStatus)}
-                            onChange={(event) => selectComponent(event.target.value as SceneComponentId)}
+                            onChange={(event) => activeCase.openEvidence(event.target.value as SceneComponentId)}
                             value={investigationState.selectedComponentId}
                         >
                             {investigationModel.components.map((component) => (
@@ -481,13 +452,13 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
                 >
                     <EngineAssembly
                         model={engineAssemblyModel}
-                        onSelectComponent={selectComponent}
+                        onSelectComponent={activeCase.openEvidence}
                         presentation={presentation}
                     />
                     <SceneSelectionMarkers
                         components={investigationModel.components}
                         evidenceMode={cutawayMode === 'evidence'}
-                        onSelectComponent={selectComponent}
+                        onSelectComponent={activeCase.openEvidence}
                         selectedComponentId={investigationState.selectedComponentId}
                     />
                     </SceneCanvas>
@@ -585,19 +556,6 @@ function getVisibleCalloutIds(mode: EngineVisualizationMode): readonly string[] 
     }
 }
 
-function getComponentViewPreset(componentId: SceneComponentId): SceneViewPresetId {
-    if (componentId === 'nozzle-performance') return 'nozzle';
-    if (componentId === 'feed-system' || componentId === 'main-turbopump'
-        || componentId === 'power-conversion' || componentId === 'propulsion-stability') {
-        return 'flow-path';
-    }
-    if (componentId === 'reactor-transport' || componentId === 'reactor-criticality'
-        || componentId === 'fuel-performance' || componentId === 'thermal-margin') {
-        return 'reactor';
-    }
-    return 'fit-engine';
-}
-
 function getAdaptiveCueFocus(
     cueId: string,
     caseId: string,
@@ -611,13 +569,6 @@ function getAdaptiveCueFocus(
     }
     if (cueId === 'correlate-evidence') return 'fuel-performance';
     return 'engine-overview';
-}
-
-function getCutawayModeForCue(cueId: string): SceneCutawayMode {
-    if (cueId === 'follow-flow') return 'flow';
-    if (cueId === 'inspect-channel' || cueId === 'inspect-core') return 'thermal';
-    if (cueId === 'correlate-evidence') return 'evidence';
-    return 'assembled';
 }
 
 function getCueInterpretation(

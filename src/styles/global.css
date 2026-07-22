@@ -223,6 +223,30 @@ h2 {
     line-height: 1.45;
 }
 
+.active-case-timeline {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.75rem 0;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line-subtle);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+}
+
+.active-case-timeline h2,
+.active-case-timeline p {
+    margin: 0;
+}
+
+.active-case-timeline ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.25rem;
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
 .app-scope strong {
     color: var(--text-soft);
 }

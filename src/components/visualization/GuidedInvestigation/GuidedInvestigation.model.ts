@@ -1,6 +1,7 @@
 import type {NumericInputKey, NumericOutputKey} from '../../analysis';
 import type {ParserFamily} from '../../../parser/parserTypes';
 import type {Vector3Tuple, VisualizationBoundary} from '../visualizationTypes';
+import type {SceneViewPresetId} from '../SceneViewPresets/SceneViewPresets.model';
 
 export type SceneComponentId =
     | 'engine-overview'
@@ -59,6 +60,19 @@ export function buildGuidedInvestigationModel(): GuidedInvestigationModel {
             excludes: ['engineering calculations', 'fixture mutation', 'section navigation'],
         },
     };
+}
+
+export function getSceneComponentViewPreset(componentId: SceneComponentId): SceneViewPresetId {
+    if (componentId === 'nozzle-performance') return 'nozzle';
+    if (componentId === 'feed-system' || componentId === 'main-turbopump'
+        || componentId === 'power-conversion' || componentId === 'propulsion-stability') {
+        return 'flow-path';
+    }
+    if (componentId === 'reactor-transport' || componentId === 'reactor-criticality'
+        || componentId === 'fuel-performance' || componentId === 'thermal-margin') {
+        return 'reactor';
+    }
+    return 'fit-engine';
 }
 
 function descriptor(
