@@ -11,9 +11,6 @@ import type {
 
 export interface FileParserWorkbenchProps {
     readonly title: string;
-    readonly campaign: CampaignWorkspace;
-    readonly addCurrentArtifactToCampaign: () => void;
-    readonly campaignExport: () => string;
     readonly description: string;
     readonly initialFilename: string;
     readonly initialText: string;
@@ -36,6 +33,9 @@ export interface FileParserWorkbenchContextValue {
     readonly setFilename: (filename: string) => void;
     readonly setFileText: (text: string) => void;
     readonly title: string;
+    readonly campaign: CampaignWorkspace;
+    readonly addCurrentArtifactToCampaign: () => void;
+    readonly campaignExport: () => string;
 }
 
 export const FileParserWorkbenchState = Object.freeze({

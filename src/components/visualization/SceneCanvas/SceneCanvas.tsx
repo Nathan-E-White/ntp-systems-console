@@ -18,6 +18,7 @@ import type {OrbitControls as OrbitControlsImpl} from 'three-stdlib';
 import type {SceneCameraPose} from '../ScenePresentationWorkspace/ScenePresentationWorkspace.model';
 import type {Vector3Tuple, VisualizationStatus} from '../visualizationTypes';
 import type {SceneCanvasModel} from './SceneCanvas.model';
+import {RecoveryState} from '../../RecoveryState';
 
 export interface SceneCanvasProps {
     readonly model: SceneCanvasModel;
@@ -194,12 +195,7 @@ class SceneErrorBoundary extends Component<
 }
 
 function SceneFallback({message}: Readonly<{message: string}>) {
-    return (
-        <div className="scene-webgl-fallback" role="img" aria-label="3D scene unavailable">
-            <strong>Representative engine view unavailable</strong>
-            <span>{message}</span>
-        </div>
-    );
+    return <div className="scene-webgl-fallback"><RecoveryState detail={message} kind="webgl-fallback"/></div>;
 }
 
 export function SceneCanvasView({
