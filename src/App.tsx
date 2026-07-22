@@ -1,12 +1,9 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {lazy, Suspense, type ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 
 import {AppLayout} from './AppLayout';
 import {type AppSectionId} from './AppSections';
 import {ActiveCaseProviders} from './components/analysis/ActiveCaseProviders';
-import {ModelEvidenceSection} from './components/sections/ModelEvidenceSection';
-import {NuclearFuelPerformanceSection} from './components/sections/NuclearFuelPerformanceSection';
 import {OperatingCaseSection} from './components/sections/OperatingCaseSection';
-import {ReviewSection} from './components/sections/ReviewSection';
 import {buildActiveCaseWorkspace} from './demo/activeCaseWorkspace';
 import {useEngineInputs, useEngineOutputs, useEngineTransient} from './state/EngineSelectors';
 import {useEngineStore} from './state/EngineStore';
@@ -22,6 +19,10 @@ import {
 import {useAnalysisLinkRegistry} from './components/analysis';
 import {useActiveCase} from './components/activeCase';
 import {parseReviewRoute, reviewRouteSearch} from './routing/reviewRoute';
+
+const ModelEvidenceSection = lazy(() => import('./components/sections/ModelEvidenceSection').then((module) => ({default: module.ModelEvidenceSection})));
+const NuclearFuelPerformanceSection = lazy(() => import('./components/sections/NuclearFuelPerformanceSection').then((module) => ({default: module.NuclearFuelPerformanceSection})));
+const ReviewSection = lazy(() => import('./components/sections/ReviewSection').then((module) => ({default: module.ReviewSection})));
 
 export function App() {
     const inputs = useEngineInputs();
@@ -119,12 +120,16 @@ function Workbench({
             {activeSectionId === 'operating-case' && (
                 <OperatingCaseSection inputs={inputs} onOpenModelEvidence={openEvidence} outputs={outputs}/>
             )}
-            {activeSectionId === 'nuclear-fuel-performance' && <NuclearFuelPerformanceSection/>}
+            {activeSectionId === 'nuclear-fuel-performance' && <DeferredSection><NuclearFuelPerformanceSection/></DeferredSection>}
             {activeSectionId === 'model-evidence' && (
-                <ModelEvidenceSection onReturnToOperatingCase={() => updateRoute('operating-case')}/>
+                <DeferredSection><ModelEvidenceSection onReturnToOperatingCase={() => updateRoute('operating-case')}/></DeferredSection>
             )}
-            {activeSectionId === 'review' && <ReviewSection inputs={inputs} outputs={outputs}/>}
+            {activeSectionId === 'review' && <DeferredSection><ReviewSection inputs={inputs} outputs={outputs}/></DeferredSection>}
             {showKeyboardMap && <aside className="keyboard-map" role="dialog" aria-label="Keyboard map"><button onClick={() => setShowKeyboardMap(false)} type="button">Close</button><h2>Keyboard map</h2><p><kbd>?</kbd> open this map · <kbd>Esc</kbd> close it</p><p>Use visible section tabs and scene controls with standard keyboard focus.</p></aside>}
         </AppLayout>
     );
+}
+
+function DeferredSection({children}: Readonly<{children: ReactNode}>) {
+    return <Suspense fallback={<p role="status">Loading review workspace…</p>}>{children}</Suspense>;
 }
