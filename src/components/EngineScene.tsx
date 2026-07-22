@@ -52,6 +52,7 @@ import {
     runGuidedDemoCue,
     subscribeToGuidedDemoYaw,
 } from '../theatre/guidedDemoSequence';
+import {useActiveCase} from './activeCase';
 import type {EngineInputs, EngineOutputs} from '../types/EngineState';
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
 
@@ -88,6 +89,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const director = useTheatreDemoDirector();
     const investigation = useGuidedInvestigation();
     const sceneWorkspace = useScenePresentation();
+    const activeCase = useActiveCase();
     const {activateLink} = links;
     const {
         model: investigationModel,
@@ -127,7 +129,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const reducedMotion = useReducedMotion();
     const activeCue = director.model.cues.find((cue) => cue.id === director.state.activeCueId);
     const selectedComponent = investigationModel.components.find(
-        (component) => component.id === investigationState.selectedComponentId,
+        (component) => component.id === activeCase.state.sceneCue,
     ) ?? investigationModel.components[0];
     const activeLink = links.model.links.find((link) => link.id === links.state.activeLinkId);
     const selectedTargets = selectedComponent.targetIds;
@@ -169,10 +171,10 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         shieldingMassFraction: inputs.shieldingMassFraction,
         yawRadians: theatreYaw,
         reducedMotion,
-        selectedComponentId: investigationState.selectedComponentId,
+        selectedComponentId: activeCase.state.sceneCue,
         cueProgress: director.state.cueProgress,
-        playbackOwner: investigationState.owner,
-        focusIntensity: investigationState.owner === 'theatre' ? 1 : 0.72,
+        playbackOwner: activeCase.state.sceneOwner === 'guided' ? 'theatre' : 'user',
+        focusIntensity: activeCase.state.sceneOwner === 'guided' ? 1 : 0.72,
         cameraPosition,
         activeViewPresetId,
         cutawayMode,
@@ -182,6 +184,8 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         selectedAxialRegionIndex,
     }), [
         activeViewPresetId,
+        activeCase.state.sceneCue,
+        activeCase.state.sceneOwner,
         cutawayMode,
         cameraPosition,
         cameraOwner,
@@ -198,8 +202,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         overlaysVisible,
         reducedMotion,
         theatreYaw,
-        investigationState.owner,
-        investigationState.selectedComponentId,
         selectedAxialRegionIndex,
     ]);
     const visualizationModel = useMemo(() => buildEngineVisualizationModel({
