@@ -32,6 +32,8 @@ interpretation can be discussed before advancing.
 
 Calculated dashboard outputs and imported fixture values are intentionally separate. Manual
 changes create a `Custom What-If` and never imply that external solver evidence was rerun.
+The demonstration is browser-session only: it has no database, durable record, or server-side
+campaign persistence.
 
 ## Run on Linux or macOS
 
