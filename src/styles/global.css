@@ -3178,6 +3178,39 @@ details summary {
     transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
+/* Evidence specimens deliberately use provenance violet, never the semantic
+   yellow/red/green reserved for warning, limit, and calculated-result states. */
+.evidence-specimen {
+    border-top: 3px solid var(--status-fixture);
+    background: linear-gradient(135deg, rgba(139, 96, 170, .14), var(--surface) 34%);
+}
+
+.evidence-specimen__provenance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 14px;
+}
+
+.evidence-specimen__provenance span {
+    border: 1px solid color-mix(in srgb, var(--status-fixture), transparent 45%);
+    color: color-mix(in srgb, var(--status-fixture), white 16%);
+    font: 700 .68rem/1.2 var(--font-mono);
+    letter-spacing: .04em;
+    padding: 4px 6px;
+    text-transform: uppercase;
+}
+
+.evidence-specimen .evidence-raw-pane-toolbar,
+.evidence-specimen .evidence-raw-text-drawer {
+    opacity: .72;
+}
+
+.evidence-specimen .evidence-raw-pane-toolbar:focus-within,
+.evidence-specimen .evidence-raw-text-drawer[open] {
+    opacity: 1;
+}
+
 .evidence-card:not(.evidence-card--expanded):hover,
 .evidence-card:not(.evidence-card--expanded):focus-visible {
     border-color: rgba(159, 197, 216, .42);
