@@ -4749,6 +4749,10 @@ details summary {
     padding: 18px;
     background: linear-gradient(100deg, var(--surface-raised), var(--surface-inset));
 }
+
+.campaign-artifact-workspace { display: grid; gap: 5px; margin-top: 12px; border-left: 3px solid var(--status-fixture); padding: 8px 10px; background: rgba(139, 96, 170, .1); }
+.campaign-artifact-workspace span, .campaign-artifact-workspace small { color: var(--muted); font-size: .78rem; }
+.campaign-artifact-workspace pre { max-height: 180px; overflow: auto; white-space: pre-wrap; color: var(--text-soft); font-size: .72rem; }
 .decision-cockpit h2 { margin: 0; font-family: var(--font-display); }
 .decision-cockpit__result { display: grid; gap: 4px; }
 .decision-cockpit__result strong { font-size: 2rem; font-variant-numeric: tabular-nums; }

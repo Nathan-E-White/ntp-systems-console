@@ -1,5 +1,6 @@
 import {ChangeEvent, ReactNode, createContext, useContext, useMemo, useState, Fragment} from 'react';
 import {createFileArtifactFromText} from '../../parser/createFileArtifactFromText';
+import {addCampaignArtifact, createCampaignWorkspace, exportCampaignWorkspace, type CampaignWorkspace} from '../../campaign/CampaignArtifact';
 import type {
     FileArtifact,
     ParsedFileViewModel,
@@ -10,6 +11,9 @@ import type {
 
 export interface FileParserWorkbenchProps {
     readonly title: string;
+    readonly campaign: CampaignWorkspace;
+    readonly addCurrentArtifactToCampaign: () => void;
+    readonly campaignExport: () => string;
     readonly description: string;
     readonly initialFilename: string;
     readonly initialText: string;
@@ -136,10 +140,12 @@ export function FileParserWorkbenchProvider({
     const [filename, setFilename] = useState(initialFilename);
     const [fileText, setFileText] = useState(initialText);
     const [artifact, setArtifact] = useState<FileArtifact<unknown>>(() => createArtifact(initialFilename, initialText));
+    const [campaign, setCampaign] = useState<CampaignWorkspace>(() => createCampaignWorkspace());
 
     const parseCurrentText = () => {
         setArtifact(createArtifact(filename, fileText));
     };
+    const addCurrentArtifactToCampaign = () => setCampaign((current) => addCampaignArtifact(current, artifact));
 
     const value = useMemo<FileParserWorkbenchContextValue>(
         () => ({
@@ -153,8 +159,11 @@ export function FileParserWorkbenchProvider({
             setFilename,
             setFileText,
             title,
+            campaign,
+            addCurrentArtifactToCampaign,
+            campaignExport: () => exportCampaignWorkspace(campaign),
         }),
-        [allowedDirection, allowedFamily, artifact, description, filename, fileText, title],
+        [allowedDirection, allowedFamily, artifact, campaign, description, filename, fileText, title],
     );
 
     return (
@@ -171,7 +180,7 @@ function FileParserWorkbenchControls({
     readonly showRawText: boolean;
     readonly showUpload: boolean;
 }) {
-    const {artifact, fileText, filename, parseCurrentText, setFilename, setFileText} = useFileParserWorkbenchContext();
+    const {artifact, addCurrentArtifactToCampaign, campaign, campaignExport, fileText, filename, parseCurrentText, setFilename, setFileText} = useFileParserWorkbenchContext();
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -237,8 +246,16 @@ function FileParserWorkbenchControls({
                 <button type="button" onClick={parseCurrentText}>
                     Parse file
                 </button>
+                <button type="button" onClick={addCurrentArtifactToCampaign}>Add to session campaign</button>
                 <span>{artifact.filename}</span>
             </div>
+
+            <aside className="campaign-artifact-workspace" aria-label="Browser-session campaign artifacts">
+                <strong>{campaign.name}</strong>
+                <span>{campaign.artifacts.length} artifact(s) · browser-session only</span>
+                {campaign.artifacts.length > 1 ? <small>Comparison set: {campaign.artifacts.map((item) => `${item.filename} v${item.version}`).join(' ↔ ')}</small> : null}
+                {campaign.artifacts.length ? <details><summary>Review Packet export</summary><pre>{campaignExport()}</pre></details> : null}
+            </aside>
 
             {artifact.error ? <p className="file-parser-error">{artifact.error}</p> : null}
         </section>
