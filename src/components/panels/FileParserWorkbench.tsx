@@ -1,6 +1,6 @@
 import {ChangeEvent, ReactNode, createContext, useContext, useMemo, useState, Fragment} from 'react';
 import {createFileArtifactFromText} from '../../parser/createFileArtifactFromText';
-import {addCampaignArtifact, createCampaignWorkspace, exportCampaignWorkspace, importCampaignWorkspace, renameCampaignWorkspace, type CampaignWorkspace} from '../../campaign/CampaignArtifact';
+import {addCampaignArtifact, compareCampaignArtifacts, createCampaignWorkspace, exportCampaignWorkspace, importCampaignWorkspace, renameCampaignWorkspace, type CampaignWorkspace} from '../../campaign/CampaignArtifact';
 import type {
     FileArtifact,
     ParsedFileViewModel,
@@ -258,7 +258,7 @@ function FileParserWorkbenchControls({
             <aside className="campaign-artifact-workspace" aria-label="Browser-session campaign artifacts">
                 <label><span>Campaign name</span><input aria-label="Campaign name" onChange={(event) => renameCampaign(event.target.value)} value={campaign.name}/></label>
                 <span>{campaign.artifacts.length} artifact(s) · browser-session only</span>
-                {campaign.artifacts.length > 1 ? <small>Comparison set: {campaign.artifacts.map((item) => `${item.filename} v${item.version}`).join(' ↔ ')}</small> : null}
+                {campaign.artifacts.length > 1 ? <small>Comparison set: {compareCampaignArtifacts(campaign.artifacts).join(' · ')}</small> : null}
                 {campaign.artifacts.length ? <details><summary>Review Packet export</summary><pre>{campaignExport()}</pre></details> : null}
                 <details><summary>Import browser-session campaign</summary><textarea aria-label="Campaign import" onChange={(event) => setCampaignImport(event.target.value)} value={campaignImport}/><button onClick={() => importCampaign(campaignImport)} type="button">Import campaign</button></details>
             </aside>

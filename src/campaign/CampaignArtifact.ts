@@ -8,7 +8,15 @@ export interface CampaignArtifact {
     readonly provenance: string;
     readonly reviewRelevance: string;
     readonly parserStatus: FileArtifact<unknown>['parserStatus'];
+    readonly contentHash: string;
+    readonly caseIdentity: string;
+    readonly sourceLocator: string;
 }
+
+const fingerprint = (text: string): string => Array.from(text).reduce(
+    (hash, character) => ((hash * 31) ^ character.charCodeAt(0)) >>> 0,
+    2166136261,
+).toString(16);
 
 export interface CampaignWorkspace {
     readonly name: string;
@@ -27,7 +35,17 @@ export function createCampaignArtifact(artifact: FileArtifact<unknown>, version:
             ? 'Review diagnostics and source locations before using this artifact as support.'
             : 'Available for source-located review support.',
         parserStatus: artifact.parserStatus,
+        contentHash: fingerprint(artifact.text),
+        caseIdentity: artifact.parsed?.caseId ?? 'case-unresolved',
+        sourceLocator: `${artifact.filename}#${artifact.id}`,
     };
+}
+
+export function compareCampaignArtifacts(artifacts: readonly CampaignArtifact[]): readonly string[] {
+    return artifacts.slice(1).map((artifact, index) => {
+        const baseline = artifacts[index];
+        return `${baseline.filename} v${baseline.version} (${baseline.contentHash}) ↔ ${artifact.filename} v${artifact.version} (${artifact.contentHash})`;
+    });
 }
 
 export function addCampaignArtifact(workspace: CampaignWorkspace, artifact: FileArtifact<unknown>): CampaignWorkspace {
@@ -54,7 +72,8 @@ export function importCampaignWorkspace(serialized: string): CampaignWorkspace {
             Boolean(artifact) && typeof artifact.id === 'string' && typeof artifact.filename === 'string' &&
             typeof artifact.version === 'number' && typeof artifact.parserIdentity === 'string' &&
             typeof artifact.provenance === 'string' && typeof artifact.reviewRelevance === 'string' &&
-            typeof artifact.parserStatus === 'string'
+            typeof artifact.parserStatus === 'string' && typeof artifact.contentHash === 'string' &&
+            typeof artifact.caseIdentity === 'string' && typeof artifact.sourceLocator === 'string'
         )),
         storageBoundary: 'browser-session-only',
     };
