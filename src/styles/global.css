@@ -4520,6 +4520,39 @@ details summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.data-graphic__heading,
+.data-graphic__selected-values {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.data-graphic__heading span,
+.data-graphic__selected-values dt {
+    color: var(--muted);
+    font-family: var(--font-instrument);
+    font-size: .68rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.data-graphic__selected-values {
+    flex-wrap: wrap;
+    margin: 4px 0 0;
+}
+
+.data-graphic__selected-values div {
+    display: flex;
+    gap: 5px;
+}
+
+.data-graphic__selected-values dd {
+    margin: 0;
+    color: var(--text-soft);
+    font-variant-numeric: tabular-nums;
+}
+
 .channel-analysis__charts article,
 .channel-station-card,
 .channel-review-flags,

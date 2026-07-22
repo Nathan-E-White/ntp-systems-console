@@ -1,5 +1,6 @@
 import {
     CartesianGrid,
+    Legend,
     Line,
     LineChart,
     ReferenceLine,
@@ -86,7 +87,7 @@ export function ChannelAnalysisPanel({inputs}: Readonly<{inputs: EngineInputs}>)
                     data={chartData}
                     lines={[
                         {key: 'bulkTemperatureK', label: 'Bulk temperature', color: '#79c7d8'},
-                        {key: 'wallTemperatureK', label: 'Wall temperature', color: '#f0a45d'},
+                        {key: 'wallTemperatureK', label: 'Wall temperature', color: '#f0a45d', primary: true},
                     ]}
                     selectedAxialPercent={selectedAxialPercent}
                     title="Thermal response"
@@ -95,7 +96,7 @@ export function ChannelAnalysisPanel({inputs}: Readonly<{inputs: EngineInputs}>)
                 <ChannelChart
                     data={chartData}
                     lines={[
-                        {key: 'pressureMpa', label: 'Static pressure', color: '#98b9d6'},
+                        {key: 'pressureMpa', label: 'Static pressure', color: '#98b9d6', primary: true},
                         {key: 'machNumber', label: 'Mach number', color: '#e5c36a', axis: 'right'},
                     ]}
                     selectedAxialPercent={selectedAxialPercent}
@@ -105,7 +106,7 @@ export function ChannelAnalysisPanel({inputs}: Readonly<{inputs: EngineInputs}>)
                 <ChannelChart
                     data={chartData}
                     lines={[
-                        {key: 'reynoldsNumber', label: 'Reynolds number', color: '#82c59a'},
+                        {key: 'reynoldsNumber', label: 'Reynolds number', color: '#82c59a', primary: true},
                         {key: 'nusseltNumber', label: 'Nusselt number', color: '#be8ed8', axis: 'right'},
                     ]}
                     selectedAxialPercent={selectedAxialPercent}
@@ -210,15 +211,21 @@ function ChannelChart({
     unit,
 }: Readonly<{
     data: readonly Record<string, number>[];
-    lines: readonly {key: string; label: string; color: string; axis?: 'right'}[];
+    lines: readonly {key: string; label: string; color: string; axis?: 'right'; primary?: boolean}[];
     selectedAxialPercent?: number;
     title: string;
     unit: string;
 }>) {
     const hasRightAxis = lines.some((line) => line.axis === 'right');
+    const selected = selectedAxialPercent === undefined
+        ? undefined
+        : data.find((point) => point.axialPercent === selectedAxialPercent);
     return (
         <article>
-            <h3>{title}</h3>
+            <header className="data-graphic__heading">
+                <h3>{title}</h3>
+                {selected ? <span>Selected x/L {selectedAxialPercent?.toFixed(0)}%</span> : null}
+            </header>
             <ResponsiveContainer height={235} width="100%">
                 <LineChart data={data} margin={{top: 8, right: 22, bottom: 8, left: 4}}>
                     <CartesianGrid stroke="rgba(171,190,206,.12)" vertical={false}/>
@@ -226,6 +233,7 @@ function ChannelChart({
                     <YAxis tickFormatter={(value) => Number(value).toLocaleString()} unit={unit}/>
                     {hasRightAxis ? <YAxis orientation="right" yAxisId="right"/> : null}
                     <Tooltip formatter={(value, name) => [Number(value).toLocaleString(undefined, {maximumFractionDigits: 3}), name]}/>
+                    <Legend verticalAlign="top" wrapperStyle={{fontSize: '0.72rem'}}/>
                     {selectedAxialPercent === undefined ? null : (
                         <ReferenceLine stroke="#f2d18a" strokeDasharray="4 4" x={selectedAxialPercent}/>
                     )}
@@ -235,14 +243,23 @@ function ChannelChart({
                             dot={false}
                             key={line.key}
                             name={line.label}
+                            opacity={line.primary ? 1 : .52}
                             stroke={line.color}
-                            strokeWidth={2}
+                            strokeWidth={line.primary ? 3 : 1.5}
                             type="monotone"
                             yAxisId={line.axis}
                         />
                     ))}
                 </LineChart>
             </ResponsiveContainer>
+            <dl className="data-graphic__selected-values">
+                {lines.map((line) => (
+                    <div key={line.key}>
+                        <dt>{line.label}</dt>
+                        <dd>{selected ? Number(selected[line.key]).toLocaleString(undefined, {maximumFractionDigits: 3}) : 'No station selected'} {line.axis === 'right' ? '' : unit}</dd>
+                    </div>
+                ))}
+            </dl>
         </article>
     );
 }
