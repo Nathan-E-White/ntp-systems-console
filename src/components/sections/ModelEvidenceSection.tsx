@@ -3,6 +3,7 @@ import {
     type KeyboardEvent,
     type MouseEvent,
     type PointerEvent,
+    type ReactNode,
     useEffect,
     useMemo,
     useRef,
@@ -160,6 +161,7 @@ export function ModelEvidenceSection({
             titleId="model-evidence-title"
             description="Read-only synthetic fixture explorer."
         >
+            <EvidenceStory onOpenEvidence={setFocusedEvidenceId}/>
             <div className="evidence-set-provenance">
                 <div><dt>Source set</dt><dd>Repository-bundled public fixtures</dd></div>
                 <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
@@ -237,6 +239,27 @@ export function ModelEvidenceSection({
             </div>
         </SectionShell>
     );
+}
+
+function EvidenceStory({onOpenEvidence}: Readonly<{onOpenEvidence: (id: string) => void}>) {
+    const support = DEFAULT_ANALYSIS_EVIDENCE.find((item) => item.id === 'moose-output');
+    const conflict = DEFAULT_ANALYSIS_EVIDENCE.find((item) => item.id === 'bison-output');
+    const locator = DEFAULT_ANALYSIS_EVIDENCE.find((item) => item.id === 'mcnp-output');
+    return (
+        <section className="evidence-story" aria-label="Evidence claim">
+            <header><p className="eyebrow">evidence claim</p><h2>Does the evidence constrain the channel-wall margin?</h2><p>Read the few records that support, qualify, or limit the screening decision before opening the full parser inventory.</p></header>
+            <div className="evidence-story__claims">
+                <EvidenceStoryClaim label="Supports" evidence={support} onOpenEvidence={onOpenEvidence}>Thermal history gives contextual support for a hot-channel discussion.</EvidenceStoryClaim>
+                <EvidenceStoryClaim label="Qualifies" evidence={conflict} onOpenEvidence={onOpenEvidence}>Fuel-performance values are synthetic fixture context and are not the calculated wall margin.</EvidenceStoryClaim>
+                <EvidenceStoryClaim label="Source locator" evidence={locator} onOpenEvidence={onOpenEvidence}>Use the MCNP-like axial records to inspect the associated source location.</EvidenceStoryClaim>
+            </div>
+            <footer><strong>Limitation:</strong> static parser fixtures are not rerun for this operating case. <strong>Next action:</strong> return to the decision record and close the property and pressure-model limits.</footer>
+        </section>
+    );
+}
+
+function EvidenceStoryClaim({children, evidence, label, onOpenEvidence}: Readonly<{children: ReactNode; evidence: AnalysisEvidence | undefined; label: string; onOpenEvidence: (id: string) => void}>) {
+    return <article><span>{label}</span><strong>{evidence?.label ?? 'Evidence unavailable'}</strong><p>{children}</p>{evidence && <button onClick={() => onOpenEvidence(evidence.id)} type="button">Open evidence</button>}</article>;
 }
 
 function EvidenceWalkthroughControls({reducedMotion}: Readonly<{reducedMotion: boolean}>) {
