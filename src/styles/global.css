@@ -3852,6 +3852,15 @@ details summary {
     margin-bottom: 18px;
 }
 
+.review-packet { border: 1px solid var(--status-fixture); border-top: 4px solid var(--status-fixture); background: linear-gradient(135deg, rgba(139, 96, 170, .14), var(--surface)); padding: clamp(16px, 3vw, 30px); }
+.review-packet header, .review-packet footer { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.review-packet h2 { margin: 0 auto 0 0; }
+.review-packet dl { display: grid; gap: 12px; margin: 18px 0; }
+.review-packet dl > div { border-left: 2px solid var(--status-fixture); padding-left: 12px; }
+.review-packet dt { color: var(--muted); font: 700 .7rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.review-packet dd { margin: 4px 0 0; }
+.review-packet small { color: var(--muted); }
+
 .review-summary__actions {
     display: grid;
     justify-items: end;
