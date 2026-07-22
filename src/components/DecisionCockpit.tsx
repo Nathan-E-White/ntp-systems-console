@@ -21,7 +21,7 @@ export function buildOperatingCaseDecisionRecord({inputs, outputs, selection, ba
     return {
         controllingCondition: 'Channel-wall criterion margin', result: `${outputs.channelWallCriterionMarginK.toFixed(0)} K`,
         baselineDelta: `${delta >= 0 ? '+' : ''}${delta.toFixed(0)} K versus ${baselinePreset}`,
-        trace: 'RC-TH-103: wall criterion − maximum calculated wall temperature',
+        trace: `RC-TH-103: wall criterion − maximum calculated wall temperature at ${inputs.thermalPowerMw.toFixed(0)} MW thermal power`,
         provenanceDelta: isCustom ? 'Inputs changed in this browser session; fixture evidence was not rerun.' : 'Prepared input profile; static fixture provenance unchanged.',
         reviewPosture: outputs.reviewPosture,
         evidenceApplicability: 'Use fixture evidence as contextual support, not as a recalculated result.',
