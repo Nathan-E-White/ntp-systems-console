@@ -10,5 +10,7 @@ describe('buildOperatingCaseDecisionRecord', () => {
         expect(record.rollbackPreset).toBe('baselineStartup');
         expect(record.provenanceDelta).toContain('not rerun');
         expect(record.trace).toContain('RC-TH-103');
+        expect(record.changedInputs).toContain('thermal Power Mw');
+        expect(record.affectedClaims).toContain('Channel-wall criterion margin');
     });
 });
