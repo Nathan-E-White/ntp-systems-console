@@ -18,6 +18,7 @@ export function StatusPill({
                            }: Readonly<StatusPillProps>) {
     return <span
         className={`statusPill statusPill--${tone} statusPill--${size}`}
+        data-status-tone={tone}
         title={title ?? String(children)}
     >
         {children}

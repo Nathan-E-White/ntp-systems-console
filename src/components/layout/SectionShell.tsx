@@ -15,8 +15,8 @@ export function SectionShell({children, description, eyebrow, title, titleId}: S
         <section className="section-workspace" aria-labelledby={titleId}>
             <header className="section-workspace__header">
                 <p className="eyebrow">{eyebrow}</p>
-                <h2 id={titleId}>{title}</h2>
-                <p>{description}</p>
+                <h2 className="type-section-title" id={titleId}>{title}</h2>
+                <p className="type-review-prose">{description}</p>
             </header>
 
             {children}
