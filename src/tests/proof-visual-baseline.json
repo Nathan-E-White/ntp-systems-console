@@ -1,0 +1,5 @@
+{
+  "1280x720": {"minimumCanvasWidth": 300, "maximumHorizontalOverflow": 6, "minimumScreenshotUniqueColors": 8, "minimumScreenshotLuminanceRange": 24},
+  "1024x768": {"minimumCanvasWidth": 300, "maximumHorizontalOverflow": 6, "minimumScreenshotUniqueColors": 8, "minimumScreenshotLuminanceRange": 24},
+  "390x844": {"minimumCanvasWidth": 300, "maximumHorizontalOverflow": 6, "minimumScreenshotUniqueColors": 8, "minimumScreenshotLuminanceRange": 24}
+}
