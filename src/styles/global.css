@@ -4721,6 +4721,23 @@ details summary {
     font-size: .85rem;
 }
 
+.evidence-story {
+    display: grid;
+    gap: 14px;
+    margin: 0 0 18px;
+    border-left: 4px solid var(--accent);
+    padding: 18px;
+    background: linear-gradient(110deg, var(--surface-raised), transparent);
+}
+.evidence-story h2 { margin: 0; font-family: var(--font-display); }
+.evidence-story header > p:last-child, .evidence-story footer { color: var(--text-soft); line-height: 1.5; margin: 0; }
+.evidence-story__claims { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.evidence-story__claims article { display: grid; align-content: start; gap: 7px; border-top: 2px solid var(--border-strong); padding: 10px 0; }
+.evidence-story__claims span { color: var(--accent-strong); font-family: var(--font-instrument); font-size: .68rem; text-transform: uppercase; }
+.evidence-story__claims p { color: var(--text-soft); font-size: .85rem; line-height: 1.4; margin: 0; }
+.evidence-story__claims button { width: fit-content; }
+@media (max-width: 720px) { .evidence-story__claims { grid-template-columns: 1fr; } }
+
 .decision-cockpit {
     display: grid;
     grid-template-columns: minmax(190px, .7fr) minmax(130px, .35fr) minmax(0, 1.7fr);
