@@ -660,7 +660,7 @@ function SelectedComponentCard({
 }>) {
     return (
         <aside className="scene-selection-card" aria-live="polite">
-            <p className="eyebrow">selected component</p>
+            <p className="eyebrow">anchored scene annotation</p>
             <h3>{component.label}</h3>
             <dl>
                 <div><dt>Discipline</dt><dd>{component.discipline}</dd></div>
