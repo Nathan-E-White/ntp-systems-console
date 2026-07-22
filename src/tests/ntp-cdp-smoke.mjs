@@ -1,8 +1,11 @@
 /* global Buffer, process, setTimeout */
-import {writeFile} from 'node:fs/promises';
+import {mkdir, writeFile} from 'node:fs/promises';
 
 const chromeTargetsUrl = process.env.NTP_CHROME_TARGETS_URL ?? 'http://127.0.0.1:9223/json';
 const appUrl = process.env.NTP_SMOKE_URL ?? 'http://127.0.0.1:5173/';
+const artifactDirectory = process.env.NTP_PROOF_ARTIFACT_DIR ?? '/tmp';
+
+await mkdir(artifactDirectory, {recursive: true});
 
 const targets = await (await fetch(chromeTargetsUrl)).json();
 const target = targets.find((item) => item.type === 'page');
@@ -171,9 +174,30 @@ const assertHealthyShell = (state, viewport, options = {}) => {
     }
 };
 
+const assertAccessibleSurface = (titleId, landmarkLabel) => evaluate(`(() => {
+    const title = document.getElementById(${JSON.stringify(titleId)});
+    const landmark = [...document.querySelectorAll('section, main, aside')]
+        .find((element) => element.getAttribute('aria-label') === ${JSON.stringify(landmarkLabel)});
+    const unlabeledButtons = [...document.querySelectorAll('button')]
+        .filter((button) => !button.disabled && !button.textContent.trim() && !button.getAttribute('aria-label'));
+    return {
+        titleIsHeading: /^H[1-6]$/.test(title?.tagName ?? ''),
+        landmarkFound: Boolean(landmark),
+        unlabeledButtons: unlabeledButtons.length,
+    };
+})()`);
+
+const assertAccessible = async (titleId, landmarkLabel) => {
+    const result = await assertAccessibleSurface(titleId, landmarkLabel);
+    assertState(result.titleIsHeading, `Accessible heading missing for ${titleId}`, result);
+    assertState(result.landmarkFound, `Accessible landmark missing for ${landmarkLabel}`, result);
+    assertState(result.unlabeledButtons === 0, 'Interactive controls include unlabeled buttons', result);
+};
+
 const cycles = [
     {width: 1280, height: 720, suffix: '1280x720'},
     {width: 1024, height: 768, suffix: '1024x768'},
+    {width: 390, height: 844, suffix: '390x844', mobile: true},
 ];
 
 const reports = [];
@@ -187,7 +211,7 @@ for (const viewport of cycles) {
         width: viewport.width,
         height: viewport.height,
         deviceScaleFactor: 1,
-        mobile: false,
+        mobile: Boolean(viewport.mobile),
     });
     await send('Page.navigate', {url: appUrl});
     await waitFor(`Boolean(document.querySelector('.app-shell'))`);
@@ -196,6 +220,20 @@ for (const viewport of cycles) {
     const initial = await pageState();
     assertHealthyShell(initial, viewport, {requireScene: true});
     assertState(initial.activeSection.includes('Operating Case'), 'App does not start on Operating Case', initial.activeSection);
+    await assertAccessible('operating-case-title', 'Operating case decision record');
+    await evaluate(`(() => {
+        const control = document.querySelector('input[type="range"]');
+        if (!control) throw new Error('Custom What-If range control is missing.');
+        control.value = String(Number(control.value) + Number(control.step || 1));
+        control.dispatchEvent(new Event('input', {bubbles: true}));
+        control.dispatchEvent(new Event('change', {bubbles: true}));
+    })()`);
+    await wait(250);
+    const customWhatIf = await evaluate(`(() => ({
+        notice: document.body.textContent.includes('Custom What-If'),
+        rollback: [...document.querySelectorAll('button')].some((button) => button.textContent.includes('Rollback to')),
+    }))()`);
+    assertState(customWhatIf.notice && customWhatIf.rollback, 'Custom What-If journey did not expose provenance and rollback', customWhatIf);
     const initialSceneStats = await writeCanvasScreenshot(`ntp-v3-operating-scene-${viewport.suffix}`);
 
     await selectEngineeringFocus('fuel-performance');
@@ -254,6 +292,7 @@ for (const viewport of cycles) {
     await wait(400);
     const modelEvidence = await pageState();
     assertHealthyShell(modelEvidence, viewport);
+    await assertAccessible('model-evidence-title', 'Engineering fixture evidence');
     for (const required of ['BISON (2)', 'MCNP (4)', 'MOOSE (2)', 'ROCETS (2)', 'MCNP burnup and restart memory']) {
         assertState(modelEvidence.text.includes(required), `Model Evidence copy missing: ${required}`);
     }
@@ -296,6 +335,7 @@ for (const viewport of cycles) {
         focusedEvidenceCount: document.querySelectorAll('.evidence-register__focused').length,
     }))()`);
     assertHealthyShell(review, viewport);
+    await assertAccessible('review-title', 'Integrated engineering review');
     for (const required of [
         'Compact Stability Disposition',
         'ROCETS stability support',
@@ -343,7 +383,7 @@ socket.close();
 
 async function writeScreenshot(label) {
     const screenshot = await send('Page.captureScreenshot', {format: 'png'});
-    await writeFile(`/private/tmp/${label}.png`, Buffer.from(screenshot.result.data, 'base64'));
+    await writeFile(`${artifactDirectory}/${label}.png`, Buffer.from(screenshot.result.data, 'base64'));
 }
 
 async function writeCanvasScreenshot(label) {
@@ -357,14 +397,14 @@ async function writeCanvasScreenshot(label) {
         lastStats = stats;
         lastScreenshotData = screenshotData;
         if (sceneStatsLookNonBlank(stats)) {
-            await writeFile(`/private/tmp/${label}.png`, Buffer.from(screenshotData, 'base64'));
+            await writeFile(`${artifactDirectory}/${label}.png`, Buffer.from(screenshotData, 'base64'));
             return stats;
         }
         await wait(500);
     }
 
     if (lastScreenshotData) {
-        await writeFile(`/private/tmp/${label}.png`, Buffer.from(lastScreenshotData, 'base64'));
+        await writeFile(`${artifactDirectory}/${label}.png`, Buffer.from(lastScreenshotData, 'base64'));
     }
     assertState(false, 'Canvas screenshot appears visually blank', lastStats);
 }
