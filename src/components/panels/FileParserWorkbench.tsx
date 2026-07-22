@@ -1,6 +1,6 @@
 import {ChangeEvent, ReactNode, createContext, useContext, useMemo, useState, Fragment} from 'react';
 import {createFileArtifactFromText} from '../../parser/createFileArtifactFromText';
-import {addCampaignArtifact, createCampaignWorkspace, exportCampaignWorkspace, type CampaignWorkspace} from '../../campaign/CampaignArtifact';
+import {addCampaignArtifact, createCampaignWorkspace, exportCampaignWorkspace, importCampaignWorkspace, renameCampaignWorkspace, type CampaignWorkspace} from '../../campaign/CampaignArtifact';
 import type {
     FileArtifact,
     ParsedFileViewModel,
@@ -36,6 +36,8 @@ export interface FileParserWorkbenchContextValue {
     readonly campaign: CampaignWorkspace;
     readonly addCurrentArtifactToCampaign: () => void;
     readonly campaignExport: () => string;
+    readonly importCampaign: (serialized: string) => void;
+    readonly renameCampaign: (name: string) => void;
 }
 
 export const FileParserWorkbenchState = Object.freeze({
@@ -162,6 +164,8 @@ export function FileParserWorkbenchProvider({
             campaign,
             addCurrentArtifactToCampaign,
             campaignExport: () => exportCampaignWorkspace(campaign),
+            importCampaign: (serialized) => setCampaign(importCampaignWorkspace(serialized)),
+            renameCampaign: (name) => setCampaign((current) => renameCampaignWorkspace(current, name)),
         }),
         [allowedDirection, allowedFamily, artifact, campaign, description, filename, fileText, title],
     );
@@ -180,7 +184,8 @@ function FileParserWorkbenchControls({
     readonly showRawText: boolean;
     readonly showUpload: boolean;
 }) {
-    const {artifact, addCurrentArtifactToCampaign, campaign, campaignExport, fileText, filename, parseCurrentText, setFilename, setFileText} = useFileParserWorkbenchContext();
+    const {artifact, addCurrentArtifactToCampaign, campaign, campaignExport, fileText, filename, importCampaign, parseCurrentText, renameCampaign, setFilename, setFileText} = useFileParserWorkbenchContext();
+    const [campaignImport, setCampaignImport] = useState('');
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -251,10 +256,11 @@ function FileParserWorkbenchControls({
             </div>
 
             <aside className="campaign-artifact-workspace" aria-label="Browser-session campaign artifacts">
-                <strong>{campaign.name}</strong>
+                <label><span>Campaign name</span><input aria-label="Campaign name" onChange={(event) => renameCampaign(event.target.value)} value={campaign.name}/></label>
                 <span>{campaign.artifacts.length} artifact(s) · browser-session only</span>
                 {campaign.artifacts.length > 1 ? <small>Comparison set: {campaign.artifacts.map((item) => `${item.filename} v${item.version}`).join(' ↔ ')}</small> : null}
                 {campaign.artifacts.length ? <details><summary>Review Packet export</summary><pre>{campaignExport()}</pre></details> : null}
+                <details><summary>Import browser-session campaign</summary><textarea aria-label="Campaign import" onChange={(event) => setCampaignImport(event.target.value)} value={campaignImport}/><button onClick={() => importCampaign(campaignImport)} type="button">Import campaign</button></details>
             </aside>
 
             {artifact.error ? <p className="file-parser-error">{artifact.error}</p> : null}

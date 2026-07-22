@@ -38,6 +38,28 @@ export function createCampaignWorkspace(name = 'Untitled browser-session campaig
     return {name, artifacts: [], storageBoundary: 'browser-session-only'};
 }
 
+export function renameCampaignWorkspace(workspace: CampaignWorkspace, name: string): CampaignWorkspace {
+    const nextName = name.trim();
+    return {...workspace, name: nextName || workspace.name};
+}
+
+export function importCampaignWorkspace(serialized: string): CampaignWorkspace {
+    const candidate = JSON.parse(serialized) as Partial<CampaignWorkspace>;
+    if (!candidate || typeof candidate.name !== 'string' || !Array.isArray(candidate.artifacts)) {
+        throw new Error('Campaign import must contain a name and artifact list.');
+    }
+    return {
+        name: candidate.name,
+        artifacts: candidate.artifacts.filter((artifact): artifact is CampaignArtifact => (
+            Boolean(artifact) && typeof artifact.id === 'string' && typeof artifact.filename === 'string' &&
+            typeof artifact.version === 'number' && typeof artifact.parserIdentity === 'string' &&
+            typeof artifact.provenance === 'string' && typeof artifact.reviewRelevance === 'string' &&
+            typeof artifact.parserStatus === 'string'
+        )),
+        storageBoundary: 'browser-session-only',
+    };
+}
+
 export function exportCampaignWorkspace(workspace: CampaignWorkspace): string {
     return JSON.stringify({
         name: workspace.name,
