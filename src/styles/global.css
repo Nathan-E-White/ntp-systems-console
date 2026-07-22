@@ -4998,6 +4998,26 @@ details summary {
         gap: 12px;
     }
 
+    .portrait-decision-lead {
+        display: grid;
+        gap: 6px;
+        margin: 0 0 12px;
+        border-left: 3px solid var(--status-watch);
+        padding: 10px 12px;
+        background: linear-gradient(90deg, rgba(194, 132, 45, .16), transparent);
+    }
+
+    .portrait-decision-lead strong {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+    }
+
+    .portrait-decision-lead p:last-child {
+        margin: 0;
+        color: var(--text-soft);
+        line-height: 1.45;
+    }
+
     .scene-command-bar,
     .evidence-walkthrough__heading,
     .evidence-pair-section__header,
@@ -5032,7 +5052,14 @@ details summary {
     }
 
     .scene-selection-card {
-        display: none;
+        display: block;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        width: auto;
+        max-height: 42%;
+        overflow: auto;
+        padding: 8px 10px;
     }
 
     .investigation-thread dl {
@@ -5073,5 +5100,11 @@ details summary {
 
     .channel-layout__metric-control {
         align-self: start;
+    }
+}
+
+@media (min-width: 721px) {
+    .portrait-decision-lead {
+        display: none;
     }
 }

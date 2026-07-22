@@ -27,10 +27,17 @@ export function OperatingCaseSection({
     onOpenModelEvidence: (componentId: SceneComponentId) => void;
 }>) {
     return (
-        <SectionShell eyebrow="engine operations" title="Operating Case"
+            <SectionShell eyebrow="engine operations" title="Operating Case"
                       titleId="operating-case-title"
                       description="Set the operating point and identify the controlling condition.">
             <DecisionCockpit inputs={inputs} outputs={outputs}/>
+            <section className="portrait-decision-lead" aria-label="Controlling condition">
+                <p className="eyebrow">review posture</p>
+                <strong>Channel-wall criterion margin: {outputs.channelWallCriterionMarginK.toFixed(0)} K</strong>
+                <p>{outputs.channelWallCriterionMarginK < 0
+                    ? 'Limit exceeded. Reduce thermal loading or increase hydrogen flow before using this case for review.'
+                    : 'Screening margin remains positive. Inspect its assumptions and evidence before treating it as a decision.'}</p>
+             </section>
             <SectionGrid variant="console">
                 <div className="operating-workspace">
                     <section className="panel engine-panel">
