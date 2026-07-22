@@ -469,7 +469,7 @@ function EvidenceCard({
     return (
         <article
             aria-label={`Inspect ${evidence.label}`}
-            className={`panel evidence-card ${linked ? 'linked-evidence' : ''} ${focused ? 'focused-evidence' : ''} ${expanded ? 'evidence-card--expanded' : ''}`}
+            className={`panel evidence-card evidence-specimen ${linked ? 'linked-evidence' : ''} ${focused ? 'focused-evidence' : ''} ${expanded ? 'evidence-card--expanded' : ''}`}
             data-evidence-direction={evidence.direction}
             data-evidence-id={evidence.id}
             onClick={handleCardClick}
@@ -487,6 +487,12 @@ function EvidenceCard({
                         {focused ? `selected component · ${STATUS_LABELS[evidence.parserStatus]}` : STATUS_LABELS[evidence.parserStatus]}
                     </span>
                 </div>
+            </div>
+            <div className="evidence-specimen__provenance" aria-label="Fixture provenance">
+                <span>synthetic fixture</span>
+                <span>read-only parser evidence</span>
+                <span>source · {evidence.sourceFile}</span>
+                <span>not a calculated result</span>
             </div>
             <details className="evidence-metadata">
                 <summary>Fixture metadata</summary>
