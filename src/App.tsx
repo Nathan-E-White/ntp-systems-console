@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 
 import {AppLayout} from './AppLayout';
 import {type AppSectionId} from './AppSections';
@@ -20,6 +20,7 @@ import {
     useTheatreDemoDirector,
 } from './components/visualization';
 import {useAnalysisLinkRegistry} from './components/analysis';
+import {useActiveCase} from './components/activeCase';
 
 export function App() {
     const inputs = useEngineInputs();
@@ -56,12 +57,15 @@ function Workbench({
     const director = useTheatreDemoDirector();
     const presentation = useScenePresentation();
     const resetEngine = useEngineStore((state) => state.resetDemo);
+    const activeCase = useActiveCase();
 
     const openEvidence = (componentId: SceneComponentId) => {
+        activeCase.openEvidence(componentId);
         investigation.selectComponent(componentId);
         setActiveSectionId('model-evidence');
     };
-    const resetDemo = () => {
+    useEffect(() => {
+        if (activeCase.state.resetVersion === 0) return;
         cancelGuidedDemoSequence();
         director.stop();
         investigation.resetSelection();
@@ -69,7 +73,8 @@ function Workbench({
         presentation.resetPresentation();
         resetEngine();
         setActiveSectionId('operating-case');
-    };
+    }, [activeCase.state.resetVersion, director, investigation, links, presentation, resetEngine]);
+    const resetDemo = () => activeCase.reset();
 
     return (
         <AppLayout

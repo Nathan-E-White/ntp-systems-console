@@ -10,6 +10,7 @@ import {
     ParameterWorkspaceProvider,
 } from './index';
 import {EvidenceWalkthroughBridge} from './EvidenceWalkthrough/EvidenceWalkthroughBridge';
+import {ActiveCaseProvider, ActiveCaseTimeline} from '../activeCase';
 import type {EngineeringDataWorkspaceModel} from './EngineeringDataWorkspace/EngineeringDataWorkspace.model';
 import {
     buildTheatreDemoDirectorModel,
@@ -27,6 +28,8 @@ export interface ActiveCaseProvidersProps {
 
 export function ActiveCaseProviders({model, children}: Readonly<ActiveCaseProvidersProps>) {
     return (
+        <ActiveCaseProvider caseId={model.caseId}>
+        <ActiveCaseTimeline/>
         <EngineeringDataWorkspaceProvider model={model} initialStatus="ready">
             <FixtureEvidenceWorkspaceProvider model={model.fixtures}>
                 <ParameterWorkspaceProvider model={model.parameters}>
@@ -53,5 +56,6 @@ export function ActiveCaseProviders({model, children}: Readonly<ActiveCaseProvid
                 </ParameterWorkspaceProvider>
             </FixtureEvidenceWorkspaceProvider>
         </EngineeringDataWorkspaceProvider>
+        </ActiveCaseProvider>
     );
 }

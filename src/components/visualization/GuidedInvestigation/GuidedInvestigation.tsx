@@ -6,6 +6,7 @@ import {
     type SceneComponentId,
     type SceneSelectionState,
 } from './GuidedInvestigation.model';
+import {useOptionalActiveCase} from '../../activeCase';
 
 export interface GuidedInvestigationContextValue {
     readonly model: GuidedInvestigationModel;
@@ -18,20 +19,26 @@ export interface GuidedInvestigationContextValue {
 const GuidedInvestigationContext = createContext<GuidedInvestigationContextValue | undefined>(undefined);
 
 export function GuidedInvestigationProvider({children}: Readonly<{children: ReactNode}>) {
+    const activeCase = useOptionalActiveCase();
     const model = useMemo(buildGuidedInvestigationModel, []);
-    const [state, setState] = useState<SceneSelectionState>({
+    const [localState, setState] = useState<SceneSelectionState>({
         selectedComponentId: 'engine-overview',
         owner: 'user',
     });
-    const selectComponent = useCallback(
-        (selectedComponentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') =>
-            setState({selectedComponentId, owner}),
-        [],
-    );
-    const restoreSelection = useCallback((selection: SceneSelectionState) => setState(selection), []);
+    const state = activeCase
+        ? {selectedComponentId: activeCase.state.evidenceFocus, owner: activeCase.state.sceneOwner === 'guided' ? 'theatre' : 'user'} as const
+        : localState;
+    const selectComponent = useCallback((selectedComponentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') => {
+        if (activeCase) activeCase.openEvidence(selectedComponentId, owner === 'theatre' ? 'guided' : 'manual');
+        else setState({selectedComponentId, owner});
+    }, [activeCase]);
+    const restoreSelection = useCallback((selection: SceneSelectionState) => {
+        if (activeCase) activeCase.openEvidence(selection.selectedComponentId, selection.owner === 'theatre' ? 'guided' : 'manual');
+        else setState(selection);
+    }, [activeCase]);
     const resetSelection = useCallback(
-        () => setState({selectedComponentId: 'engine-overview', owner: 'user'}),
-        [],
+        () => activeCase ? activeCase.reset() : setState({selectedComponentId: 'engine-overview', owner: 'user'}),
+        [activeCase],
     );
     const value = useMemo<GuidedInvestigationContextValue>(() => ({
         model,
