@@ -1,14 +1,13 @@
 import {describe, expect, it} from 'vitest';
 
-import bisonInput from '../../fixtures/bison/ntp.bison.i?raw';
-import bisonOutput from '../../fixtures/bison/ntp.bison.o?raw';
+import {canonicalFixture} from '../../fixtures/canonicalFixtures';
 import {createFileArtifactFromText} from '../createFileArtifactFromText';
 import {parseBisonInput} from './bison.input.parser';
 import {parseBisonOutput} from './bison.output.parser';
 
 describe('BISON fixture parsing', () => {
     it('extracts input variables, schedules, and companion source context', () => {
-        const parsed = parseBisonInput(bisonInput);
+        const parsed = parseBisonInput(canonicalFixture('bison-input').text);
 
         expect(parsed.metadata.inputFile).toBe('ntp.bison.i');
         expect(parsed.metadata.validationStatus).toBe('not_validated');
@@ -26,7 +25,7 @@ describe('BISON fixture parsing', () => {
     });
 
     it('extracts output postprocessors, profiles, and final review values', () => {
-        const parsed = parseBisonOutput(bisonOutput);
+        const parsed = parseBisonOutput(canonicalFixture('bison-output').text);
 
         expect(parsed.metadata.application).toBe('BISON-like fuel performance scaffold');
         expect(parsed.postprocessorHistory).toHaveLength(14);
@@ -48,7 +47,7 @@ describe('BISON fixture parsing', () => {
     it('detects BISON fixtures through the registry and rejects unsupported files', () => {
         const outputArtifact = createFileArtifactFromText({
             filename: 'ntp.bison.o',
-            text: bisonOutput,
+            text: canonicalFixture('bison-output').text,
             id: 'bison-output-test',
         });
         const unsupported = createFileArtifactFromText({

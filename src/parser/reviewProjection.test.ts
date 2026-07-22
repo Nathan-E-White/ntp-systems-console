@@ -1,7 +1,6 @@
 import {describe, expect, it} from "vitest";
 
-import bisonOutput from "../fixtures/bison/ntp.bison.o?raw";
-import mooseOutput from "../fixtures/moose/ntp_moose.out?raw";
+import {canonicalFixture} from "../fixtures/canonicalFixtures";
 import {createFileArtifactFromText} from "./createFileArtifactFromText";
 import {
   projectBisonArtifactForReview,
@@ -11,8 +10,8 @@ import {
 
 describe("schema-driven review projection", () => {
   it("projects MOOSE and BISON artifacts through the shared declarative contract", () => {
-    const moose = createFileArtifactFromText({filename: "ntp_moose.out", text: mooseOutput, id: "moose-evidence"});
-    const bison = createFileArtifactFromText({filename: "ntp.bison.o", text: bisonOutput, id: "bison-evidence"});
+    const moose = createFileArtifactFromText({...canonicalFixture("moose-output"), id: "moose-evidence"});
+    const bison = createFileArtifactFromText({...canonicalFixture("bison-output"), id: "bison-evidence"});
 
     const mooseProjection = projectMooseArtifactForReview(moose);
     const bisonProjection = projectBisonArtifactForReview(bison);
