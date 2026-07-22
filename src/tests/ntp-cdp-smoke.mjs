@@ -1,9 +1,10 @@
-/* global Buffer, process, setTimeout */
-import {mkdir, writeFile} from 'node:fs/promises';
+/* global Buffer, process, setTimeout, URL */
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 
 const chromeTargetsUrl = process.env.NTP_CHROME_TARGETS_URL ?? 'http://127.0.0.1:9223/json';
 const appUrl = process.env.NTP_SMOKE_URL ?? 'http://127.0.0.1:5173/';
 const artifactDirectory = process.env.NTP_PROOF_ARTIFACT_DIR ?? '/tmp';
+const visualBaseline = JSON.parse(await readFile(new URL('./proof-visual-baseline.json', import.meta.url), 'utf8'));
 
 await mkdir(artifactDirectory, {recursive: true});
 
@@ -159,6 +160,7 @@ const pageState = () => evaluate(`(() => {
 })()`);
 
 const assertHealthyShell = (state, viewport, options = {}) => {
+    const baseline = visualBaseline[viewport.suffix];
     assertState(state.heading === 'SNP Engine Systems Analysis Workbench', 'Unexpected app heading', state.heading);
     assertState(
         JSON.stringify(state.tabs) === JSON.stringify(['Operating Case', 'Nuclear Fuel Performance', 'Model Evidence', 'Review']),
@@ -166,10 +168,10 @@ const assertHealthyShell = (state, viewport, options = {}) => {
         state.tabs,
     );
     assertState(!state.tabs.includes('Stability'), 'Stability is still present in primary navigation', state.tabs);
-    assertState(state.horizontalOverflow <= 6, `Page has horizontal overflow at ${viewport.width}x${viewport.height}`, state.horizontalOverflow);
+    assertState(state.horizontalOverflow <= baseline.maximumHorizontalOverflow, `Page has horizontal overflow at ${viewport.width}x${viewport.height}`, state.horizontalOverflow);
     assertState(state.tabOverlaps.length === 0, 'Primary navigation tabs overlap', state.tabOverlaps);
     if (options.requireScene) {
-        assertState(state.canvas?.visible, '3D scene canvas is missing or too small', state.canvas);
+        assertState(state.canvas?.visible && state.canvas.width >= baseline.minimumCanvasWidth, '3D scene canvas is missing or too small', state.canvas);
         assertState(!state.fallbackVisible, 'WebGL fallback is visible instead of the 3D scene');
     }
 };
@@ -235,6 +237,9 @@ for (const viewport of cycles) {
     }))()`);
     assertState(customWhatIf.notice && customWhatIf.rollback, 'Custom What-If journey did not expose provenance and rollback', customWhatIf);
     const initialSceneStats = await writeCanvasScreenshot(`ntp-v3-operating-scene-${viewport.suffix}`);
+    const baseline = visualBaseline[viewport.suffix];
+    assertState(initialSceneStats.unique >= baseline.minimumScreenshotUniqueColors, 'Scene screenshot fell below visual baseline color variation', initialSceneStats);
+    assertState(initialSceneStats.luminanceRange >= baseline.minimumScreenshotLuminanceRange, 'Scene screenshot fell below visual baseline contrast', initialSceneStats);
 
     await selectEngineeringFocus('fuel-performance');
     await wait(500);
