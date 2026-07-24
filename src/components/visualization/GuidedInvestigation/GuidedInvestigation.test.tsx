@@ -3,6 +3,7 @@ import {fireEvent, render, screen} from '@testing-library/react';
 import {describe, expect, it} from 'vitest';
 
 import {GuidedInvestigationProvider, useGuidedInvestigation} from './GuidedInvestigation';
+import {ActiveCaseProvider} from '../../activeCase';
 
 function SelectionProbe() {
     const investigation = useGuidedInvestigation();
@@ -23,17 +24,18 @@ function SelectionProbe() {
             >
                 Theatre focus
             </button>
-            <button onClick={investigation.resetSelection} type="button">Reset selection</button>
         </>
     );
 }
 
 describe('GuidedInvestigationProvider', () => {
-    it('tracks manual and Theatre-owned presentation selection without domain state', () => {
+    it('adapts Active Case evidence selection for manual and Theatre-owned selection', () => {
         render(
-            <GuidedInvestigationProvider>
-                <SelectionProbe/>
-            </GuidedInvestigationProvider>,
+            <ActiveCaseProvider caseId="baseline">
+                <GuidedInvestigationProvider>
+                    <SelectionProbe/>
+                </GuidedInvestigationProvider>
+            </ActiveCaseProvider>,
         );
 
         expect(screen.getByLabelText('selection')).toHaveTextContent('engine-overview:user');
@@ -41,7 +43,5 @@ describe('GuidedInvestigationProvider', () => {
         expect(screen.getByLabelText('selection')).toHaveTextContent('reactor-criticality:user');
         fireEvent.click(screen.getByRole('button', {name: 'Theatre focus'}));
         expect(screen.getByLabelText('selection')).toHaveTextContent('thermal-margin:theatre');
-        fireEvent.click(screen.getByRole('button', {name: 'Reset selection'}));
-        expect(screen.getByLabelText('selection')).toHaveTextContent('engine-overview:user');
     });
 });

@@ -1,4 +1,4 @@
-import {createContext, type ReactNode, useCallback, useContext, useMemo, useState} from 'react';
+import {createContext, type ReactNode, useCallback, useContext, useMemo} from 'react';
 
 import {
     buildGuidedInvestigationModel,
@@ -6,47 +6,36 @@ import {
     type SceneComponentId,
     type SceneSelectionState,
 } from './GuidedInvestigation.model';
-import {useOptionalActiveCase} from '../../activeCase';
+import {useActiveCase} from '../../activeCase';
 
 export interface GuidedInvestigationContextValue {
     readonly model: GuidedInvestigationModel;
     readonly state: SceneSelectionState;
     readonly selectComponent: (componentId: SceneComponentId, owner?: SceneSelectionState['owner']) => void;
     readonly restoreSelection: (selection: SceneSelectionState) => void;
-    readonly resetSelection: () => void;
 }
 
 const GuidedInvestigationContext = createContext<GuidedInvestigationContextValue | undefined>(undefined);
 
 export function GuidedInvestigationProvider({children}: Readonly<{children: ReactNode}>) {
-    const activeCase = useOptionalActiveCase();
+    const {openEvidence, state: activeCaseState} = useActiveCase();
     const model = useMemo(buildGuidedInvestigationModel, []);
-    const [localState, setState] = useState<SceneSelectionState>({
-        selectedComponentId: 'engine-overview',
-        owner: 'user',
-    });
-    const state = activeCase
-        ? {selectedComponentId: activeCase.state.evidenceFocus, owner: activeCase.state.sceneOwner === 'guided' ? 'theatre' : 'user'} as const
-        : localState;
+    const state = {
+        selectedComponentId: activeCaseState.evidenceFocus,
+        owner: activeCaseState.evidenceOwner === 'guided' ? 'theatre' : 'user',
+    } as const;
     const selectComponent = useCallback((selectedComponentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') => {
-        if (activeCase) activeCase.openEvidence(selectedComponentId, owner === 'theatre' ? 'guided' : 'manual');
-        else setState({selectedComponentId, owner});
-    }, [activeCase]);
+        openEvidence(selectedComponentId, owner === 'theatre' ? 'guided' : 'manual');
+    }, [openEvidence]);
     const restoreSelection = useCallback((selection: SceneSelectionState) => {
-        if (activeCase) activeCase.openEvidence(selection.selectedComponentId, selection.owner === 'theatre' ? 'guided' : 'manual');
-        else setState(selection);
-    }, [activeCase]);
-    const resetSelection = useCallback(
-        () => activeCase ? activeCase.reset() : setState({selectedComponentId: 'engine-overview', owner: 'user'}),
-        [activeCase],
-    );
+        openEvidence(selection.selectedComponentId, selection.owner === 'theatre' ? 'guided' : 'manual');
+    }, [openEvidence]);
     const value = useMemo<GuidedInvestigationContextValue>(() => ({
         model,
         state,
         selectComponent,
         restoreSelection,
-        resetSelection,
-    }), [model, resetSelection, restoreSelection, selectComponent, state]);
+    }), [model, restoreSelection, selectComponent, state]);
 
     return <GuidedInvestigationContext.Provider value={value}>{children}</GuidedInvestigationContext.Provider>;
 }

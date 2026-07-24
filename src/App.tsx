@@ -12,7 +12,6 @@ import {
 } from './theatre/guidedDemoSequence';
 import {
     type SceneComponentId,
-    useGuidedInvestigation,
     useScenePresentation,
     useTheatreDemoDirector,
 } from './components/visualization';
@@ -55,13 +54,13 @@ function Workbench({
 }>) {
     const [activeSectionId, setActiveSectionId] = useState<AppSectionId>(() => parseReviewRoute(window.location.search).section);
     const [showKeyboardMap, setShowKeyboardMap] = useState(false);
-    const investigation = useGuidedInvestigation();
     const links = useAnalysisLinkRegistry();
     const director = useTheatreDemoDirector();
     const presentation = useScenePresentation();
     const resetEngine = useEngineStore((state) => state.resetDemo);
     const activeCase = useActiveCase();
     const appliedInitialRoute = useRef(false);
+    const appliedResetVersion = useRef(0);
 
     const updateRoute = (section: AppSectionId, focus: SceneComponentId | null = null, replace = false) => {
         const url = `${window.location.pathname}${reviewRouteSearch({section, focus})}`;
@@ -71,7 +70,6 @@ function Workbench({
 
     const openEvidence = (componentId: SceneComponentId) => {
         activeCase.openEvidence(componentId);
-        investigation.selectComponent(componentId);
         updateRoute('model-evidence', componentId);
     };
     useEffect(() => {
@@ -79,26 +77,26 @@ function Workbench({
         if (!appliedInitialRoute.current && route.focus) {
             appliedInitialRoute.current = true;
             activeCase.openEvidence(route.focus);
-            investigation.selectComponent(route.focus);
         }
         const onPopState = () => {
             const next = parseReviewRoute(window.location.search);
             setActiveSectionId(next.section);
-            if (next.focus) investigation.selectComponent(next.focus);
+            if (next.focus) activeCase.openEvidence(next.focus);
         };
         window.addEventListener('popstate', onPopState);
         return () => window.removeEventListener('popstate', onPopState);
-    }, [activeCase, investigation]);
+    }, [activeCase]);
     useEffect(() => {
-        if (activeCase.state.resetVersion === 0) return;
+        const {resetVersion} = activeCase.state;
+        if (resetVersion === 0 || appliedResetVersion.current === resetVersion) return;
+        appliedResetVersion.current = resetVersion;
         cancelGuidedDemoSequence();
         director.stop();
-        investigation.resetSelection();
         links.activateLink(null);
         presentation.resetPresentation();
         resetEngine();
         updateRoute('operating-case', null, true);
-    }, [activeCase.state.resetVersion, director, investigation, links, presentation, resetEngine]);
+    }, [activeCase.state.resetVersion, director, links, presentation, resetEngine]);
     const resetDemo = () => activeCase.reset();
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {

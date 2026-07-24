@@ -93,7 +93,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const {activateLink} = links;
     const {
         model: investigationModel,
-        restoreSelection: restoreInvestigationSelection,
         selectComponent: selectInvestigationComponent,
         state: investigationState,
     } = investigation;
@@ -211,23 +210,27 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const visibleCalloutIds = getVisibleCalloutIds(effectiveMode);
     const selectComponent = useCallback((componentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') => {
         const descriptor = investigationModel.components.find((component) => component.id === componentId);
-        selectInvestigationComponent(componentId, owner);
+        if (owner === 'theatre') activeCase.cueScene(componentId, 'guided');
+        else selectInvestigationComponent(componentId, owner);
         activateLink(descriptor?.analysisLinkId ?? null);
         if (descriptor?.analysisLinkId === 'thermal-margin') setVisualizationMode('thermal');
         if (descriptor?.analysisLinkId === 'propulsion-stability') setVisualizationMode('flow');
         if (owner === 'user') selectPreset(getComponentViewPreset(componentId));
-    }, [activateLink, investigationModel.components, selectInvestigationComponent, selectPreset, setVisualizationMode]);
+    }, [activateLink, activeCase, investigationModel.components, selectInvestigationComponent, selectPreset, setVisualizationMode]);
 
     const restoreManualSelection = useCallback(() => {
         if (!priorSelection.current) return;
-        restoreInvestigationSelection(priorSelection.current);
+        activeCase.cueScene(
+            priorSelection.current.selectedComponentId,
+            priorSelection.current.owner === 'theatre' ? 'guided' : 'manual',
+        );
         const descriptor = investigationModel.components.find(
             (component) => component.id === priorSelection.current?.selectedComponentId,
         );
         activateLink(descriptor?.analysisLinkId ?? null);
         restoreTourSnapshot();
         priorSelection.current = null;
-    }, [activateLink, investigationModel.components, restoreInvestigationSelection, restoreTourSnapshot]);
+    }, [activateLink, activeCase, investigationModel.components, restoreTourSnapshot]);
 
     useEffect(() => {
         if (director.state.activeCueIndex === null
@@ -284,7 +287,12 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     }, [director.state.playbackStatus, restoreManualSelection]);
 
     const startTour = () => {
-        if (!priorSelection.current) priorSelection.current = investigationState;
+        if (!priorSelection.current) {
+            priorSelection.current = {
+                selectedComponentId: activeCase.state.sceneCue,
+                owner: activeCase.state.sceneOwner === 'guided' ? 'theatre' : 'user',
+            };
+        }
         saveTourSnapshot();
         director.replay();
     };

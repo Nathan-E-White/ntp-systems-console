@@ -14,6 +14,7 @@ export interface ActiveCaseEvent {
 export interface ActiveCaseSnapshot {
     readonly caseId: string;
     readonly evidenceFocus: SceneComponentId;
+    readonly evidenceOwner: 'manual' | 'guided';
     readonly sceneCue: SceneComponentId;
     readonly sceneOwner: 'manual' | 'guided';
 }
@@ -21,6 +22,7 @@ export interface ActiveCaseSnapshot {
 export interface ActiveCaseState {
     readonly caseId: string;
     readonly evidenceFocus: SceneComponentId;
+    readonly evidenceOwner: 'manual' | 'guided';
     readonly sceneCue: SceneComponentId;
     readonly sceneOwner: 'manual' | 'guided';
     readonly resetVersion: number;
@@ -52,6 +54,7 @@ export function ActiveCaseProvider({caseId, children}: Readonly<{caseId: string;
         setState((current) => ({
             ...current,
             evidenceFocus: componentId,
+            evidenceOwner: owner,
             sceneCue: componentId,
             sceneOwner: owner,
             timeline: [...current.timeline, eventFor(current, 'evidence-opened', componentId)],
@@ -110,7 +113,15 @@ export function useActiveCase(): ActiveCaseContextValue {
 }
 
 function initialState(caseId: string): ActiveCaseState {
-    return {caseId, evidenceFocus: 'engine-overview', sceneCue: 'engine-overview', sceneOwner: 'manual', resetVersion: 0, timeline: []};
+    return {
+        caseId,
+        evidenceFocus: 'engine-overview',
+        evidenceOwner: 'manual',
+        sceneCue: 'engine-overview',
+        sceneOwner: 'manual',
+        resetVersion: 0,
+        timeline: [],
+    };
 }
 
 function eventFor(state: ActiveCaseState, kind: ActiveCaseEventKind, label: string): ActiveCaseEvent {
@@ -118,5 +129,11 @@ function eventFor(state: ActiveCaseState, kind: ActiveCaseEventKind, label: stri
 }
 
 function snapshotOf(state: ActiveCaseState): ActiveCaseSnapshot {
-    return {caseId: state.caseId, evidenceFocus: state.evidenceFocus, sceneCue: state.sceneCue, sceneOwner: state.sceneOwner};
+    return {
+        caseId: state.caseId,
+        evidenceFocus: state.evidenceFocus,
+        evidenceOwner: state.evidenceOwner,
+        sceneCue: state.sceneCue,
+        sceneOwner: state.sceneOwner,
+    };
 }
