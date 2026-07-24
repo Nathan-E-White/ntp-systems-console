@@ -29,6 +29,7 @@ describe('vertical-slice concern linking', () => {
             </ActiveCaseProviders>,
         );
 
+        openEvidenceInventory();
         fireEvent.click(screen.getByRole('button', {name: /Wall criterion margin/i}));
 
         expect(screen.getByRole('heading', {name: 'Neutronics / transport evidence'}).closest('article'))
@@ -49,6 +50,7 @@ describe('vertical-slice concern linking', () => {
             </ActiveCaseProviders>,
         );
 
+        openEvidenceInventory();
         fireEvent.click(screen.getByRole('button', {name: /basis completeness 70% watch/i}));
 
         expect(screen.getByRole('heading', {name: 'Engine system / stability evidence'}).closest('article'))
@@ -63,6 +65,7 @@ describe('vertical-slice concern linking', () => {
             </ActiveCaseProviders>,
         );
 
+        openEvidenceInventory();
         fireEvent.click(screen.getByRole('button', {name: 'Select criticality evidence'}));
         expect(screen.getByRole('heading', {name: 'Criticality / burnup evidence'}).closest('article'))
             .toHaveClass('focused-evidence');
@@ -165,4 +168,8 @@ function SelectCriticality() {
             Select criticality evidence
         </button>
     );
+}
+
+function openEvidenceInventory() {
+    fireEvent.click(screen.getByRole('button', {name: 'Open full evidence inventory'}));
 }

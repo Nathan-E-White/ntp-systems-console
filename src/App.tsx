@@ -6,7 +6,7 @@ import {ActiveCaseProviders} from './components/analysis/ActiveCaseProviders';
 import {OperatingCaseSection} from './components/sections/OperatingCaseSection';
 import {buildActiveCaseWorkspace} from './demo/activeCaseWorkspace';
 import {useEngineInputs, useEngineOutputs, useEngineTransient} from './state/EngineSelectors';
-import {useEngineStore} from './state/EngineStore';
+import {type EngineCaseSelection, type EnginePresetId, useEngineStore} from './state/EngineStore';
 import {
     cancelGuidedDemoSequence,
 } from './theatre/guidedDemoSequence';
@@ -17,7 +17,7 @@ import {
 } from './components/visualization';
 import {useAnalysisLinkRegistry} from './components/analysis';
 import {useActiveCase} from './components/activeCase';
-import {parseReviewRoute, reviewRouteSearch} from './routing/reviewRoute';
+import {changedEngineInputs, parseReviewRoute, reviewRouteSearch} from './routing/reviewRoute';
 
 const ModelEvidenceSection = lazy(() => import('./components/sections/ModelEvidenceSection').then((module) => ({default: module.ModelEvidenceSection})));
 const NuclearFuelPerformanceSection = lazy(() => import('./components/sections/NuclearFuelPerformanceSection').then((module) => ({default: module.NuclearFuelPerformanceSection})));
@@ -58,12 +58,23 @@ function Workbench({
     const director = useTheatreDemoDirector();
     const presentation = useScenePresentation();
     const resetEngine = useEngineStore((state) => state.resetDemo);
+    const loadPreset = useEngineStore((state) => state.loadPreset);
+    const loadCustomWhatIf = useEngineStore((state) => state.loadCustomWhatIf);
+    const selection = useEngineStore((state) => state.selectedPresetId);
+    const basePresetId = useEngineStore((state) => state.basePresetId);
+    const currentInputs = useEngineStore((state) => state.inputs);
     const activeCase = useActiveCase();
     const appliedInitialRoute = useRef(false);
     const appliedResetVersion = useRef(0);
 
-    const updateRoute = (section: AppSectionId, focus: SceneComponentId | null = null, replace = false) => {
-        const url = `${window.location.pathname}${reviewRouteSearch({section, focus})}`;
+    const updateRoute = (section: AppSectionId, focus: SceneComponentId | null = null, replace = false, routeCase: EngineCaseSelection = selection, routeBasePreset: EnginePresetId = basePresetId) => {
+        const url = `${window.location.pathname}${reviewRouteSearch({
+            section,
+            focus,
+            caseSelection: routeCase,
+            basePresetId: routeBasePreset,
+            inputChanges: routeCase === 'customWhatIf' ? changedEngineInputs(currentInputs, routeBasePreset) : {},
+        })}`;
         window.history[replace ? 'replaceState' : 'pushState'](null, '', url);
         setActiveSectionId(section);
     };
@@ -74,18 +85,32 @@ function Workbench({
     };
     useEffect(() => {
         const route = parseReviewRoute(window.location.search);
-        if (!appliedInitialRoute.current && route.focus) {
+        if (!appliedInitialRoute.current) {
             appliedInitialRoute.current = true;
-            activeCase.openEvidence(route.focus);
+            restoreRouteCase(route.caseSelection, route.basePresetId, route.inputChanges, loadPreset, loadCustomWhatIf);
+            if (route.focus) activeCase.openEvidence(route.focus);
         }
         const onPopState = () => {
             const next = parseReviewRoute(window.location.search);
             setActiveSectionId(next.section);
+            restoreRouteCase(next.caseSelection, next.basePresetId, next.inputChanges, loadPreset, loadCustomWhatIf);
             if (next.focus) activeCase.openEvidence(next.focus);
         };
         window.addEventListener('popstate', onPopState);
         return () => window.removeEventListener('popstate', onPopState);
-    }, [activeCase]);
+    }, [activeCase, loadCustomWhatIf, loadPreset]);
+    useEffect(() => {
+        if (!appliedInitialRoute.current) return;
+        const current = parseReviewRoute(window.location.search);
+        const nextSearch = reviewRouteSearch({
+            section: activeSectionId,
+            focus: current.focus,
+            caseSelection: selection,
+            basePresetId,
+            inputChanges: selection === 'customWhatIf' ? changedEngineInputs(currentInputs, basePresetId) : {},
+        });
+        if (window.location.search !== nextSearch) window.history.replaceState(null, '', `${window.location.pathname}${nextSearch}`);
+    }, [activeSectionId, basePresetId, currentInputs, selection]);
     useEffect(() => {
         const {resetVersion} = activeCase.state;
         if (resetVersion === 0 || appliedResetVersion.current === resetVersion) return;
@@ -126,6 +151,17 @@ function Workbench({
             {showKeyboardMap && <aside className="keyboard-map" role="dialog" aria-label="Keyboard map"><button onClick={() => setShowKeyboardMap(false)} type="button">Close</button><h2>Keyboard map</h2><p><kbd>?</kbd> open this map · <kbd>Esc</kbd> close it</p><p>Use visible section tabs and scene controls with standard keyboard focus.</p></aside>}
         </AppLayout>
     );
+}
+
+function restoreRouteCase(
+    selection: EngineCaseSelection,
+    basePresetId: EnginePresetId,
+    inputChanges: Partial<ReturnType<typeof useEngineStore.getState>['inputs']>,
+    loadPreset: (presetId: EnginePresetId) => void,
+    loadCustomWhatIf: (presetId: EnginePresetId, changes: Partial<ReturnType<typeof useEngineStore.getState>['inputs']>) => void,
+) {
+    if (selection === 'customWhatIf') loadCustomWhatIf(basePresetId, inputChanges);
+    else loadPreset(selection);
 }
 
 function DeferredSection({children}: Readonly<{children: ReactNode}>) {
