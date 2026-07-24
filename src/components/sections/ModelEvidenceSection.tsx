@@ -28,6 +28,7 @@ import {
     useGuidedInvestigation,
 } from '../visualization';
 import {ParsedDomainStructuredView} from '../ParsedDomainStructuredView';
+import type {SceneComponentId} from '../visualization/GuidedInvestigation/GuidedInvestigation.model';
 
 type DirectionFilter = 'all' | ParserDirection;
 type FamilyFilter = 'all' | ParserFamily;
@@ -124,7 +125,8 @@ function familyCounts(): Record<FamilyFilter, number> {
 
 export function ModelEvidenceSection({
     onReturnToOperatingCase,
-}: Readonly<{onReturnToOperatingCase: () => void}>) {
+    routeFocus,
+}: Readonly<{onReturnToOperatingCase: () => void; routeFocus?: SceneComponentId | null}>) {
     const [selectedDirection, setSelectedDirection] = useState<DirectionFilter>('all');
     const [selectedFamily, setSelectedFamily] = useState<FamilyFilter>('all');
     const [focusedEvidenceId, setFocusedEvidenceId] = useState<string>();
@@ -155,6 +157,14 @@ export function ModelEvidenceSection({
         setShowInventory(false);
         setFocusedEvidenceId(walkthrough.activeStep.evidenceId);
     }, [walkthrough.activeStep, walkthrough.state.status]);
+    useEffect(() => {
+        if (!routeFocus) return;
+        const selectedComponent = investigation.model.components.find((candidate) => candidate.id === routeFocus);
+        const evidenceId = selectedComponent?.fixtureIds[0];
+        if (!evidenceId) return;
+        setFocusedEvidenceId(evidenceId);
+        setShowInventory(false);
+    }, [investigation.model.components, routeFocus]);
 
     return (
         <SectionShell

@@ -49,4 +49,13 @@ describe('ModelEvidenceSection', () => {
         expect(screen.getAllByText('BISON postprocessor history').length).toBeGreaterThan(0);
         expect(screen.getAllByText('Final fuel-performance review summary').length).toBeGreaterThan(0);
     });
+
+    it('opens the fixture mapped from a citeable evidence focus', async () => {
+        const outputs = computeEngineOutputs(DEFAULT_ENGINE_INPUTS);
+        const model = buildActiveCaseWorkspace({selection: DEFAULT_ENGINE_PRESET_ID, inputs: DEFAULT_ENGINE_INPUTS, outputs, transient: generateTransient(DEFAULT_ENGINE_INPUTS)});
+
+        render(<ActiveCaseProviders model={model}><ModelEvidenceSection onReturnToOperatingCase={() => undefined} routeFocus="thermal-margin"/></ActiveCaseProviders>);
+
+        expect(await screen.findByText('Thermomechanics evidence in inspection view')).toBeInTheDocument();
+    });
 });

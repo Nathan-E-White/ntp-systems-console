@@ -4865,6 +4865,11 @@ details summary {
 .keyboard-map { position: fixed; z-index: 20; right: 24px; bottom: 24px; width: min(360px, calc(100vw - 32px)); border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); padding: 16px; background: var(--surface-raised); box-shadow: var(--elevation-panel); }
 .keyboard-map button { float: right; }
 .keyboard-map kbd { padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--font-instrument); }
+.command-palette { position: fixed; z-index: 21; top: max(24px, 12vh); left: 50%; width: min(520px, calc(100vw - 32px)); transform: translateX(-50%); border: 1px solid var(--border-strong); border-top: 4px solid var(--accent); padding: 20px; background: var(--surface-raised); box-shadow: var(--elevation-panel); }
+.command-palette header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.command-palette header h2 { margin: 0; }
+.command-palette [role="group"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.command-palette [role="group"] button { min-height: 42px; text-align: left; }
 .recovery-state { display: grid; place-content: center; gap: 8px; min-height: 160px; padding: 20px; border-left: 3px solid var(--status-watch); color: var(--text-soft); text-align: left; }
 .recovery-state strong { color: var(--text); font-family: var(--font-display); font-size: 1.25rem; }
 .recovery-state p:last-child { margin: 0; max-width: 52ch; line-height: 1.45; }

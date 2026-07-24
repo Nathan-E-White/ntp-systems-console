@@ -47,6 +47,7 @@ export function DecisionCockpit({inputs, outputs}: Readonly<{inputs: EngineInput
         <header><p className="eyebrow">decision record</p><h2>{record.controllingCondition}</h2></header>
         <div className="decision-cockpit__result"><strong>{record.result}</strong><span>{record.reviewPosture}</span></div>
         <dl>
+            <div><dt>Review posture</dt><dd>{record.reviewPosture}</dd></div>
             <div><dt>Baseline delta</dt><dd>{record.baselineDelta}</dd></div><div><dt>Calculation trace</dt><dd>{record.trace}</dd></div>
             <div><dt>Provenance delta</dt><dd>{record.provenanceDelta}</dd></div><div><dt>Evidence applicability</dt><dd>{record.evidenceApplicability}</dd></div>
             <div><dt>Guardrail</dt><dd>{record.guardrail}</dd></div>

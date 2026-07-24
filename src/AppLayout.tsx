@@ -12,10 +12,11 @@ interface AppLayoutProps {
     onSectionChange: (sectionId: AppSectionId) => void;
     onResetDemo: () => void;
     onReturnToEvidence?: () => void;
+    onShowCommandPalette?: () => void;
     onShowKeyboardMap?: () => void;
 }
 
-export function AppLayout({activeSectionId, children, onResetDemo, onReturnToEvidence, onSectionChange, onShowKeyboardMap}: AppLayoutProps) {
+export function AppLayout({activeSectionId, children, onResetDemo, onReturnToEvidence, onSectionChange, onShowCommandPalette, onShowKeyboardMap}: AppLayoutProps) {
     const selectedPresetId = useEngineStore((state) => state.selectedPresetId);
 
     return (
@@ -36,7 +37,8 @@ export function AppLayout({activeSectionId, children, onResetDemo, onReturnToEvi
                         <RotateCcw aria-hidden="true" size={15}/>
                         Reset Demo
                     </button>
-                    {onReturnToEvidence && <button type="button" onClick={onReturnToEvidence}>Return to evidence</button>}
+                    {onReturnToEvidence && <button type="button" onClick={onReturnToEvidence}>Return to last evidence</button>}
+                    {onShowCommandPalette && <button type="button" onClick={onShowCommandPalette}>Command palette</button>}
                     {onShowKeyboardMap && <button type="button" onClick={onShowKeyboardMap}>Keyboard map</button>}
                 </div>
             </header>
