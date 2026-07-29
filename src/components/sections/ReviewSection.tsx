@@ -41,7 +41,7 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
                       description="Decision posture, evidence basis, and resolution path.">
             <InvestigationThread/>
             <ReviewPacket packet={packet} onExport={downloadPacket}/>
-            <article aria-label="Integrated engineering review" className="panel review-summary print-review">
+            <section aria-label="Integrated engineering review" className="panel review-summary print-review">
                 <div className="review-summary__header">
                     <div><p className="eyebrow">review recommendation</p><h2>{review.customerObjective}</h2></div>
                     <div className="review-summary__actions">
@@ -68,7 +68,7 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
                     <h3>Recommended analyses and trades</h3>
                     <ol>{review.recommendedActions.map((item) => <li key={item}>{item}</li>)}</ol>
                 </div>
-            </article>
+            </section>
 
             <section className="panel review-stability-summary">
                 <p className="eyebrow">ROCETS stability support</p>
