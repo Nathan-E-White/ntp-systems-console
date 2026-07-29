@@ -14,7 +14,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run dev > /tmp/ntp-vite.log 2>&1 &
-      - run: google-chrome --headless --no-sandbox --disable-gpu --remote-debugging-port=9223 about:blank > /tmp/ntp-chrome.log 2>&1 &
+      - run: google-chrome --headless --no-sandbox --disable-gpu --enable-unsafe-swiftshader --remote-debugging-port=9223 about:blank > /tmp/ntp-chrome.log 2>&1 &
       - run: bun run proof:ci
       - if: always()
         uses: actions/upload-artifact@v4
