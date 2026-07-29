@@ -27,6 +27,12 @@ function renderEvidenceSection() {
 }
 
 describe('ModelEvidenceSection', () => {
+    it('exposes the fixture workspace as an accessible landmark', () => {
+        renderEvidenceSection();
+
+        expect(screen.getByRole('region', {name: 'Engineering fixture evidence'})).toBeInTheDocument();
+    });
+
     it('focuses MCNP burnup evidence when the walkthrough starts', async () => {
         renderEvidenceSection();
 

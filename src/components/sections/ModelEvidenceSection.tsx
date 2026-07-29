@@ -174,15 +174,16 @@ export function ModelEvidenceSection({
             description="Read-only synthetic fixture explorer."
         >
             <EvidenceStory onOpenEvidence={(id) => { setFocusedEvidenceId(id); setShowInventory(false); }}/>
-            <div className="evidence-set-provenance">
-                <div><dt>Source set</dt><dd>Repository-bundled public fixtures</dd></div>
-                <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
-                <div><dt>Excludes</dt><dd>Solver execution and validation claims</dd></div>
-            </div>
+            <section aria-label="Engineering fixture evidence">
+                <div className="evidence-set-provenance">
+                    <div><dt>Source set</dt><dd>Repository-bundled public fixtures</dd></div>
+                    <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
+                    <div><dt>Excludes</dt><dd>Solver execution and validation claims</dd></div>
+                </div>
 
-            <EvidenceWalkthroughControls reducedMotion={reducedMotion}/>
+                <EvidenceWalkthroughControls reducedMotion={reducedMotion}/>
 
-            <div className="evidence-filter-stack">
+                <div className="evidence-filter-stack">
                 <div className="raw-output-tabs" role="tablist" aria-label="Evidence direction filter">
                     {DIRECTION_FILTERS.map((direction) => {
                         const active = selectedDirection === direction;
@@ -223,11 +224,11 @@ export function ModelEvidenceSection({
                         );
                     })}
                 </div>
-            </div>
+                </div>
 
-            <InvestigationThread onReturnToOperatingCase={onReturnToOperatingCase}/>
-            <EvidencePairingInventory/>
-            <div className={focusedEvidence ? 'evidence-inspection-workspace' : undefined}>
+                <InvestigationThread onReturnToOperatingCase={onReturnToOperatingCase}/>
+                <EvidencePairingInventory/>
+                <div className={focusedEvidence ? 'evidence-inspection-workspace' : undefined}>
                 {focusedEvidence ? (
                     <div className="evidence-focus-toolbar">
                         <button onClick={() => { setFocusedEvidenceId(undefined); setShowInventory(true); }} type="button">Show all cards</button>
@@ -256,7 +257,8 @@ export function ModelEvidenceSection({
                         <button onClick={() => setShowInventory(true)} type="button">Open full evidence inventory</button>
                     </section>
                 )}
-            </div>
+                </div>
+            </section>
         </SectionShell>
     );
 }
