@@ -52,6 +52,7 @@ import {
     runGuidedDemoCue,
     subscribeToGuidedDemoYaw,
 } from '../theatre/guidedDemoSequence';
+import {useActiveCase} from './activeCase';
 import type {EngineInputs, EngineOutputs} from '../types/EngineState';
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
 
@@ -88,10 +89,10 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const director = useTheatreDemoDirector();
     const investigation = useGuidedInvestigation();
     const sceneWorkspace = useScenePresentation();
+    const activeCase = useActiveCase();
     const {activateLink} = links;
     const {
         model: investigationModel,
-        restoreSelection: restoreInvestigationSelection,
         selectComponent: selectInvestigationComponent,
         state: investigationState,
     } = investigation;
@@ -127,7 +128,7 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const reducedMotion = useReducedMotion();
     const activeCue = director.model.cues.find((cue) => cue.id === director.state.activeCueId);
     const selectedComponent = investigationModel.components.find(
-        (component) => component.id === investigationState.selectedComponentId,
+        (component) => component.id === activeCase.state.sceneCue,
     ) ?? investigationModel.components[0];
     const activeLink = links.model.links.find((link) => link.id === links.state.activeLinkId);
     const selectedTargets = selectedComponent.targetIds;
@@ -169,10 +170,10 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         shieldingMassFraction: inputs.shieldingMassFraction,
         yawRadians: theatreYaw,
         reducedMotion,
-        selectedComponentId: investigationState.selectedComponentId,
+        selectedComponentId: activeCase.state.sceneCue,
         cueProgress: director.state.cueProgress,
-        playbackOwner: investigationState.owner,
-        focusIntensity: investigationState.owner === 'theatre' ? 1 : 0.72,
+        playbackOwner: activeCase.state.sceneOwner === 'guided' ? 'theatre' : 'user',
+        focusIntensity: activeCase.state.sceneOwner === 'guided' ? 1 : 0.72,
         cameraPosition,
         activeViewPresetId,
         cutawayMode,
@@ -182,6 +183,8 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         selectedAxialRegionIndex,
     }), [
         activeViewPresetId,
+        activeCase.state.sceneCue,
+        activeCase.state.sceneOwner,
         cutawayMode,
         cameraPosition,
         cameraOwner,
@@ -198,8 +201,6 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
         overlaysVisible,
         reducedMotion,
         theatreYaw,
-        investigationState.owner,
-        investigationState.selectedComponentId,
         selectedAxialRegionIndex,
     ]);
     const visualizationModel = useMemo(() => buildEngineVisualizationModel({
@@ -209,23 +210,27 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     const visibleCalloutIds = getVisibleCalloutIds(effectiveMode);
     const selectComponent = useCallback((componentId: SceneComponentId, owner: SceneSelectionState['owner'] = 'user') => {
         const descriptor = investigationModel.components.find((component) => component.id === componentId);
-        selectInvestigationComponent(componentId, owner);
+        if (owner === 'theatre') activeCase.cueScene(componentId, 'guided');
+        else selectInvestigationComponent(componentId, owner);
         activateLink(descriptor?.analysisLinkId ?? null);
         if (descriptor?.analysisLinkId === 'thermal-margin') setVisualizationMode('thermal');
         if (descriptor?.analysisLinkId === 'propulsion-stability') setVisualizationMode('flow');
         if (owner === 'user') selectPreset(getComponentViewPreset(componentId));
-    }, [activateLink, investigationModel.components, selectInvestigationComponent, selectPreset, setVisualizationMode]);
+    }, [activateLink, activeCase, investigationModel.components, selectInvestigationComponent, selectPreset, setVisualizationMode]);
 
     const restoreManualSelection = useCallback(() => {
         if (!priorSelection.current) return;
-        restoreInvestigationSelection(priorSelection.current);
+        activeCase.cueScene(
+            priorSelection.current.selectedComponentId,
+            priorSelection.current.owner === 'theatre' ? 'guided' : 'manual',
+        );
         const descriptor = investigationModel.components.find(
             (component) => component.id === priorSelection.current?.selectedComponentId,
         );
         activateLink(descriptor?.analysisLinkId ?? null);
         restoreTourSnapshot();
         priorSelection.current = null;
-    }, [activateLink, investigationModel.components, restoreInvestigationSelection, restoreTourSnapshot]);
+    }, [activateLink, activeCase, investigationModel.components, restoreTourSnapshot]);
 
     useEffect(() => {
         if (director.state.activeCueIndex === null
@@ -282,7 +287,12 @@ export function EngineScene({inputs, outputs}: Readonly<EngineSceneProps>) {
     }, [director.state.playbackStatus, restoreManualSelection]);
 
     const startTour = () => {
-        if (!priorSelection.current) priorSelection.current = investigationState;
+        if (!priorSelection.current) {
+            priorSelection.current = {
+                selectedComponentId: activeCase.state.sceneCue,
+                owner: activeCase.state.sceneOwner === 'guided' ? 'theatre' : 'user',
+            };
+        }
         saveTourSnapshot();
         director.replay();
     };
@@ -658,7 +668,7 @@ function SelectedComponentCard({
 }>) {
     return (
         <aside className="scene-selection-card" aria-live="polite">
-            <p className="eyebrow">selected component</p>
+            <p className="eyebrow">anchored scene annotation</p>
             <h3>{component.label}</h3>
             <dl>
                 <div><dt>Discipline</dt><dd>{component.discipline}</dd></div>

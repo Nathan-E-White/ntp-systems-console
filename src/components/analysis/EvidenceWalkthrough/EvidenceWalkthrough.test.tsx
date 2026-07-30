@@ -15,6 +15,7 @@ import {
 import {buildScenePresentationWorkspaceModel} from '../../visualization/ScenePresentationWorkspace/ScenePresentationWorkspace.model';
 import {EvidenceWalkthroughProvider, useEvidenceWalkthrough} from './EvidenceWalkthrough';
 import {EvidenceWalkthroughBridge} from './EvidenceWalkthroughBridge';
+import {ActiveCaseProvider} from '../../activeCase';
 
 describe('EvidenceWalkthrough', () => {
     it('steps through nuclear evidence before ROCETS support evidence', () => {
@@ -38,14 +39,16 @@ describe('EvidenceWalkthrough', () => {
     it('bridges an active step into scene selection, cutaway mode, and analysis link', () => {
         render(
             <AnalysisLinkRegistryProvider model={buildAnalysisLinkRegistryModel()}>
-                <GuidedInvestigationProvider>
-                    <ScenePresentationProvider model={buildScenePresentationWorkspaceModel()}>
-                        <EvidenceWalkthroughProvider>
-                            <EvidenceWalkthroughBridge/>
-                            <BridgeProbe/>
-                        </EvidenceWalkthroughProvider>
-                    </ScenePresentationProvider>
-                </GuidedInvestigationProvider>
+                <ActiveCaseProvider caseId="baseline">
+                    <GuidedInvestigationProvider>
+                        <ScenePresentationProvider model={buildScenePresentationWorkspaceModel()}>
+                            <EvidenceWalkthroughProvider>
+                                <EvidenceWalkthroughBridge/>
+                                <BridgeProbe/>
+                            </EvidenceWalkthroughProvider>
+                        </ScenePresentationProvider>
+                    </GuidedInvestigationProvider>
+                </ActiveCaseProvider>
             </AnalysisLinkRegistryProvider>,
         );
 

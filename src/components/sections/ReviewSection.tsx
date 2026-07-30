@@ -6,6 +6,7 @@ import {SectionShell} from '../layout/SectionShell';
 import type {PropsWithChildren} from 'react';
 import {useEngineeringDataWorkspace} from '../analysis';
 import {InvestigationThread, useGuidedInvestigation} from '../visualization';
+import {buildReviewPacket, exportReviewPacket, ReviewPacket} from '../ReviewPacket';
 
 const MATERIAL_CONSTRAINTS = [
     {name: 'Fuel matrix', basis: 'BISON scaffold + MCNP material M2', concern: 'Peak fuel temperature, burnup proxy, hydrogen exposure, and damage index'},
@@ -22,13 +23,25 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
     ) ?? investigation.model.components[0];
     const review = buildIntegratedReview(selection, inputs, outputs, workspace.model, component);
     const stabilitySummary = buildStabilityInvestigationSummary();
+    const sourceLocator = workspace.model.fixtures.fixtures.find((item) => review.selectedFocus.fixtureIds.includes(item.id))?.filename ?? 'Selected fixture record';
+    const packet = buildReviewPacket(review, sourceLocator);
+    const downloadPacket = () => {
+        const blob = new Blob([exportReviewPacket(packet)], {type: 'text/markdown'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'ntp-review-packet.md';
+        link.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <SectionShell eyebrow="design milestone communication" title="Integrated Engineering Review"
                       titleId="review-title"
                       description="Decision posture, evidence basis, and resolution path.">
             <InvestigationThread/>
-            <article className="panel review-summary print-review">
+            <ReviewPacket packet={packet} onExport={downloadPacket}/>
+            <section aria-label="Integrated engineering review" className="panel review-summary print-review">
                 <div className="review-summary__header">
                     <div><p className="eyebrow">review recommendation</p><h2>{review.customerObjective}</h2></div>
                     <div className="review-summary__actions">
@@ -55,7 +68,7 @@ export function ReviewSection({inputs, outputs}: Readonly<{inputs: EngineInputs;
                     <h3>Recommended analyses and trades</h3>
                     <ol>{review.recommendedActions.map((item) => <li key={item}>{item}</li>)}</ol>
                 </div>
-            </article>
+            </section>
 
             <section className="panel review-stability-summary">
                 <p className="eyebrow">ROCETS stability support</p>

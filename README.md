@@ -32,6 +32,8 @@ interpretation can be discussed before advancing.
 
 Calculated dashboard outputs and imported fixture values are intentionally separate. Manual
 changes create a `Custom What-If` and never imply that external solver evidence was rerun.
+The demonstration is browser-session only: it has no database, durable record, or server-side
+campaign persistence.
 
 ## Run on Linux or macOS
 
@@ -64,11 +66,12 @@ bun run demo:check
 
 ## Fixture Provenance
 
-Files under `src/fixtures` and the bundled fixture strings in `src/parser/file_inputs.ts` are
-synthetic public parser inputs. They resemble engineering file structures for UI and integration
-testing but are not solver records or validated technical results.
+Files under `src/fixtures`, exposed through the canonical fixture catalog, are synthetic public parser
+inputs. They resemble engineering file structures for UI and integration testing but are not solver
+records or validated technical results.
 
 See [Model Evidence Review Work Instruction](docs/model-evidence-work-instruction.md).
+See [project context](CONTEXT.md) and [ADR-0001](docs/adr/0001-portfolio-storage-boundary.md) for the domain vocabulary and storage boundary.
 See [Demo Runbook](docs/demo-runbook.md) for the presenter script, rehearsal checks, and fallback path.
 See [Demo Release Checklist](docs/demo-release-checklist.md) for the final machine and projector audit.
 See [Reference-Controlled Engine Model Data Handbook](docs/reduced-order-model-basis.html) for the

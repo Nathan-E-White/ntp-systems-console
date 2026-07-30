@@ -27,6 +27,12 @@ function renderReviewSection() {
 }
 
 describe('ReviewSection', () => {
+    it('exposes the integrated review as an accessible landmark', () => {
+        renderReviewSection();
+
+        expect(screen.getByRole('region', {name: 'Integrated engineering review'})).toBeInTheDocument();
+    });
+
     it('keeps ROCETS stability as compact review support', () => {
         renderReviewSection();
 

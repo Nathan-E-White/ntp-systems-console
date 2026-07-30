@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
     {
-        ignores: ['.private-worktrees/**', 'dist/**', 'node_modules/**', 'src/parser/file_inputs.ts'],
+        ignores: ['.private-worktrees/**', 'dist/**', 'node_modules/**'],
     },
     eslint.configs.recommended,
     ...tseslint.configs.recommended,

@@ -1,0 +1,24 @@
+name: Proof pipeline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  decision-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run dev > /tmp/ntp-vite.log 2>&1 &
+      - run: google-chrome --headless --no-sandbox --disable-gpu --enable-unsafe-swiftshader --remote-debugging-port=9223 about:blank > /tmp/ntp-chrome.log 2>&1 &
+      - run: bun run proof:ci
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: decision-flow-baselines
+          path: /tmp/ntp-v3-*.png
+          if-no-files-found: warn

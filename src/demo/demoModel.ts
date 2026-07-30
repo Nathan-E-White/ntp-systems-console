@@ -1,17 +1,7 @@
 import type {EngineInputs, EngineOutputs, MissionMode} from '../types/EngineState';
 import type {FileArtifact, ParsedSummaryCard, ParserDiagnostic, ParserDirection, ParserFamily} from '../parser/parserTypes';
 import {createFileArtifactFromText} from '../parser/createFileArtifactFromText';
-import fixedSourceInput from '../fixtures/mcnp/ntp_mcnp.inp?raw';
-import fixedSourceOutput from '../fixtures/mcnp/ntp_mcnp.out?raw';
-import criticalityOutput from '../fixtures/mcnp/ntp_crit.out?raw';
-import criticalityInput from '../fixtures/mcnp/ntp_crit.inp?raw';
-import bisonInput from '../fixtures/bison/ntp.bison.i?raw';
-import bisonOutput from '../fixtures/bison/ntp.bison.o?raw';
-import bisonMetadata from '../fixtures/ntp.bison.metadata.json';
-import mooseInput from '../fixtures/moose/ntp_moose.inp?raw';
-import mooseOutput from '../fixtures/moose/ntp_moose.out?raw';
-import rocetsInput from '../fixtures/rocets/ntp_rocet.inp?raw';
-import rocetsOutput from '../fixtures/rocets/ntp_rocet.out?raw';
+import {BISON_FUEL_PERFORMANCE_METADATA as bisonMetadata, canonicalFixture} from '../fixtures/canonicalFixtures';
 import type {EngineeringDataWorkspaceModel} from '../components/analysis';
 import type {SceneComponentDescriptor} from '../components/visualization';
 import {evaluateEngineCase} from '../physics/evaluateEngineCase';
@@ -21,6 +11,8 @@ export type DemoCaseId = 'baselineStartup' | 'thermalMarginInvestigation';
 export type ReviewPosture = 'nominal' | 'watch' | 'limit';
 
 export const BISON_FUEL_PERFORMANCE_METADATA = bisonMetadata;
+
+const fixtureText = (id: Parameters<typeof canonicalFixture>[0]) => canonicalFixture(id).text;
 
 export interface DemoCase {
     id: DemoCaseId;
@@ -104,7 +96,7 @@ const evidenceInputs = [
         family: 'mcnp' as const,
         label: 'Fixed-source input deck',
         sourceFile: 'ntp_mcnp.inp',
-        text: fixedSourceInput,
+        text: fixtureText('mcnp-fixed-source-input'),
         pairGroupId: 'mcnp-fixed-source',
         pairedWith: ['mcnp-output'],
         artifactRole: 'Fixed-source transport deck',
@@ -124,7 +116,7 @@ const evidenceInputs = [
         family: 'mcnp' as const,
         label: 'Criticality input deck',
         sourceFile: 'ntp_crit.inp',
-        text: criticalityInput,
+        text: fixtureText('mcnp-criticality-input'),
         pairGroupId: 'mcnp-criticality',
         pairedWith: ['mcnp-criticality-output'],
         artifactRole: 'Criticality and burnup deck',
@@ -144,7 +136,7 @@ const evidenceInputs = [
         direction: 'output' as const,
         label: 'Neutronics / transport evidence',
         sourceFile: 'ntp_mcnp.out',
-        text: fixedSourceOutput,
+        text: fixtureText('mcnp-fixed-source-output'),
         pairGroupId: 'mcnp-fixed-source',
         pairedWith: ['mcnp-fixed-source-input'],
         artifactRole: 'Fixed-source transport output',
@@ -164,7 +156,7 @@ const evidenceInputs = [
         direction: 'output' as const,
         label: 'Criticality / burnup evidence',
         sourceFile: 'ntp_crit.out',
-        text: criticalityOutput,
+        text: fixtureText('mcnp-criticality-output'),
         pairGroupId: 'mcnp-criticality',
         pairedWith: ['mcnp-criticality-input'],
         artifactRole: 'Criticality and burnup output',
@@ -183,7 +175,7 @@ const evidenceInputs = [
         direction: 'input' as const,
         label: 'BISON fuel-performance input scaffold',
         sourceFile: 'ntp.bison.i',
-        text: bisonInput,
+        text: fixtureText('bison-input'),
         pairGroupId: 'bison-fuel-performance',
         pairedWith: ['bison-output'],
         artifactRole: 'Fuel-performance input scaffold',
@@ -203,7 +195,7 @@ const evidenceInputs = [
         direction: 'output' as const,
         label: 'BISON fuel-performance evidence',
         sourceFile: 'ntp.bison.o',
-        text: bisonOutput,
+        text: fixtureText('bison-output'),
         pairGroupId: 'bison-fuel-performance',
         pairedWith: ['bison-input'],
         artifactRole: 'Fuel-performance output fixture',
@@ -223,7 +215,7 @@ const evidenceInputs = [
         direction: 'input' as const,
         label: 'Engine system input deck',
         sourceFile: 'ntp_rocet.inp',
-        text: rocetsInput,
+        text: fixtureText('rocets-input'),
         pairGroupId: 'rocets-system',
         pairedWith: ['rocets-output'],
         artifactRole: 'System network input',
@@ -243,7 +235,7 @@ const evidenceInputs = [
         direction: 'input' as const,
         label: 'Thermomechanics input deck',
         sourceFile: 'ntp_moose.inp',
-        text: mooseInput,
+        text: fixtureText('moose-input'),
         pairGroupId: 'moose-thermal',
         pairedWith: ['moose-output'],
         artifactRole: 'Thermal-structures input',
@@ -263,7 +255,7 @@ const evidenceInputs = [
         direction: 'output' as const,
         label: 'Thermomechanics evidence',
         sourceFile: 'ntp_moose.out',
-        text: mooseOutput,
+        text: fixtureText('moose-output'),
         pairGroupId: 'moose-thermal',
         pairedWith: ['moose-input'],
         artifactRole: 'Thermal-structures output',
@@ -283,7 +275,7 @@ const evidenceInputs = [
         direction: 'output' as const,
         label: 'Engine system / stability evidence',
         sourceFile: 'ntp_rocet.out',
-        text: rocetsOutput,
+        text: fixtureText('rocets-output'),
         pairGroupId: 'rocets-system',
         pairedWith: ['rocets-input'],
         artifactRole: 'System transient output',

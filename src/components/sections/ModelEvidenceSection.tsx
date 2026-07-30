@@ -3,6 +3,7 @@ import {
     type KeyboardEvent,
     type MouseEvent,
     type PointerEvent,
+    type ReactNode,
     useEffect,
     useMemo,
     useRef,
@@ -27,6 +28,7 @@ import {
     useGuidedInvestigation,
 } from '../visualization';
 import {ParsedDomainStructuredView} from '../ParsedDomainStructuredView';
+import type {SceneComponentId} from '../visualization/GuidedInvestigation/GuidedInvestigation.model';
 
 type DirectionFilter = 'all' | ParserDirection;
 type FamilyFilter = 'all' | ParserFamily;
@@ -123,10 +125,12 @@ function familyCounts(): Record<FamilyFilter, number> {
 
 export function ModelEvidenceSection({
     onReturnToOperatingCase,
-}: Readonly<{onReturnToOperatingCase: () => void}>) {
+    routeFocus,
+}: Readonly<{onReturnToOperatingCase: () => void; routeFocus?: SceneComponentId | null}>) {
     const [selectedDirection, setSelectedDirection] = useState<DirectionFilter>('all');
     const [selectedFamily, setSelectedFamily] = useState<FamilyFilter>('all');
     const [focusedEvidenceId, setFocusedEvidenceId] = useState<string>();
+    const [showInventory, setShowInventory] = useState(false);
     const walkthrough = useEvidenceWalkthrough();
     const investigation = useGuidedInvestigation();
     const component = investigation.model.components.find(
@@ -150,8 +154,17 @@ export function ModelEvidenceSection({
         if (!walkthrough.activeStep || walkthrough.state.status !== 'active') return;
         setSelectedDirection('all');
         setSelectedFamily('all');
+        setShowInventory(false);
         setFocusedEvidenceId(walkthrough.activeStep.evidenceId);
     }, [walkthrough.activeStep, walkthrough.state.status]);
+    useEffect(() => {
+        if (!routeFocus) return;
+        const selectedComponent = investigation.model.components.find((candidate) => candidate.id === routeFocus);
+        const evidenceId = selectedComponent?.fixtureIds[0];
+        if (!evidenceId) return;
+        setFocusedEvidenceId(evidenceId);
+        setShowInventory(false);
+    }, [investigation.model.components, routeFocus]);
 
     return (
         <SectionShell
@@ -160,15 +173,17 @@ export function ModelEvidenceSection({
             titleId="model-evidence-title"
             description="Read-only synthetic fixture explorer."
         >
-            <div className="evidence-set-provenance">
-                <div><dt>Source set</dt><dd>Repository-bundled public fixtures</dd></div>
-                <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
-                <div><dt>Excludes</dt><dd>Solver execution and validation claims</dd></div>
-            </div>
+            <EvidenceStory onOpenEvidence={(id) => { setFocusedEvidenceId(id); setShowInventory(false); }}/>
+            <section aria-label="Engineering fixture evidence">
+                <div className="evidence-set-provenance">
+                    <div><dt>Source set</dt><dd>Repository-bundled public fixtures</dd></div>
+                    <div><dt>Boundary</dt><dd>Read-only parser evidence</dd></div>
+                    <div><dt>Excludes</dt><dd>Solver execution and validation claims</dd></div>
+                </div>
 
-            <EvidenceWalkthroughControls reducedMotion={reducedMotion}/>
+                <EvidenceWalkthroughControls reducedMotion={reducedMotion}/>
 
-            <div className="evidence-filter-stack">
+                <div className="evidence-filter-stack">
                 <div className="raw-output-tabs" role="tablist" aria-label="Evidence direction filter">
                     {DIRECTION_FILTERS.map((direction) => {
                         const active = selectedDirection === direction;
@@ -180,6 +195,7 @@ export function ModelEvidenceSection({
                                 onClick={() => {
                                     setSelectedDirection(direction);
                                     setFocusedEvidenceId(undefined);
+                                    setShowInventory(true);
                                 }}
                                 type="button"
                             >
@@ -199,6 +215,7 @@ export function ModelEvidenceSection({
                                 onClick={() => {
                                     setSelectedFamily(family);
                                     setFocusedEvidenceId(undefined);
+                                    setShowInventory(true);
                                 }}
                                 type="button"
                             >
@@ -207,14 +224,14 @@ export function ModelEvidenceSection({
                         );
                     })}
                 </div>
-            </div>
+                </div>
 
-            <InvestigationThread onReturnToOperatingCase={onReturnToOperatingCase}/>
-            <EvidencePairingInventory/>
-            <div className={focusedEvidence ? 'evidence-inspection-workspace' : undefined}>
+                <InvestigationThread onReturnToOperatingCase={onReturnToOperatingCase}/>
+                <EvidencePairingInventory/>
+                <div className={focusedEvidence ? 'evidence-inspection-workspace' : undefined}>
                 {focusedEvidence ? (
                     <div className="evidence-focus-toolbar">
-                        <button onClick={() => setFocusedEvidenceId(undefined)} type="button">Show all cards</button>
+                        <button onClick={() => { setFocusedEvidenceId(undefined); setShowInventory(true); }} type="button">Show all cards</button>
                         <span>{focusedEvidence.label} in inspection view</span>
                     </div>
                 ) : null}
@@ -227,16 +244,44 @@ export function ModelEvidenceSection({
                             onSelect={() => setFocusedEvidenceId(focusedEvidence.id)}
                         />
                     </div>
-                ) : (
+                ) : showInventory ? (
                     <EvidencePairingSections
                         componentFixtureIds={component.fixtureIds}
                         evidence={evidence}
                         onSelectEvidence={setFocusedEvidenceId}
                     />
+                ) : (
+                    <section className="evidence-inventory-gate" aria-label="Expert evidence drill-down">
+                        <h2>Need the full artifact inventory?</h2>
+                        <p>Start the guided claim, open a cited artifact above, or inspect the complete parser inventory.</p>
+                        <button onClick={() => setShowInventory(true)} type="button">Open full evidence inventory</button>
+                    </section>
                 )}
-            </div>
+                </div>
+            </section>
         </SectionShell>
     );
+}
+
+function EvidenceStory({onOpenEvidence}: Readonly<{onOpenEvidence: (id: string) => void}>) {
+    const support = DEFAULT_ANALYSIS_EVIDENCE.find((item) => item.id === 'moose-output');
+    const conflict = DEFAULT_ANALYSIS_EVIDENCE.find((item) => item.id === 'bison-output');
+    const locator = DEFAULT_ANALYSIS_EVIDENCE.find((item) => item.id === 'mcnp-output');
+    return (
+        <section className="evidence-story" aria-label="Evidence claim">
+            <header><p className="eyebrow">evidence claim</p><h2>Does the evidence constrain the channel-wall margin?</h2><p>Read the few records that support, qualify, or limit the screening decision before opening the full parser inventory.</p></header>
+            <div className="evidence-story__claims">
+                <EvidenceStoryClaim label="Supports" evidence={support} onOpenEvidence={onOpenEvidence}>Thermal history gives contextual support for a hot-channel discussion.</EvidenceStoryClaim>
+                <EvidenceStoryClaim label="Qualifies" evidence={conflict} onOpenEvidence={onOpenEvidence}>Fuel-performance values are synthetic fixture context and are not the calculated wall margin.</EvidenceStoryClaim>
+                <EvidenceStoryClaim label="Source locator" evidence={locator} onOpenEvidence={onOpenEvidence}>Use the MCNP-like axial records to inspect the associated source location.</EvidenceStoryClaim>
+            </div>
+            <footer><strong>Limitation:</strong> static parser fixtures are not rerun for this operating case. <strong>Next action:</strong> return to the decision record and close the property and pressure-model limits.</footer>
+        </section>
+    );
+}
+
+function EvidenceStoryClaim({children, evidence, label, onOpenEvidence}: Readonly<{children: ReactNode; evidence: AnalysisEvidence | undefined; label: string; onOpenEvidence: (id: string) => void}>) {
+    return <article><span>{label}</span><strong>{evidence?.label ?? 'Evidence unavailable'}</strong><p>{children}</p>{evidence && <button onClick={() => onOpenEvidence(evidence.id)} type="button">Open evidence</button>}</article>;
 }
 
 function EvidenceWalkthroughControls({reducedMotion}: Readonly<{reducedMotion: boolean}>) {
@@ -446,7 +491,7 @@ function EvidenceCard({
     return (
         <article
             aria-label={`Inspect ${evidence.label}`}
-            className={`panel evidence-card ${linked ? 'linked-evidence' : ''} ${focused ? 'focused-evidence' : ''} ${expanded ? 'evidence-card--expanded' : ''}`}
+            className={`panel evidence-card evidence-specimen ${linked ? 'linked-evidence' : ''} ${focused ? 'focused-evidence' : ''} ${expanded ? 'evidence-card--expanded' : ''}`}
             data-evidence-direction={evidence.direction}
             data-evidence-id={evidence.id}
             onClick={handleCardClick}
@@ -464,6 +509,12 @@ function EvidenceCard({
                         {focused ? `selected component · ${STATUS_LABELS[evidence.parserStatus]}` : STATUS_LABELS[evidence.parserStatus]}
                     </span>
                 </div>
+            </div>
+            <div className="evidence-specimen__provenance" aria-label="Fixture provenance">
+                <span>synthetic fixture</span>
+                <span>read-only parser evidence</span>
+                <span>source · {evidence.sourceFile}</span>
+                <span>not a calculated result</span>
             </div>
             <details className="evidence-metadata">
                 <summary>Fixture metadata</summary>

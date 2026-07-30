@@ -22,6 +22,7 @@ export interface EngineStoreState {
     setVisualizationMode: (visualizationMode: EngineVisualizationMode) => void;
     focusWorkspace: (activeWorkspace: EngineWorkspace) => void;
     loadPreset: (presetId: EnginePresetId) => void;
+    loadCustomWhatIf: (basePresetId: EnginePresetId, inputChanges: Partial<EngineInputs>) => void;
     resetDemo: () => void;
 }
 
@@ -70,6 +71,15 @@ export const useEngineStore = create<EngineStoreState>((set) => ({
             selectedPresetId: presetId,
             basePresetId: presetId,
             visualizationMode: presetId === 'thermalMarginInvestigation' ? 'thermal' : 'systems',
+            selectedChannelStationIndex: null,
+        });
+    },
+    loadCustomWhatIf: (basePresetId, inputChanges) => {
+        set({
+            inputs: {...ENGINE_INPUT_PRESETS[basePresetId], ...inputChanges},
+            selectedPresetId: 'customWhatIf',
+            basePresetId,
+            visualizationMode: basePresetId === 'thermalMarginInvestigation' ? 'thermal' : 'systems',
             selectedChannelStationIndex: null,
         });
     },
